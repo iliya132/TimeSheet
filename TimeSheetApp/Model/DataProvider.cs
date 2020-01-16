@@ -30,6 +30,7 @@ namespace TimeSheetApp.Model
             sqlConnectionString.Encrypt = true;
             sqlConnectionString.ApplicationIntent = ApplicationIntent.ReadWrite;
             sqlConnectionString.TrustServerCertificate = true;
+            sqlConnectionString.MultipleActiveResultSets = true;
             foreach (char pch in "DK_user!")
                 secureString.AppendChar(pch);
             secureString.MakeReadOnly();

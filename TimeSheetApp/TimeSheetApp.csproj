@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.4.0\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -14,6 +15,8 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -41,6 +44,12 @@
     <Reference Include="CommonServiceLocator, Version=2.0.2.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
       <HintPath>..\packages\CommonServiceLocator.2.0.2\lib\net45\CommonServiceLocator.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="EPPlus, Version=4.5.3.2, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
       <HintPath>..\packages\EPPlus.4.5.3.2\lib\net40\EPPlus.dll</HintPath>
     </Reference>
@@ -54,9 +63,11 @@
       <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.Platform.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
@@ -87,6 +98,34 @@
       <DependentUpon>EditForm.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\DataProvider.cs" />
+    <Compile Include="Model\Entities\Analytic.cs" />
+    <Compile Include="Model\Entities\Block.cs" />
+    <Compile Include="Model\Entities\BusinessBlock.cs" />
+    <Compile Include="Model\Entities\BusinessBlockChoise.cs" />
+    <Compile Include="Model\Entities\BusinessBlockUINames.cs" />
+    <Compile Include="Model\Entities\ClientWays.cs" />
+    <Compile Include="Model\Entities\ClientWaysChoise.cs" />
+    <Compile Include="Model\Entities\ClientWaysUINames.cs" />
+    <Compile Include="Model\Entities\Departments.cs" />
+    <Compile Include="Model\Entities\Directions.cs" />
+    <Compile Include="Model\Entities\EF_model.cs" />
+    <Compile Include="Model\Entities\Escalations.cs" />
+    <Compile Include="Model\Entities\ForceQuit.cs" />
+    <Compile Include="Model\Entities\Formats.cs" />
+    <Compile Include="Model\Entities\OtdelTable.cs" />
+    <Compile Include="Model\Entities\Positions.cs" />
+    <Compile Include="Model\Entities\Process.cs" />
+    <Compile Include="Model\Entities\ProcessType.cs" />
+    <Compile Include="Model\Entities\Result.cs" />
+    <Compile Include="Model\Entities\Risk.cs" />
+    <Compile Include="Model\Entities\RiskChoise.cs" />
+    <Compile Include="Model\Entities\RiskUINames.cs" />
+    <Compile Include="Model\Entities\RoleTable.cs" />
+    <Compile Include="Model\Entities\SubBlock.cs" />
+    <Compile Include="Model\Entities\SupportChoise.cs" />
+    <Compile Include="Model\Entities\Supports.cs" />
+    <Compile Include="Model\Entities\TimeSheetTable.cs" />
+    <Compile Include="Model\Entities\UpravlenieTable.cs" />
     <Compile Include="Model\Excel.cs" />
     <Compile Include="Model\IDataProvider.cs" />
     <Compile Include="Model\LocalWorker.cs" />
@@ -185,4 +224,12 @@
     <Resource Include="MainIco.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.0\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.0\build\EntityFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.4.0\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.0\build\EntityFramework.targets')" />
 </Project>

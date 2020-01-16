@@ -27,6 +27,7 @@ namespace TimeSheetApp
         Model.Selection selection;
         public MainWindow()
         {
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) => HandleError((Exception) e.ExceptionObject);
             try
             {
                 InitializeComponent();
@@ -44,6 +45,13 @@ namespace TimeSheetApp
                 MessageBox.Show(e.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void HandleError(Exception exceptionObject)
+        {
+            MessageBox.Show(exceptionObject.Message, "ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+
         private void ProcessList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
