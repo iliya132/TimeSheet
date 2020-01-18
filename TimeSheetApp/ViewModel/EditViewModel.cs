@@ -4,9 +4,7 @@ using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TimeSheetApp.Model;
 
 namespace TimeSheetApp.ViewModel
 {
@@ -45,17 +43,17 @@ namespace TimeSheetApp.ViewModel
         }
         private void ChangeProcessMethod(int id)
         {
-            CurrentEDProcess.Id = ProcessListCol[id].Id;
-            CurrentEDProcess.Name = ProcessListCol[id].Name;
-            CurrentEDProcess.Code = ProcessListCol[id].Code;
-            CurrentEDProcess.CodeFull = ProcessListCol[id].CodeFull;
+            CurrentEDProcess.id = ProcessListCol[id].id;
+            CurrentEDProcess.procName = ProcessListCol[id].procName;
+            
+            
             GetIndex();
         }
         public void GetIndex()
         {
             for (int i = 0; i < ProcessListCol.Count; i++)
             {
-                if (ProcessListCol[i].Id == CurrentEDProcess.Id)
+                if (ProcessListCol[i].id == CurrentEDProcess.id)
                 {
                     SelectedProcessID = i;
                 }
@@ -63,9 +61,6 @@ namespace TimeSheetApp.ViewModel
         }
         private void UpdateDateTimeMethod()
         {
-            CurrentEDProcess.ProcDate = CurrentDate;
-            CurrentEDProcess.DateTimeStart = CurrentTimeStart;
-            CurrentEDProcess.DateTimeEnd = CurrentTimeEnd;
         }
     }
 }

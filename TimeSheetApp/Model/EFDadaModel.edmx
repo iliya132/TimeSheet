@@ -1,0 +1,1302 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="TimeSheetDBModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2012" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityContainer Name="TimeSheetDBModelStoreContainer">
+    <EntitySet Name="Analytic" EntityType="TimeSheetDBModel.Store.Analytic" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="RiskSet" EntityType="TimeSheetDBModel.Store.RiskSet" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="TimeSheetTable" EntityType="TimeSheetDBModel.Store.TimeSheetTable" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Block" EntityType="TimeSheetDBModel.Store.Block" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="BusinessBlock" EntityType="TimeSheetDBModel.Store.BusinessBlock" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="ClientWays" EntityType="TimeSheetDBModel.Store.ClientWays" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Departments" EntityType="TimeSheetDBModel.Store.Departments" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="DirectionsSet" EntityType="TimeSheetDBModel.Store.DirectionsSet" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Escalations" EntityType="TimeSheetDBModel.Store.Escalations" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="ForceQuit" EntityType="TimeSheetDBModel.Store.ForceQuit" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Formats" EntityType="TimeSheetDBModel.Store.Formats" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="OtdelTable" EntityType="TimeSheetDBModel.Store.OtdelTable" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Positions" EntityType="TimeSheetDBModel.Store.Positions" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Process" EntityType="TimeSheetDBModel.Store.Process" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="ProcessType" EntityType="TimeSheetDBModel.Store.ProcessType" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Result" EntityType="TimeSheetDBModel.Store.Result" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="riskChoise" EntityType="TimeSheetDBModel.Store.riskChoise" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="RoleTable" EntityType="TimeSheetDBModel.Store.RoleTable" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="SubBlock" EntityType="TimeSheetDBModel.Store.SubBlock" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Supports" EntityType="TimeSheetDBModel.Store.Supports" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="UpravlenieTable" EntityType="TimeSheetDBModel.Store.UpravlenieTable" store:Type="Tables" Schema="dbo" />
+    <AssociationSet Name="DepartmentsAnalytic" Association="TimeSheetDBModel.Store.DepartmentsAnalytic">
+      <End Role="Departments" EntitySet="Departments" />
+      <End Role="Analytic" EntitySet="Analytic" />
+    </AssociationSet>
+    <AssociationSet Name="DirectionsAnalytic" Association="TimeSheetDBModel.Store.DirectionsAnalytic">
+      <End Role="Directions" EntitySet="DirectionsSet" />
+      <End Role="Analytic" EntitySet="Analytic" />
+    </AssociationSet>
+    <AssociationSet Name="UpravlenieTableAnalytic" Association="TimeSheetDBModel.Store.UpravlenieTableAnalytic">
+      <End Role="UpravlenieTable" EntitySet="UpravlenieTable" />
+      <End Role="Analytic" EntitySet="Analytic" />
+    </AssociationSet>
+    <AssociationSet Name="OtdelTableAnalytic" Association="TimeSheetDBModel.Store.OtdelTableAnalytic">
+      <End Role="OtdelTable" EntitySet="OtdelTable" />
+      <End Role="Analytic" EntitySet="Analytic" />
+    </AssociationSet>
+    <AssociationSet Name="PositionsAnalytic" Association="TimeSheetDBModel.Store.PositionsAnalytic">
+      <End Role="Positions" EntitySet="Positions" />
+      <End Role="Analytic" EntitySet="Analytic" />
+    </AssociationSet>
+    <AssociationSet Name="RoleTableAnalytic" Association="TimeSheetDBModel.Store.RoleTableAnalytic">
+      <End Role="RoleTable" EntitySet="RoleTable" />
+      <End Role="Analytic" EntitySet="Analytic" />
+    </AssociationSet>
+    <AssociationSet Name="BusinessBlockTimeSheetTable" Association="TimeSheetDBModel.Store.BusinessBlockTimeSheetTable">
+      <End Role="BusinessBlock" EntitySet="BusinessBlock" />
+      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+    </AssociationSet>
+    <AssociationSet Name="ClientWaysTimeSheetTable" Association="TimeSheetDBModel.Store.ClientWaysTimeSheetTable">
+      <End Role="ClientWays" EntitySet="ClientWays" />
+      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+    </AssociationSet>
+    <AssociationSet Name="EscalationsTimeSheetTable" Association="TimeSheetDBModel.Store.EscalationsTimeSheetTable">
+      <End Role="Escalations" EntitySet="Escalations" />
+      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+    </AssociationSet>
+    <AssociationSet Name="FormatsTimeSheetTable" Association="TimeSheetDBModel.Store.FormatsTimeSheetTable">
+      <End Role="Formats" EntitySet="Formats" />
+      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+    </AssociationSet>
+    <AssociationSet Name="SupportsTimeSheetTable" Association="TimeSheetDBModel.Store.SupportsTimeSheetTable">
+      <End Role="Supports" EntitySet="Supports" />
+      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+    </AssociationSet>
+    <AssociationSet Name="AnalyticTimeSheetTable" Association="TimeSheetDBModel.Store.AnalyticTimeSheetTable">
+      <End Role="Analytic" EntitySet="Analytic" />
+      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+    </AssociationSet>
+    <AssociationSet Name="ProcessBlock" Association="TimeSheetDBModel.Store.ProcessBlock">
+      <End Role="Process" EntitySet="Process" />
+      <End Role="Block" EntitySet="Block" />
+    </AssociationSet>
+    <AssociationSet Name="SubBlockProcess" Association="TimeSheetDBModel.Store.SubBlockProcess">
+      <End Role="SubBlock" EntitySet="SubBlock" />
+      <End Role="Process" EntitySet="Process" />
+    </AssociationSet>
+    <AssociationSet Name="ProcessTypeProcess" Association="TimeSheetDBModel.Store.ProcessTypeProcess">
+      <End Role="ProcessType" EntitySet="ProcessType" />
+      <End Role="Process" EntitySet="Process" />
+    </AssociationSet>
+    <AssociationSet Name="ResultProcess" Association="TimeSheetDBModel.Store.ResultProcess">
+      <End Role="Result" EntitySet="Result" />
+      <End Role="Process" EntitySet="Process" />
+    </AssociationSet>
+    <AssociationSet Name="ProcessTimeSheetTable" Association="TimeSheetDBModel.Store.ProcessTimeSheetTable">
+      <End Role="Process" EntitySet="Process" />
+      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+    </AssociationSet>
+    <AssociationSet Name="riskChoiseTimeSheetTable" Association="TimeSheetDBModel.Store.riskChoiseTimeSheetTable">
+      <End Role="riskChoise" EntitySet="riskChoise" />
+      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+    </AssociationSet>
+    <AssociationSet Name="RiskriskChoise" Association="TimeSheetDBModel.Store.RiskriskChoise">
+      <End Role="Risk" EntitySet="RiskSet" />
+      <End Role="riskChoise" EntitySet="riskChoise" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="Analytic">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="userName" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="FirstName" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="LastName" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="FatherName" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="DepartmentsId" Type="int" Nullable="false" DefaultValue="1" />
+    <Property Name="DirectionsId" Type="int" Nullable="false" />
+    <Property Name="UpravlenieTableId" Type="int" Nullable="false" />
+    <Property Name="OtdelTableId" Type="int" Nullable="false" />
+    <Property Name="PositionsId" Type="int" Nullable="false" />
+    <Property Name="RoleTableId" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="RiskSet">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="riskName" Type="nvarchar" Nullable="true" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="TimeSheetTable">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="timeStart" Type="datetime" Nullable="false" />
+    <Property Name="timeEnd" Type="datetime" Nullable="false" />
+    <Property Name="TimeSpent" Type="int" Nullable="false" />
+    <Property Name="comment" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="Subject" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="BusinessBlockId" Type="int" Nullable="false" />
+    <Property Name="Risk_id" Type="int" Nullable="false" />
+    <Property Name="ClientWaysId" Type="int" Nullable="false" />
+    <Property Name="EscalationsId" Type="int" Nullable="false" />
+    <Property Name="FormatsId" Type="int" Nullable="false" />
+    <Property Name="SupportsId" Type="int" Nullable="false" />
+    <Property Name="AnalyticId" Type="int" Nullable="false" />
+    <Property Name="Process_id" Type="int" Nullable="false" DefaultValue="1" />
+    <Property Name="riskChoise_id" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Block">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="blockName" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="BusinessBlock">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="BusinessBlockName" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="ClientWays">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Departments">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="DirectionsSet">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Escalations">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="ForceQuit">
+    <Key>
+      <PropertyRef Name="State" />
+    </Key>
+    <Property Name="State" Type="bit" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Formats">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="OtdelTable">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Positions">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Process">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="procName" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Comment" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="CommentNeeded" Type="bit" Nullable="true" />
+    <Property Name="Block_id" Type="int" Nullable="false" />
+    <Property Name="SubBlockId" Type="int" Nullable="false" DefaultValue="1" />
+    <Property Name="ProcessType_id" Type="int" Nullable="false" />
+    <Property Name="Result_id" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="ProcessType">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ProcessTypeName" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Result">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="resultName" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="riskChoise">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Risk_id" Type="int" Nullable="true" />
+    <Property Name="Risk_id1" Type="int" Nullable="true" />
+    <Property Name="Risk_id2" Type="int" Nullable="true" />
+    <Property Name="Risk_id3" Type="int" Nullable="true" />
+    <Property Name="Risk_id4" Type="int" Nullable="true" />
+    <Property Name="Risk_id5" Type="int" Nullable="true" />
+    <Property Name="Risk_id6" Type="int" Nullable="true" />
+    <Property Name="Risk_id7" Type="int" Nullable="true" />
+    <Property Name="Risk_id8" Type="int" Nullable="true" />
+    <Property Name="Risk_id9" Type="int" Nullable="true" />
+  </EntityType>
+  <EntityType Name="RoleTable">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="SubBlock">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="subblockName" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Supports">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="UpravlenieTable">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <Association Name="DepartmentsAnalytic">
+    <End Role="Departments" Type="TimeSheetDBModel.Store.Departments" Multiplicity="1" />
+    <End Role="Analytic" Type="TimeSheetDBModel.Store.Analytic" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Departments">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Analytic">
+        <PropertyRef Name="DepartmentsId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="DirectionsAnalytic">
+    <End Role="Directions" Type="TimeSheetDBModel.Store.DirectionsSet" Multiplicity="1" />
+    <End Role="Analytic" Type="TimeSheetDBModel.Store.Analytic" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Directions">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Analytic">
+        <PropertyRef Name="DirectionsId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="UpravlenieTableAnalytic">
+    <End Role="UpravlenieTable" Type="TimeSheetDBModel.Store.UpravlenieTable" Multiplicity="1" />
+    <End Role="Analytic" Type="TimeSheetDBModel.Store.Analytic" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="UpravlenieTable">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Analytic">
+        <PropertyRef Name="UpravlenieTableId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="OtdelTableAnalytic">
+    <End Role="OtdelTable" Type="TimeSheetDBModel.Store.OtdelTable" Multiplicity="1" />
+    <End Role="Analytic" Type="TimeSheetDBModel.Store.Analytic" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="OtdelTable">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Analytic">
+        <PropertyRef Name="OtdelTableId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="PositionsAnalytic">
+    <End Role="Positions" Type="TimeSheetDBModel.Store.Positions" Multiplicity="1" />
+    <End Role="Analytic" Type="TimeSheetDBModel.Store.Analytic" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Positions">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Analytic">
+        <PropertyRef Name="PositionsId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="RoleTableAnalytic">
+    <End Role="RoleTable" Type="TimeSheetDBModel.Store.RoleTable" Multiplicity="1" />
+    <End Role="Analytic" Type="TimeSheetDBModel.Store.Analytic" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="RoleTable">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Analytic">
+        <PropertyRef Name="RoleTableId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="BusinessBlockTimeSheetTable">
+    <End Role="BusinessBlock" Type="TimeSheetDBModel.Store.BusinessBlock" Multiplicity="1" />
+    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="BusinessBlock">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="TimeSheetTable">
+        <PropertyRef Name="BusinessBlockId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="ClientWaysTimeSheetTable">
+    <End Role="ClientWays" Type="TimeSheetDBModel.Store.ClientWays" Multiplicity="1" />
+    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="ClientWays">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="TimeSheetTable">
+        <PropertyRef Name="ClientWaysId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="EscalationsTimeSheetTable">
+    <End Role="Escalations" Type="TimeSheetDBModel.Store.Escalations" Multiplicity="1" />
+    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Escalations">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="TimeSheetTable">
+        <PropertyRef Name="EscalationsId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FormatsTimeSheetTable">
+    <End Role="Formats" Type="TimeSheetDBModel.Store.Formats" Multiplicity="1" />
+    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Formats">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="TimeSheetTable">
+        <PropertyRef Name="FormatsId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="SupportsTimeSheetTable">
+    <End Role="Supports" Type="TimeSheetDBModel.Store.Supports" Multiplicity="1" />
+    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Supports">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="TimeSheetTable">
+        <PropertyRef Name="SupportsId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="AnalyticTimeSheetTable">
+    <End Role="Analytic" Type="TimeSheetDBModel.Store.Analytic" Multiplicity="1" />
+    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Analytic">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="TimeSheetTable">
+        <PropertyRef Name="AnalyticId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="ProcessBlock">
+    <End Role="Process" Type="TimeSheetDBModel.Store.Process" Multiplicity="*" />
+    <End Role="Block" Type="TimeSheetDBModel.Store.Block" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Block">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="Process">
+        <PropertyRef Name="Block_id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="SubBlockProcess">
+    <End Role="SubBlock" Type="TimeSheetDBModel.Store.SubBlock" Multiplicity="1" />
+    <End Role="Process" Type="TimeSheetDBModel.Store.Process" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="SubBlock">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Process">
+        <PropertyRef Name="SubBlockId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="ProcessTypeProcess">
+    <End Role="ProcessType" Type="TimeSheetDBModel.Store.ProcessType" Multiplicity="1" />
+    <End Role="Process" Type="TimeSheetDBModel.Store.Process" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="ProcessType">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="Process">
+        <PropertyRef Name="ProcessType_id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="ResultProcess">
+    <End Role="Result" Type="TimeSheetDBModel.Store.Result" Multiplicity="1" />
+    <End Role="Process" Type="TimeSheetDBModel.Store.Process" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Result">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="Process">
+        <PropertyRef Name="Result_id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="ProcessTimeSheetTable">
+    <End Role="Process" Type="TimeSheetDBModel.Store.Process" Multiplicity="1" />
+    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Process">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="TimeSheetTable">
+        <PropertyRef Name="Process_id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="riskChoiseTimeSheetTable">
+    <End Role="riskChoise" Type="TimeSheetDBModel.Store.riskChoise" Multiplicity="1" />
+    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="riskChoise">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="TimeSheetTable">
+        <PropertyRef Name="riskChoise_id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="RiskriskChoise">
+    <End Role="Risk" Type="TimeSheetDBModel.Store.RiskSet" Multiplicity="0..1" />
+    <End Role="riskChoise" Type="TimeSheetDBModel.Store.riskChoise" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Risk">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="riskChoise">
+        <PropertyRef Name="Risk_id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="TimeSheetDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Analytic">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="userName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="FirstName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="LastName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="FatherName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Departments" Relationship="TimeSheetDBModel.DepartmentsAnalytic" FromRole="Analytic" ToRole="Departments" />
+          <Property Name="DepartmentsId" Type="Int32" Nullable="false" DefaultValue="1" />
+          <NavigationProperty Name="Directions" Relationship="TimeSheetDBModel.DirectionsAnalytic" FromRole="Analytic" ToRole="Directions" />
+          <Property Name="DirectionsId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Upravlenie" Relationship="TimeSheetDBModel.UpravlenieTableAnalytic" FromRole="Analytic" ToRole="UpravlenieTable" />
+          <Property Name="UpravlenieTableId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Otdel" Relationship="TimeSheetDBModel.OtdelTableAnalytic" FromRole="Analytic" ToRole="OtdelTable" />
+          <Property Name="OtdelTableId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Positions" Relationship="TimeSheetDBModel.PositionsAnalytic" FromRole="Analytic" ToRole="Positions" />
+          <Property Name="PositionsId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Role" Relationship="TimeSheetDBModel.RoleTableAnalytic" FromRole="Analytic" ToRole="RoleTable" />
+          <Property Name="RoleTableId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.AnalyticTimeSheetTable" FromRole="Analytic" ToRole="TimeSheetTable" />
+        </EntityType>
+        <EntityType Name="Risk">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="riskName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="true" />
+          <NavigationProperty Name="riskChoise" Relationship="TimeSheetDBModel.RiskriskChoise" FromRole="Risk" ToRole="riskChoise" />
+        </EntityType>
+        <EntityType Name="TimeSheetTable">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="timeStart" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="timeEnd" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="TimeSpent" Type="Int32" Nullable="false" />
+          <Property Name="comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Subject" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="BusinessBlock" Relationship="TimeSheetDBModel.BusinessBlockTimeSheetTable" FromRole="TimeSheetTable" ToRole="BusinessBlock" />
+          <Property Name="BusinessBlockId" Type="Int32" Nullable="false" />
+          <Property Name="Risk_id" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="ClientWays" Relationship="TimeSheetDBModel.ClientWaysTimeSheetTable" FromRole="TimeSheetTable" ToRole="ClientWays" />
+          <Property Name="ClientWaysId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Escalations" Relationship="TimeSheetDBModel.EscalationsTimeSheetTable" FromRole="TimeSheetTable" ToRole="Escalations" />
+          <Property Name="EscalationsId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Formats" Relationship="TimeSheetDBModel.FormatsTimeSheetTable" FromRole="TimeSheetTable" ToRole="Formats" />
+          <Property Name="FormatsId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Supports" Relationship="TimeSheetDBModel.SupportsTimeSheetTable" FromRole="TimeSheetTable" ToRole="Supports" />
+          <Property Name="SupportsId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Analytic" Relationship="TimeSheetDBModel.AnalyticTimeSheetTable" FromRole="TimeSheetTable" ToRole="Analytic" />
+          <Property Name="AnalyticId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Process" Relationship="TimeSheetDBModel.ProcessTimeSheetTable" FromRole="TimeSheetTable" ToRole="Process" />
+          <Property Name="Process_id" Type="Int32" Nullable="false" DefaultValue="1" />
+          <NavigationProperty Name="riskChoise" Relationship="TimeSheetDBModel.riskChoiseTimeSheetTable" FromRole="TimeSheetTable" ToRole="riskChoise" />
+          <Property Name="riskChoise_id" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Block">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="blockName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Process" Relationship="TimeSheetDBModel.ProcessBlock" FromRole="Block" ToRole="Process" />
+        </EntityType>
+        <EntityType Name="BusinessBlock">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="BusinessBlockName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.BusinessBlockTimeSheetTable" FromRole="BusinessBlock" ToRole="TimeSheetTable" />
+        </EntityType>
+        <EntityType Name="ClientWays">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.ClientWaysTimeSheetTable" FromRole="ClientWays" ToRole="TimeSheetTable" />
+        </EntityType>
+        <EntityType Name="Departments">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Analytic" Relationship="TimeSheetDBModel.DepartmentsAnalytic" FromRole="Departments" ToRole="Analytic" />
+        </EntityType>
+        <EntityType Name="Directions">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Analytic" Relationship="TimeSheetDBModel.DirectionsAnalytic" FromRole="Directions" ToRole="Analytic" />
+        </EntityType>
+        <EntityType Name="Escalations">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.EscalationsTimeSheetTable" FromRole="Escalations" ToRole="TimeSheetTable" />
+        </EntityType>
+        <EntityType Name="ForceQuit">
+          <Key>
+            <PropertyRef Name="State" />
+          </Key>
+          <Property Name="State" Nullable="false" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="Formats">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.FormatsTimeSheetTable" FromRole="Formats" ToRole="TimeSheetTable" />
+        </EntityType>
+        <EntityType Name="OtdelTable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Analytic" Relationship="TimeSheetDBModel.OtdelTableAnalytic" FromRole="OtdelTable" ToRole="Analytic" />
+        </EntityType>
+        <EntityType Name="Positions">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Analytic" Relationship="TimeSheetDBModel.PositionsAnalytic" FromRole="Positions" ToRole="Analytic" />
+        </EntityType>
+        <EntityType Name="Process">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="procName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CommentNeeded" Type="Boolean" />
+          <NavigationProperty Name="Block1" Relationship="TimeSheetDBModel.ProcessBlock" FromRole="Process" ToRole="Block" />
+          <Property Name="Block_id" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="SubBlockNav" Relationship="TimeSheetDBModel.SubBlockProcess" FromRole="Process" ToRole="SubBlock" />
+          <Property Name="SubBlockId" Type="Int32" Nullable="false" DefaultValue="1" />
+          <NavigationProperty Name="ProcessType1" Relationship="TimeSheetDBModel.ProcessTypeProcess" FromRole="Process" ToRole="ProcessType" />
+          <Property Name="ProcessType_id" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Result1" Relationship="TimeSheetDBModel.ResultProcess" FromRole="Process" ToRole="Result" />
+          <Property Name="Result_id" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.ProcessTimeSheetTable" FromRole="Process" ToRole="TimeSheetTable" />
+        </EntityType>
+        <EntityType Name="ProcessType">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ProcessTypeName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Process" Relationship="TimeSheetDBModel.ProcessTypeProcess" FromRole="ProcessType" ToRole="Process" />
+        </EntityType>
+        <EntityType Name="Result">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="resultName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Process" Relationship="TimeSheetDBModel.ResultProcess" FromRole="Result" ToRole="Process" />
+        </EntityType>
+        <EntityType Name="riskChoise">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.riskChoiseTimeSheetTable" FromRole="riskChoise" ToRole="TimeSheetTable" />
+          <NavigationProperty Name="Risk" Relationship="TimeSheetDBModel.RiskriskChoise" FromRole="riskChoise" ToRole="Risk" />
+          <Property Name="Risk_id" Type="Int32" Nullable="true" />
+          <Property Name="Risk_id1" Type="Int32" Nullable="true" />
+          <Property Name="Risk_id2" Type="Int32" Nullable="true" />
+          <Property Name="Risk_id3" Type="Int32" Nullable="true" />
+          <Property Name="Risk_id4" Type="Int32" Nullable="true" />
+          <Property Name="Risk_id5" Type="Int32" Nullable="true" />
+          <Property Name="Risk_id6" Type="Int32" Nullable="true" />
+          <Property Name="Risk_id7" Type="Int32" Nullable="true" />
+          <Property Name="Risk_id8" Type="Int32" Nullable="true" />
+          <Property Name="Risk_id9" Type="Int32" Nullable="true" />
+        </EntityType>
+        <EntityType Name="RoleTable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Analytic" Relationship="TimeSheetDBModel.RoleTableAnalytic" FromRole="RoleTable" ToRole="Analytic" />
+        </EntityType>
+        <EntityType Name="SubBlock">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="subblockName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Process" Relationship="TimeSheetDBModel.SubBlockProcess" FromRole="SubBlock" ToRole="Process" />
+        </EntityType>
+        <EntityType Name="Supports">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.SupportsTimeSheetTable" FromRole="Supports" ToRole="TimeSheetTable" />
+        </EntityType>
+        <EntityType Name="UpravlenieTable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Analytic" Relationship="TimeSheetDBModel.UpravlenieTableAnalytic" FromRole="UpravlenieTable" ToRole="Analytic" />
+        </EntityType>
+        <EntityContainer Name="TimeSheetDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Analytic" EntityType="Self.Analytic" />
+          <EntitySet Name="TimeSheetTable" EntityType="Self.TimeSheetTable" />
+          <EntitySet Name="Block" EntityType="Self.Block" />
+          <EntitySet Name="BusinessBlock" EntityType="Self.BusinessBlock" />
+          <EntitySet Name="ClientWays" EntityType="Self.ClientWays" />
+          <EntitySet Name="Departments" EntityType="Self.Departments" />
+          <EntitySet Name="Escalations" EntityType="Self.Escalations" />
+          <EntitySet Name="ForceQuit" EntityType="Self.ForceQuit" />
+          <EntitySet Name="Formats" EntityType="Self.Formats" />
+          <EntitySet Name="OtdelTable" EntityType="Self.OtdelTable" />
+          <EntitySet Name="Positions" EntityType="Self.Positions" />
+          <EntitySet Name="Process" EntityType="Self.Process" />
+          <EntitySet Name="ProcessType" EntityType="Self.ProcessType" />
+          <EntitySet Name="Result" EntityType="Self.Result" />
+          <EntitySet Name="riskChoise" EntityType="Self.riskChoise" />
+          <EntitySet Name="RoleTable" EntityType="Self.RoleTable" />
+          <EntitySet Name="SubBlock" EntityType="Self.SubBlock" />
+          <EntitySet Name="Supports" EntityType="Self.Supports" />
+          <EntitySet Name="UpravlenieTable" EntityType="Self.UpravlenieTable" />
+          <EntitySet Name="DirectionsSet" EntityType="TimeSheetDBModel.Directions" />
+          <AssociationSet Name="DepartmentsAnalytic" Association="TimeSheetDBModel.DepartmentsAnalytic">
+            <End Role="Departments" EntitySet="Departments" />
+            <End Role="Analytic" EntitySet="Analytic" />
+          </AssociationSet>
+          <AssociationSet Name="DirectionsAnalytic" Association="TimeSheetDBModel.DirectionsAnalytic">
+            <End Role="Directions" EntitySet="DirectionsSet" />
+            <End Role="Analytic" EntitySet="Analytic" />
+          </AssociationSet>
+          <AssociationSet Name="UpravlenieTableAnalytic" Association="TimeSheetDBModel.UpravlenieTableAnalytic">
+            <End Role="UpravlenieTable" EntitySet="UpravlenieTable" />
+            <End Role="Analytic" EntitySet="Analytic" />
+          </AssociationSet>
+          <AssociationSet Name="OtdelTableAnalytic" Association="TimeSheetDBModel.OtdelTableAnalytic">
+            <End Role="OtdelTable" EntitySet="OtdelTable" />
+            <End Role="Analytic" EntitySet="Analytic" />
+          </AssociationSet>
+          <AssociationSet Name="PositionsAnalytic" Association="TimeSheetDBModel.PositionsAnalytic">
+            <End Role="Positions" EntitySet="Positions" />
+            <End Role="Analytic" EntitySet="Analytic" />
+          </AssociationSet>
+          <AssociationSet Name="RoleTableAnalytic" Association="TimeSheetDBModel.RoleTableAnalytic">
+            <End Role="RoleTable" EntitySet="RoleTable" />
+            <End Role="Analytic" EntitySet="Analytic" />
+          </AssociationSet>
+          <AssociationSet Name="BusinessBlockTimeSheetTable" Association="TimeSheetDBModel.BusinessBlockTimeSheetTable">
+            <End Role="BusinessBlock" EntitySet="BusinessBlock" />
+            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+          </AssociationSet>
+          <AssociationSet Name="ClientWaysTimeSheetTable" Association="TimeSheetDBModel.ClientWaysTimeSheetTable">
+            <End Role="ClientWays" EntitySet="ClientWays" />
+            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+          </AssociationSet>
+          <AssociationSet Name="EscalationsTimeSheetTable" Association="TimeSheetDBModel.EscalationsTimeSheetTable">
+            <End Role="Escalations" EntitySet="Escalations" />
+            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+          </AssociationSet>
+          <AssociationSet Name="FormatsTimeSheetTable" Association="TimeSheetDBModel.FormatsTimeSheetTable">
+            <End Role="Formats" EntitySet="Formats" />
+            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+          </AssociationSet>
+          <AssociationSet Name="SupportsTimeSheetTable" Association="TimeSheetDBModel.SupportsTimeSheetTable">
+            <End Role="Supports" EntitySet="Supports" />
+            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+          </AssociationSet>
+          <AssociationSet Name="AnalyticTimeSheetTable" Association="TimeSheetDBModel.AnalyticTimeSheetTable">
+            <End Role="Analytic" EntitySet="Analytic" />
+            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+          </AssociationSet>
+          <AssociationSet Name="ProcessBlock" Association="TimeSheetDBModel.ProcessBlock">
+            <End Role="Process" EntitySet="Process" />
+            <End Role="Block" EntitySet="Block" />
+          </AssociationSet>
+          <AssociationSet Name="SubBlockProcess" Association="TimeSheetDBModel.SubBlockProcess">
+            <End Role="SubBlock" EntitySet="SubBlock" />
+            <End Role="Process" EntitySet="Process" />
+          </AssociationSet>
+          <AssociationSet Name="ProcessTypeProcess" Association="TimeSheetDBModel.ProcessTypeProcess">
+            <End Role="ProcessType" EntitySet="ProcessType" />
+            <End Role="Process" EntitySet="Process" />
+          </AssociationSet>
+          <AssociationSet Name="ResultProcess" Association="TimeSheetDBModel.ResultProcess">
+            <End Role="Result" EntitySet="Result" />
+            <End Role="Process" EntitySet="Process" />
+          </AssociationSet>
+          <AssociationSet Name="ProcessTimeSheetTable" Association="TimeSheetDBModel.ProcessTimeSheetTable">
+            <End Role="Process" EntitySet="Process" />
+            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+          </AssociationSet>
+          <AssociationSet Name="riskChoiseTimeSheetTable" Association="TimeSheetDBModel.riskChoiseTimeSheetTable">
+            <End Role="riskChoise" EntitySet="riskChoise" />
+            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+          </AssociationSet>
+          <EntitySet Name="RiskSet" EntityType="TimeSheetDBModel.Risk" />
+          <AssociationSet Name="RiskriskChoise" Association="TimeSheetDBModel.RiskriskChoise">
+            <End Role="Risk" EntitySet="RiskSet" />
+            <End Role="riskChoise" EntitySet="riskChoise" />
+          </AssociationSet>
+        </EntityContainer>
+        <Association Name="DepartmentsAnalytic">
+          <End Type="TimeSheetDBModel.Departments" Role="Departments" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.Analytic" Role="Analytic" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Departments">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Analytic">
+              <PropertyRef Name="DepartmentsId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="DirectionsAnalytic">
+          <End Type="TimeSheetDBModel.Directions" Role="Directions" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.Analytic" Role="Analytic" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Directions">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Analytic">
+              <PropertyRef Name="DirectionsId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="UpravlenieTableAnalytic">
+          <End Type="TimeSheetDBModel.UpravlenieTable" Role="UpravlenieTable" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.Analytic" Role="Analytic" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="UpravlenieTable">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Analytic">
+              <PropertyRef Name="UpravlenieTableId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="OtdelTableAnalytic">
+          <End Type="TimeSheetDBModel.OtdelTable" Role="OtdelTable" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.Analytic" Role="Analytic" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OtdelTable">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Analytic">
+              <PropertyRef Name="OtdelTableId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="PositionsAnalytic">
+          <End Type="TimeSheetDBModel.Positions" Role="Positions" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.Analytic" Role="Analytic" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Positions">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Analytic">
+              <PropertyRef Name="PositionsId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="RoleTableAnalytic">
+          <End Type="TimeSheetDBModel.RoleTable" Role="RoleTable" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.Analytic" Role="Analytic" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RoleTable">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Analytic">
+              <PropertyRef Name="RoleTableId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="BusinessBlockTimeSheetTable">
+          <End Type="TimeSheetDBModel.BusinessBlock" Role="BusinessBlock" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BusinessBlock">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="TimeSheetTable">
+              <PropertyRef Name="BusinessBlockId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="ClientWaysTimeSheetTable">
+          <End Type="TimeSheetDBModel.ClientWays" Role="ClientWays" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ClientWays">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="TimeSheetTable">
+              <PropertyRef Name="ClientWaysId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="EscalationsTimeSheetTable">
+          <End Type="TimeSheetDBModel.Escalations" Role="Escalations" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Escalations">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="TimeSheetTable">
+              <PropertyRef Name="EscalationsId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FormatsTimeSheetTable">
+          <End Type="TimeSheetDBModel.Formats" Role="Formats" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Formats">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="TimeSheetTable">
+              <PropertyRef Name="FormatsId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="SupportsTimeSheetTable">
+          <End Type="TimeSheetDBModel.Supports" Role="Supports" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Supports">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="TimeSheetTable">
+              <PropertyRef Name="SupportsId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="AnalyticTimeSheetTable">
+          <End Type="TimeSheetDBModel.Analytic" Role="Analytic" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Analytic">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="TimeSheetTable">
+              <PropertyRef Name="AnalyticId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="ProcessBlock">
+          <End Type="TimeSheetDBModel.Process" Role="Process" Multiplicity="*" />
+          <End Type="TimeSheetDBModel.Block" Role="Block" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="Block">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Process">
+              <PropertyRef Name="Block_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="SubBlockProcess">
+          <End Type="TimeSheetDBModel.SubBlock" Role="SubBlock" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.Process" Role="Process" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SubBlock">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Process">
+              <PropertyRef Name="SubBlockId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="ProcessTypeProcess">
+          <End Type="TimeSheetDBModel.ProcessType" Role="ProcessType" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.Process" Role="Process" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProcessType">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Process">
+              <PropertyRef Name="ProcessType_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="ResultProcess">
+          <End Type="TimeSheetDBModel.Result" Role="Result" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.Process" Role="Process" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Result">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Process">
+              <PropertyRef Name="Result_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="ProcessTimeSheetTable">
+          <End Type="TimeSheetDBModel.Process" Role="Process" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Process">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="TimeSheetTable">
+              <PropertyRef Name="Process_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="riskChoiseTimeSheetTable">
+          <End Type="TimeSheetDBModel.riskChoise" Role="riskChoise" Multiplicity="1" />
+          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="riskChoise">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="TimeSheetTable">
+              <PropertyRef Name="riskChoise_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="RiskriskChoise">
+          <End Type="TimeSheetDBModel.Risk" Role="Risk" Multiplicity="0..1" />
+          <End Type="TimeSheetDBModel.riskChoise" Role="riskChoise" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Risk">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="riskChoise">
+              <PropertyRef Name="Risk_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+    <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="TimeSheetDBModelStoreContainer" CdmEntityContainer="TimeSheetDBEntities">
+    <EntitySetMapping Name="Analytic">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.Analytic)">
+        <MappingFragment StoreEntitySet="Analytic">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="userName" ColumnName="userName" />
+          <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+          <ScalarProperty Name="LastName" ColumnName="LastName" />
+          <ScalarProperty Name="FatherName" ColumnName="FatherName" />
+          <ScalarProperty Name="DepartmentsId" ColumnName="DepartmentsId" />
+          <ScalarProperty Name="DirectionsId" ColumnName="DirectionsId" />
+          <ScalarProperty Name="UpravlenieTableId" ColumnName="UpravlenieTableId" />
+          <ScalarProperty Name="OtdelTableId" ColumnName="OtdelTableId" />
+          <ScalarProperty Name="PositionsId" ColumnName="PositionsId" />
+          <ScalarProperty Name="RoleTableId" ColumnName="RoleTableId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="TimeSheetTable">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.TimeSheetTable)">
+        <MappingFragment StoreEntitySet="TimeSheetTable">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="timeStart" ColumnName="timeStart" />
+          <ScalarProperty Name="timeEnd" ColumnName="timeEnd" />
+          <ScalarProperty Name="TimeSpent" ColumnName="TimeSpent" />
+          <ScalarProperty Name="comment" ColumnName="comment" />
+          <ScalarProperty Name="Subject" ColumnName="Subject" />
+          <ScalarProperty Name="BusinessBlockId" ColumnName="BusinessBlockId" />
+          <ScalarProperty Name="Risk_id" ColumnName="Risk_id" />
+          <ScalarProperty Name="ClientWaysId" ColumnName="ClientWaysId" />
+          <ScalarProperty Name="EscalationsId" ColumnName="EscalationsId" />
+          <ScalarProperty Name="FormatsId" ColumnName="FormatsId" />
+          <ScalarProperty Name="SupportsId" ColumnName="SupportsId" />
+          <ScalarProperty Name="AnalyticId" ColumnName="AnalyticId" />
+          <ScalarProperty Name="Process_id" ColumnName="Process_id" />
+          <ScalarProperty Name="riskChoise_id" ColumnName="riskChoise_id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Block">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.Block)">
+        <MappingFragment StoreEntitySet="Block">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="blockName" ColumnName="blockName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="BusinessBlock">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.BusinessBlock)">
+        <MappingFragment StoreEntitySet="BusinessBlock">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="BusinessBlockName" ColumnName="BusinessBlockName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="ClientWays">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.ClientWays)">
+        <MappingFragment StoreEntitySet="ClientWays">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Departments">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.Departments)">
+        <MappingFragment StoreEntitySet="Departments">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Escalations">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.Escalations)">
+        <MappingFragment StoreEntitySet="Escalations">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="ForceQuit">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.ForceQuit)">
+        <MappingFragment StoreEntitySet="ForceQuit">
+          <ScalarProperty Name="State" ColumnName="State" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Formats">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.Formats)">
+        <MappingFragment StoreEntitySet="Formats">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="OtdelTable">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.OtdelTable)">
+        <MappingFragment StoreEntitySet="OtdelTable">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Positions">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.Positions)">
+        <MappingFragment StoreEntitySet="Positions">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Process">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.Process)">
+        <MappingFragment StoreEntitySet="Process">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="procName" ColumnName="procName" />
+          <ScalarProperty Name="Comment" ColumnName="Comment" />
+          <ScalarProperty Name="CommentNeeded" ColumnName="CommentNeeded" />
+          <ScalarProperty Name="Block_id" ColumnName="Block_id" />
+          <ScalarProperty Name="SubBlockId" ColumnName="SubBlockId" />
+          <ScalarProperty Name="ProcessType_id" ColumnName="ProcessType_id" />
+          <ScalarProperty Name="Result_id" ColumnName="Result_id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="ProcessType">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.ProcessType)">
+        <MappingFragment StoreEntitySet="ProcessType">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="ProcessTypeName" ColumnName="ProcessTypeName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Result">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.Result)">
+        <MappingFragment StoreEntitySet="Result">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="resultName" ColumnName="resultName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="riskChoise">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.riskChoise)">
+        <MappingFragment StoreEntitySet="riskChoise">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="Risk_id" ColumnName="Risk_id" />
+          <ScalarProperty Name="Risk_id1" ColumnName="Risk_id1" />
+          <ScalarProperty Name="Risk_id2" ColumnName="Risk_id2" />
+          <ScalarProperty Name="Risk_id3" ColumnName="Risk_id3" />
+          <ScalarProperty Name="Risk_id4" ColumnName="Risk_id4" />
+          <ScalarProperty Name="Risk_id5" ColumnName="Risk_id5" />
+          <ScalarProperty Name="Risk_id6" ColumnName="Risk_id6" />
+          <ScalarProperty Name="Risk_id7" ColumnName="Risk_id7" />
+          <ScalarProperty Name="Risk_id8" ColumnName="Risk_id8" />
+          <ScalarProperty Name="Risk_id9" ColumnName="Risk_id9" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="RoleTable">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.RoleTable)">
+        <MappingFragment StoreEntitySet="RoleTable">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="SubBlock">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.SubBlock)">
+        <MappingFragment StoreEntitySet="SubBlock">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="subblockName" ColumnName="subblockName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Supports">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.Supports)">
+        <MappingFragment StoreEntitySet="Supports">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="UpravlenieTable">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.UpravlenieTable)">
+        <MappingFragment StoreEntitySet="UpravlenieTable">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="DirectionsSet">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.Directions)">
+        <MappingFragment StoreEntitySet="DirectionsSet">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="RiskSet">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.Risk)">
+        <MappingFragment StoreEntitySet="RiskSet">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="riskName" ColumnName="riskName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping></edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="False" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

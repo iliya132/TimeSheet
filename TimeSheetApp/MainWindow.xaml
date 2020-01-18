@@ -10,7 +10,11 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="750" Width="1100"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
-        IsEnabled="{Binding isReady}">
+        IsEnabled="True">
+    <Window.Resources>
+        <local:CodeFullConverter x:Key="CodeFullConverter"/>
+        <local:CodeDescriptionConverter x:Key="CodeDescriptionConverter"/>
+    </Window.Resources>
     <Grid>
         <TabControl>
             <TabItem Header="Учет времени">
@@ -40,7 +44,7 @@
                             </TextBox>
 
                         </StackPanel>
-                        <ListView Name = "ProcessList" ItemsSource="{Binding ProcessFiltered}" SelectedItem="{Binding CurrentProcess}" Margin="0,0,10,0" Height="{Binding }"
+                        <ListView Name = "ProcessList" ItemsSource="{Binding ProcessFiltered}" SelectedItem="{Binding CurrentProcess}" Margin="0,0,10,0"
                       SelectionChanged="ProcessList_SelectionChanged" Grid.Row="1">
                             <ListView.View>
                                 <GridView>
@@ -49,13 +53,12 @@
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
-                                                    <TextBlock Text="{Binding Path=Code}" ToolTip="{Binding Path=CodeFull}"/>
-
+                                                    <TextBlock Text="{Binding Converter={StaticResource CodeFullConverter}}" ToolTip="{Binding Converter={StaticResource CodeDescriptionConverter}}"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="Процесс" Width="240" DisplayMemberBinding="{Binding Path=Name}"/>
+                                    <GridViewColumn Header="Процесс" Width="240" DisplayMemberBinding="{Binding Path=procName}"/>
                                 </GridView>
                             </ListView.View>
                             <ListView.GroupStyle>
@@ -168,7 +171,7 @@
                             <RowDefinition Height="10*"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                            <ListView Name="TimeSpanListView"  ItemsSource="{Binding TimeSpanCol}" Margin="10,0,0,0" Grid.Row="0">
+                            <ListView Name="TimeSpanListView"  ItemsSource="{Binding TimeSheetColl}" Margin="10,0,0,0" Grid.Row="0">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseDoubleClick">
                                         <mvvm:EventToCommand Command="{Binding Main.EditProcess, Source={StaticResource Locator}}"
@@ -178,13 +181,13 @@
                                 <ListView.View>
                                     <GridView>
 
-                                        <GridViewColumn Header="Start" Width="50" DisplayMemberBinding="{Binding Path=timeIn, StringFormat={}{0:HH:mm}}"/>
-                                        <GridViewColumn Header="End" Width="50" DisplayMemberBinding="{Binding Path=timeOut, StringFormat={}{0:HH:mm}}"/>
+                                    <GridViewColumn Header="Start" Width="50" DisplayMemberBinding="{Binding Path=timeStart, StringFormat={}{0:HH:mm}}"/>
+                                    <GridViewColumn Header="End" Width="50" DisplayMemberBinding="{Binding Path=timeEnd, StringFormat={}{0:HH:mm}}"/>
                                         <GridViewColumn Header="Процесс" Width="50" >
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Grid>
-                                                        <TextBlock Text="{Binding Path=Code}" ToolTip="{Binding Path=CodeFull}"/>
+                                                    <TextBlock Text="{Binding Converter={StaticResource CodeFullConverter}}" ToolTip="{Binding Converter={StaticResource CodeDescriptionConverter}}"/>
 
                                                     </Grid>
                                                 </DataTemplate>
