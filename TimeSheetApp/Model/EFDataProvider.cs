@@ -24,6 +24,38 @@ namespace TimeSheetApp.Model
             return dataBase.BusinessBlock.ToArray();
         }
 
+        public int AddRiskChoice(riskChoise riskChoise)
+        {
+            if (dataBase.riskChoise.Any(i=>
+            i.Risk_id==riskChoise.Risk_id &&
+            i.Risk_id1 == riskChoise.Risk_id1 &&
+            i.Risk_id2 == riskChoise.Risk_id2 &&
+            i.Risk_id3 == riskChoise.Risk_id3 &&
+            i.Risk_id4 == riskChoise.Risk_id4 &&
+            i.Risk_id5 == riskChoise.Risk_id5 &&
+            i.Risk_id6 == riskChoise.Risk_id6 &&
+            i.Risk_id7 == riskChoise.Risk_id7 &&
+            i.Risk_id8 == riskChoise.Risk_id8
+            ))
+            {
+                return dataBase.riskChoise.First(
+            i => i.Risk_id == riskChoise.Risk_id &&
+            i.Risk_id1 == riskChoise.Risk_id1 &&
+            i.Risk_id2 == riskChoise.Risk_id2 &&
+            i.Risk_id3 == riskChoise.Risk_id3 &&
+            i.Risk_id4 == riskChoise.Risk_id4 &&
+            i.Risk_id5 == riskChoise.Risk_id5 &&
+            i.Risk_id6 == riskChoise.Risk_id6 &&
+            i.Risk_id7 == riskChoise.Risk_id7 &&
+            i.Risk_id8 == riskChoise.Risk_id8).id;
+            }
+            else
+            {
+                dataBase.riskChoise.Add(riskChoise);
+                dataBase.SaveChanges();
+                return riskChoise.id;
+            }
+        }
         public void AddActivity(TimeSheetTable activity)
         {
             TimeSpan span = activity.timeEnd - activity.timeStart;

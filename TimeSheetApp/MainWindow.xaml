@@ -145,7 +145,13 @@
                             <Label Content="Формат" FontWeight="Bold"/>
                             <ComboBox Name="formatCombo" Margin="0,0,0,0" DisplayMemberPath="Name" ItemsSource="{Binding FormatList}" SelectedItem="{Binding NewRecord.Formats}" SelectedIndex="0"/>
                             <Label Content="Риск" FontWeight="Bold"/>
-                            <ComboBox Name="riskCombo" ItemsSource="{Binding RiskCol}" DisplayMemberPath="riskName"  SelectedIndex="0"/>
+                            <xctk:CheckComboBox Name="riskCombo" ItemsSource="{Binding RiskCol}" DisplayMemberPath="riskName" >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ItemSelectionChanged">
+                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding ElementName=riskCombo, Path=SelectedItems}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </xctk:CheckComboBox>
 
                             <Button Name="Add" Height="35" Margin="0,10,0,0" 
                         DataContext="{Binding Main, Source={StaticResource Locator}}"

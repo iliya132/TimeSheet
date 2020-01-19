@@ -223,7 +223,6 @@
     <Compile Include="Model\ProcessType.cs">
       <DependentUpon>EFDadaModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Model\Reports\AnalyticReport.cs" />
     <Compile Include="Model\Result.cs">
       <DependentUpon>EFDadaModel.tt</DependentUpon>
     </Compile>

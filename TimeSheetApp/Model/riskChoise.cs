@@ -35,5 +35,41 @@ namespace TimeSheetApp.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TimeSheetTable> TimeSheetTable { get; set; }
         public virtual Risk Risk { get; set; }
+        public Nullable<int> this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case (0):return Risk_id;
+                    case (1): return Risk_id1;
+                    case (2): return Risk_id2;
+                    case (3): return Risk_id3;
+                    case (4): return Risk_id4;
+                    case (5): return Risk_id5;
+                    case (6): return Risk_id6;
+                    case (7): return Risk_id7;
+                    case (8): return Risk_id8;
+                    case (9): return Risk_id9;
+                }
+                return 0;
+            }
+            set
+            {
+                switch (index)
+                {
+                    case (0): Risk_id = value; break;
+                    case (1): Risk_id1 = value; break;
+                    case (2): Risk_id2 = value; break;
+                    case (3): Risk_id3 = value; break;
+                    case (4): Risk_id4 = value; break;
+                    case (5): Risk_id5 = value; break;
+                    case (6): Risk_id6 = value; break;
+                    case (7): Risk_id7 = value; break;
+                    case (8): Risk_id8 = value; break;
+                    case (9): Risk_id9=value; break;
+                }
+            }
+        }
     }
 }

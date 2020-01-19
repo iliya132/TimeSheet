@@ -217,6 +217,11 @@ namespace TimeSheetApp.ViewModel
             set { _endReportDate = value; }
         }
         #endregion
+
+        #region Мультивыбор риск
+        riskChoise riskChoise = new riskChoise();
+        #endregion
+
         public TimeSpan TotalDurationInMinutes
         {
             get
@@ -247,6 +252,7 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand ReloadHistoryRecords { get; }
         public RelayCommand CheckTimeForIntersection { get; }
         public RelayCommand<IEnumerable<object>> GetReport { get; }
+        public RelayCommand<IList<object>> StoreSelection { get; }
         #endregion
 
         public MainViewModel(IEFDataProvider dataProvider)
@@ -263,9 +269,25 @@ namespace TimeSheetApp.ViewModel
             ExportReport = new RelayCommand(GetReportMethod);
             GetReport = new RelayCommand<IEnumerable<object>>(GetReportMethod);
             ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
+            StoreSelection = new RelayCommand<IList<object>>(StoreMultiplyChoice);
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
             NewRecord.riskChoise_id = 2;
+        }
+
+        private void StoreMultiplyChoice(IList<object> choice)
+        {
+            int countOfChoice = choice.Count();
+            int counter = 0;
+            for (int i = 0; i < countOfChoice; i++)
+            {
+                if (choice[i] is Risk)
+                {
+                    riskChoise[counter] = (choice[i] as Risk).id;
+                    counter++;
+                }
+            }
+            NewRecord.riskChoise = riskChoise;
         }
 
         private void GetReportMethod(IEnumerable<object> Analytics)
@@ -401,7 +423,10 @@ namespace TimeSheetApp.ViewModel
             }
             #endregion
 
+
+
             #region Добавление в БД
+            int riskID = EFDataProvider.AddRiskChoice(newItem.riskChoise);
             TimeSheetTable clonedActivity = new TimeSheetTable()
             {
                 AnalyticId = newItem.Analytic.Id,
@@ -411,7 +436,7 @@ namespace TimeSheetApp.ViewModel
                 FormatsId = newItem.Formats.Id,
                 Process_id = newItem.Process.id,
                 id = newItem.id,
-                riskChoise_id = 2,
+                riskChoise_id = riskID,
                 Subject = newItem.Subject,
                 comment = newItem.comment,
                 SupportsId = newItem.Supports.Id,

@@ -28,5 +28,6 @@ namespace TimeSheetApp.Model
         List<TimeSheetTable> LoadTimeSheetRecords(DateTime date, Analytic user);
         void GetReport(int ReportType, Analytic[] analytics, DateTime start, DateTime end);
         bool IsCollisionedWithOtherRecords(TimeSheetTable record);
+        int AddRiskChoice(riskChoise riskChoise);
     }
 }
