@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight.Ioc;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
 using TimeSheetApp.Model;
@@ -32,33 +33,33 @@ namespace TimeSheetApp.ViewModel
         /// <summary>
         /// Бизнес блоки, доступные для выбора
         /// </summary>
-        private ObservableCollection<BusinessBlock> _BusinessBlock;
-        public ObservableCollection<BusinessBlock> BusinessBlock { get => _BusinessBlock; set => _BusinessBlock = value; }
+        private BusinessBlock[] _BusinessBlock;
+        public BusinessBlock[] BusinessBlock { get => _BusinessBlock; set => _BusinessBlock = value; }
         /// <summary>
         /// Support's доступные для выбора
         /// </summary>
-        private ObservableCollection<Supports> _NonBusinessBlock;
-        public ObservableCollection<Supports> NonBusinessBlock { get => _NonBusinessBlock; set => _NonBusinessBlock = value; }
+        private Supports[] _supportsArr;
+        public Supports[] SupportsArr { get => _supportsArr; set => _supportsArr = value; }
         /// <summary>
         /// Клиентские пути, доступные для выбора
         /// </summary>
-        private ObservableCollection<ClientWays> _clientWays;
-        public ObservableCollection<ClientWays> ClientWays { get => _clientWays; set => _clientWays = value; }
+        private ClientWays[] _clientWays;
+        public ClientWays[] ClientWays { get => _clientWays; set => _clientWays = value; }
         /// <summary>
         /// Форматы доступные для выбора
         /// </summary>
-        private ObservableCollection<Formats> _formatList;
-        public ObservableCollection<Formats> FormatList { get => _formatList; set => _formatList = value; }
+        private Formats[] _formatList;
+        public Formats[] FormatList { get => _formatList; set => _formatList = value; }
         /// <summary>
         /// Риски, доступные для выбора
         /// </summary>
-        private ObservableCollection<Risk> _riskCol;
-        public ObservableCollection<Risk> RiskCol { get => _riskCol; set => _riskCol = value; }
+        private Risk[] _riskCol;
+        public Risk[] RiskCol { get => _riskCol; set => _riskCol = value; }
         /// <summary>
         /// Эскалации, доступные для выбора
         /// </summary>
-        private ObservableCollection<Escalations> _escalations;
-        public ObservableCollection<Escalations> Escalations { get => _escalations; set => _escalations = value; }
+        private Escalations[] _escalations;
+        public Escalations[] Escalations { get => _escalations; set => _escalations = value; }
         #endregion
 
         #region Исторические записи
@@ -167,7 +168,7 @@ namespace TimeSheetApp.ViewModel
                 _currentRisk = value;
             }
         }
-
+        
 
 
         #endregion
@@ -180,9 +181,42 @@ namespace TimeSheetApp.ViewModel
             get { return _currentEditedRecord; }
             set { Set(ref _currentEditedRecord, value); }
         }
+        private DateTime initalTimeStart { get; set; }
+        private DateTime initalTimeEnd { get; set; }
+        
+        private bool _isTimeCorrect = true;
+        public bool IsTimeCorrect { get=>_isTimeCorrect; set=>_isTimeCorrect=value; }
 
         #endregion
 
+        #region Формирование отчета
+        private List<string> _reportsAvailable = new List<string>() 
+        {
+            "Отчет по активности аналитиков"
+        };
+
+        public List<string> ReportsAvailable
+        {
+            get { return _reportsAvailable; }
+            set { _reportsAvailable = value; }
+        }
+
+        private List<Analytic> _selectedAnalytics = new List<Analytic>();
+        public List<Analytic> SelectedAnalytics { get => _selectedAnalytics; set => _selectedAnalytics = value; }
+        public int SelectedReport { get; set; }
+        private DateTime _startReportDate = DateTime.Now.AddDays(-7);
+        public DateTime StartReportDate
+        {
+            get { return new DateTime(_startReportDate.Year, _startReportDate.Month, _startReportDate.Day, 0, 0, 1); }
+            set { _startReportDate = value; }
+        }
+        private DateTime _endReportDate = DateTime.Now;
+        public DateTime EndReportDate
+        {
+            get { return new DateTime(_endReportDate.Year, _endReportDate.Month, _endReportDate.Day, 23, 59, 59); }
+            set { _endReportDate = value; }
+        }
+        #endregion
         public TimeSpan TotalDurationInMinutes
         {
             get
@@ -209,6 +243,10 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand ReloadTimeSheet { get; }
         public RelayCommand<string> FilterProcesses { get; }
         public RelayCommand ExportReport { get; }
+        public RelayCommand<Process> LoadSelectionForSelectedProcess { get; }
+        public RelayCommand ReloadHistoryRecords { get; }
+        public RelayCommand CheckTimeForIntersection { get; }
+        public RelayCommand<IEnumerable<object>> GetReport { get; }
         #endregion
 
         public MainViewModel(IEFDataProvider dataProvider)
@@ -219,13 +257,57 @@ namespace TimeSheetApp.ViewModel
             EditProcess = new RelayCommand<TimeSheetTable>(EditHistoryProcess);
             DeleteProcess = new RelayCommand<TimeSheetTable>(DeleteHistoryRecord);
             ReloadTimeSheet = new RelayCommand(UpdateTimeSpan);
+            CheckTimeForIntersection = new RelayCommand(CheckTimeForIntesectionMethod);
+            LoadSelectionForSelectedProcess = new RelayCommand<Process>(LoadSelection);
             FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
             ExportReport = new RelayCommand(GetReportMethod);
+            GetReport = new RelayCommand<IEnumerable<object>>(GetReportMethod);
+            ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
             NewRecord.riskChoise_id = 2;
         }
 
+        private void GetReportMethod(IEnumerable<object> Analytics)
+        {
+            SelectedAnalytics.Clear();
+            foreach(Analytic analytic in Analytics)
+            {
+                SelectedAnalytics.Add(analytic);
+            }
+            EFDataProvider.GetReport(SelectedReport, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
+        }
+
+        private void CheckTimeForIntesectionMethod()
+        {
+            if (!(EditedRecord.timeStart >= initalTimeStart && EditedRecord.timeStart < initalTimeEnd) && EFDataProvider.IsCollisionedWithOtherRecords(EditedRecord))
+            {
+                IsTimeCorrect = false;
+            }
+            else
+            {
+                IsTimeCorrect = true;
+            }
+            RaisePropertyChanged("IsTimeCorrect");
+        }
+
+        private void LoadSelection(Process selectedProcess)
+        {
+            if (selectedProcess != null)
+            {
+                Selection loadedSelection = LocalWorker.GetSelection(selectedProcess.id);
+                if (loadedSelection != null)
+                {
+                    NewRecord.BusinessBlock = Array.Find(BusinessBlock, i => i.Id == loadedSelection.BusinessBlockSelected);
+                    NewRecord.Supports = Array.Find(SupportsArr, i => i.Id == loadedSelection.SupportSelected);
+                    NewRecord.ClientWays = Array.Find(ClientWays, i => i.Id == loadedSelection.ClientWaySelected);
+                    NewRecord.Formats = Array.Find(FormatList, i => i.Id == loadedSelection.FormatSelected);
+                    NewRecord.Escalations = Array.Find(Escalations, i => i.Id == loadedSelection.EscalationSelected);
+                    //TODO: NewRecord.riskChoise = Array.Find(risk, i => i.Id == loadedSelection.BusinessBlockSelected);
+                    RaisePropertyChanged("NewRecord");
+                }
+            }
+        }
         private void DeleteHistoryRecord(TimeSheetTable record)
         {
             EFDataProvider.DeleteRecord(record);
@@ -240,7 +322,7 @@ namespace TimeSheetApp.ViewModel
             CurrentUser = EFDataProvider.LoadAnalyticData();
             Processes = EFDataProvider.GetProcesses();
             BusinessBlock = EFDataProvider.GetBusinessBlocks();
-            NonBusinessBlock = EFDataProvider.GetSupports();
+            SupportsArr = EFDataProvider.GetSupports();
             ClientWays = EFDataProvider.GetClientWays();
             FormatList = EFDataProvider.GetFormat();
             Escalations = EFDataProvider.GetEscalation();
@@ -270,10 +352,18 @@ namespace TimeSheetApp.ViewModel
         private void FilterProcessesMethod(string filterText)
         {
             ProcessFiltered?.Clear();
+            Dictionary<Process, int> sortRule = new Dictionary<Process, int>();
+            
             if (string.IsNullOrWhiteSpace(filterText))
             {
                 foreach (Process proc in Processes)
-                    ProcessFiltered.Add(proc);
+                {
+                    sortRule.Add(proc, LocalWorker.ChoosenCounter(proc.id));
+                }
+                foreach (KeyValuePair<Process, int> keyValue in sortRule.OrderByDescending(i => i.Value))
+                {
+                    ProcessFiltered.Add(keyValue.Key);
+                }
                 return;
             }
             foreach (Process process in Processes)
@@ -281,14 +371,19 @@ namespace TimeSheetApp.ViewModel
                 string codeFull = $"{process.Block_id}.{process.SubBlockId}.{process.id}";
                 if (process.procName.ToLower().IndexOf(filterText.ToLower()) > -1 || codeFull.IndexOf(filterText) > -1)
                 {
-                    ProcessFiltered.Add(process);
+                    sortRule.Add(process, LocalWorker.ChoosenCounter(process.id));
                 }
             }
+            foreach (KeyValuePair<Process, int> keyValue in sortRule.OrderByDescending(i => i.Value))
+            {
+                ProcessFiltered.Add(keyValue.Key);
+            }
+
 
         }
-
         private void AddProcessMethod(TimeSheetTable newItem)
         {
+            #region UnitTest's
             if (IsIntersectsWithOtherRecords(newItem))
             {
                 MessageBox.Show("Добавляемая запись пересекается с другой активностью. Выберите другое время.", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
@@ -304,7 +399,9 @@ namespace TimeSheetApp.ViewModel
                 MessageBox.Show("Время начала больше времени окончания. Укажите корректное время", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
+            #endregion
 
+            #region Добавление в БД
             TimeSheetTable clonedActivity = new TimeSheetTable()
             {
                 AnalyticId = newItem.Analytic.Id,
@@ -323,6 +420,9 @@ namespace TimeSheetApp.ViewModel
                 TimeSpent = newItem.TimeSpent,
             };
             EFDataProvider.AddActivity(clonedActivity);
+            #endregion
+
+            #region Обновление представления
             UpdateTimeSpan();
             RaisePropertyChanged("TotalDurationInMinutes");
             newItem.timeStart = newItem.timeEnd;
@@ -330,6 +430,18 @@ namespace TimeSheetApp.ViewModel
             newItem.Subject = string.Empty;
             newItem.comment = string.Empty;
             RaisePropertyChanged("NewRecord");
+            #endregion
+
+            #region Запоминаем выбор
+            LocalWorker.StoreSelection(new Selection(
+                newItem.Process.id,
+                newItem.BusinessBlock.Id,
+                newItem.Supports.Id,
+                newItem.ClientWays.Id,
+                newItem.Escalations.Id,
+                newItem.Formats.Id,
+                2));
+            #endregion
         }
 
         private bool IsIntersectsWithOtherRecords(TimeSheetTable record)
@@ -349,6 +461,8 @@ namespace TimeSheetApp.ViewModel
             if (Record == null) return;
             EditedRecord = new TimeSheetTable()
             {
+                Analytic = Record.Analytic,
+                AnalyticId = Record.AnalyticId,
                 Subject = Record.Subject,
                 comment = Record.comment,
                 Process = Record.Process,
@@ -362,11 +476,14 @@ namespace TimeSheetApp.ViewModel
                 Formats = Record.Formats,
                 riskChoise = Record.riskChoise
             };
+            initalTimeStart = Record.timeStart;
+            initalTimeEnd = Record.timeEnd;
             EditForm form = new EditForm();
             if (form.ShowDialog() == true)
             {
                 EFDataProvider.UpdateProcess(Record, EditedRecord);
                 UpdateTimeSpan();
+                
             }
 
         }

@@ -16,7 +16,7 @@ namespace TimeSheetApp.Model
         private static ExcelPackage excel;
         private static ExcelWorksheet worksheet;
 
-        public static void ExportDataTableToExcel(System.Data.DataTable data)
+        public static void ExportDataTableToExcel(DataTable data)
         {
             #region EPPLUS
             excel = new ExcelPackage();

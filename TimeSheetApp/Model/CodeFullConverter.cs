@@ -78,4 +78,29 @@ namespace TimeSheetApp
         }
 
     }
+    [ValueConversion(typeof(bool), typeof(Visibility))]
+    class InvertBooleanToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (targetType != typeof(Visibility))
+            {
+                throw new Exception("Неподдерживаемая операция приведения");
+            }
+            if ((bool)value)
+            {
+                return Visibility.Hidden;
+            }
+            else
+            {
+                return Visibility.Visible;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return DependencyProperty.UnsetValue;
+        }
+
+    }
 }

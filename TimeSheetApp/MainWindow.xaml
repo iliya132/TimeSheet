@@ -14,6 +14,7 @@
         <local:CodeFullConverter x:Key="CodeFullConverter"/>
         <local:CodeDescriptionConverter x:Key="CodeDescriptionConverter"/>
         <local:DateTimeConverter x:Key="DateTimeConverter"/>
+        
     </Window.Resources>
     <Grid>
         <TabControl>
@@ -44,8 +45,13 @@
                             </TextBox>
                             
                         </StackPanel>
-                        <ListView Name = "ProcessList" ItemsSource="{Binding ProcessFiltered}" SelectedItem="{Binding NewRecord.Process}" Margin="0,0,10,0"
-                      SelectionChanged="ProcessList_SelectionChanged" Grid.Row="1" SelectedIndex="0">
+                        <ListView Name = "ProcessList" ItemsSource="{Binding ProcessFiltered}" SelectedItem="{Binding NewRecord.Process}" Margin="0,0,10,0" Grid.Row="1" SelectedIndex="0">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <mvvm:EventToCommand Command="{Binding LoadSelectionForSelectedProcess}"
+                                                         CommandParameter="{Binding ElementName=ProcessList, Path=SelectedItem}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
                             <ListView.View>
                                 <GridView>
 
@@ -114,7 +120,7 @@
                             <DatePicker Name="DateBox" Grid.Row="0" HorizontalAlignment="Right" Width="100" SelectedDateChanged="DateBox_SelectedDateChanged" SelectedDate="{Binding CurrentDate}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="SelectedDateChanged">
-                                        <mvvm:EventToCommand Command="{Binding ReloadTimeSpan}"/>
+                                        <mvvm:EventToCommand Command="{Binding ReloadHistoryRecords}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </DatePicker>
@@ -131,7 +137,7 @@
                             <Label Content="Бизнес подразделение" FontWeight="Bold"/>
                             <ComboBox Name="businessCombo" Margin="0,0,0,0" DisplayMemberPath="BusinessBlockName"  ItemsSource="{Binding BusinessBlock}" SelectedItem="{Binding NewRecord.BusinessBlock}" SelectedIndex="0"/>
                             <Label Content="Support" FontWeight="Bold"/>
-                            <ComboBox Name="supportCombo" Margin="0,0,0,0" DisplayMemberPath="Name" ItemsSource="{Binding NonBusinessBlock}" SelectedItem="{Binding NewRecord.Supports}" SelectedIndex="0"/>
+                            <ComboBox Name="supportCombo" Margin="0,0,0,0" DisplayMemberPath="Name" ItemsSource="{Binding SupportsArr}" SelectedItem="{Binding NewRecord.Supports}" SelectedIndex="0"/>
                             <Label Content="Клиентские пути" FontWeight="Bold"/>
                             <ComboBox Name="clientWaysCombo" Margin="0,0,0,0" DisplayMemberPath="Name" ItemsSource="{Binding ClientWays}" SelectedItem="{Binding NewRecord.ClientWays}" SelectedIndex="0"/>
                             <Label Content="Эскалация" FontWeight="Bold"/>
@@ -244,31 +250,29 @@
                                       AlternatingRowBackground="LightGray"
                                       AlternationCount="2"
 						  >
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="SelectionChanged">
-                                        <i:InvokeCommandAction Command="{Binding Main.SelectAnalytic, Source={StaticResource Locator}}"
-												   CommandParameter="{Binding ElementName=AnalyticTable, Path=SelectedItems}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
+
+
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Фамилия" Binding="{Binding LastName}"/>
                                     <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}"/>
                                     <DataGridTextColumn Header="Отчество" Binding="{Binding FatherName}"/>
-                                    <DataGridTextColumn Header="Login" Binding="{Binding UserName}"/>
+                                    <DataGridTextColumn Header="Login" Binding="{Binding userName}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
 
                         <StackPanel Orientation="Vertical" Grid.Column="1">
                             <TextBlock Text="Настройки отчета:" Margin="5,10,5,10" FontSize="16"/>
-                            <ComboBox Name="ReportBox" SelectedIndex="{Binding SelectedReport}" ItemsSource="{Binding Reports}" Margin="5,0,5,15"/>
+                            <ComboBox Name="ReportBox" Margin="5,0,5,15" ItemsSource="{Binding ReportsAvailable}" SelectedIndex="{Binding SelectedReport}"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Label Content="Начальная дата:"/>
-                                <DatePicker Name="StartDatePicker" SelectedDate="{Binding Main.StartReportDate, Source={StaticResource Locator}}"/>
+                                <DatePicker Name="StartDatePicker" SelectedDate="{Binding StartReportDate}" />
                                 <Label Content="Конечная дата:"/>
-                                <DatePicker Name="EndDatePicker" SelectedDate="{Binding Main.EndReportDate, Source={StaticResource Locator}}"/>
+                                <DatePicker Name="EndDatePicker" SelectedDate="{Binding EndReportDate}" />
                             </StackPanel>
-                            <Button Name="GetReport" Content="Выгрузить отчет" Height="50" Margin="5,5,5,10" Command="{Binding GetReport}"/>
+                            <Button Name="GetReport" Content="Выгрузить отчет" Height="50" Margin="5,5,5,10" 
+                                    Command="{Binding GetReport}" 
+                                    CommandParameter="{Binding ElementName=AnalyticTable, Path=SelectedItems}"/>
                         </StackPanel>
                     </Grid>
                 </Grid>

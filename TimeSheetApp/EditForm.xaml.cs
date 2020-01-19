@@ -19,7 +19,6 @@ namespace TimeSheetApp
     /// </summary>
     public partial class EditForm : Window
     {
-
         public EditForm()
         {
             InitializeComponent();
@@ -29,7 +28,6 @@ namespace TimeSheetApp
         private void OKBtn_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;
-            Close();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

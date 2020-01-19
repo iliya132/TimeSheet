@@ -11,12 +11,12 @@ namespace TimeSheetApp.Model
     {
         bool ForcedToQuit();
         ObservableCollection<Process> GetProcesses();
-        ObservableCollection<BusinessBlock> GetBusinessBlocks();
-        ObservableCollection<Supports> GetSupports();
-        ObservableCollection<ClientWays> GetClientWays();
-        ObservableCollection<Escalations> GetEscalation();
-        ObservableCollection<Formats> GetFormat();
-        ObservableCollection<Risk> GetRisks();
+        BusinessBlock[] GetBusinessBlocks();
+        Supports[] GetSupports();
+        ClientWays[] GetClientWays();
+        Escalations[] GetEscalation();
+        Formats[] GetFormat();
+        Risk[] GetRisks();
         ObservableCollection<Analytic> GetMyAnalyticsData(Analytic currentUser);
         List<string> GetBlocksList();
         List<string> GetSubBlocksList();
