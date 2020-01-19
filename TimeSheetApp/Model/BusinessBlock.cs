@@ -17,13 +17,13 @@ namespace TimeSheetApp.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public BusinessBlock()
         {
-            this.TimeSheetTable = new HashSet<TimeSheetTable>();
+            this.BusinessBlockChoice = new HashSet<BusinessBlockChoice>();
         }
     
         public int Id { get; set; }
         public string BusinessBlockName { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TimeSheetTable> TimeSheetTable { get; set; }
+        public virtual ICollection<BusinessBlockChoice> BusinessBlockChoice { get; set; }
     }
 }

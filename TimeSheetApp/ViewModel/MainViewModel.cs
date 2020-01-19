@@ -111,22 +111,22 @@ namespace TimeSheetApp.ViewModel
             get { return _editedRecord; }
             set { _editedRecord = value; }
         }
-        private BusinessBlock _currentBusinessBlock = new BusinessBlock();
+        private BusinessBlockChoice _currentBusinessBlock = new BusinessBlockChoice();
 
-        public BusinessBlock CurrentBusinessBlock
+        public BusinessBlockChoice CurrentBusinessBlock
         {
             get { return _currentBusinessBlock; }
             set {
-                NewRecord.BusinessBlockId = value.Id;
+                NewRecord.BusinessBlockChoice = value;
                 _currentBusinessBlock = value;
             }
         }
-        private Supports _currentSupports = new Supports();
-        public Supports CurrentSupports
+        private supportChoice _currentSupports = new supportChoice();
+        public supportChoice CurrentSupports
         {
             get { return _currentSupports; }
             set {
-                NewRecord.SupportsId = value.Id;
+                NewRecord.supportChoice = value;
                 _currentSupports = value;
             }
         }
@@ -139,12 +139,12 @@ namespace TimeSheetApp.ViewModel
                 _currentClientWays = value;
             }
         }
-        private Escalations _currentEscalation = new Escalations();
-        public Escalations CurrentEscalation
+        private EscalationChoice _currentEscalation = new EscalationChoice();
+        public EscalationChoice CurrentEscalation
         {
             get { return _currentEscalation; }
             set {
-                NewRecord.EscalationsId = value.Id;
+                NewRecord.EscalationChoice = value;
                 _currentEscalation = value;
             }
         }
@@ -218,8 +218,11 @@ namespace TimeSheetApp.ViewModel
         }
         #endregion
 
-        #region Мультивыбор риск
+        #region Мультивыбор
         riskChoise riskChoise = new riskChoise();
+        BusinessBlockChoice businessBlockChoice = new BusinessBlockChoice();
+        supportChoice supportChoice = new supportChoice();
+        EscalationChoice escalationChoice = new EscalationChoice();
         #endregion
 
         public TimeSpan TotalDurationInMinutes
@@ -285,9 +288,25 @@ namespace TimeSheetApp.ViewModel
                 {
                     riskChoise[counter] = (choice[i] as Risk).id;
                     counter++;
+                } else if(choice[i] is BusinessBlock)
+                {
+                    businessBlockChoice[counter] = (choice[i] as BusinessBlock).Id;
+                    counter++;
+                } else if (choice[i] is Escalations)
+                {
+                    escalationChoice[counter] = (choice[i] as Escalations).Id;
+                    counter++;
+                }
+                else if (choice[i] is Supports)
+                {
+                    supportChoice[counter] = (choice[i] as Supports).Id;
+                    counter++;
                 }
             }
             NewRecord.riskChoise = riskChoise;
+            NewRecord.supportChoice = supportChoice;
+            NewRecord.EscalationChoice = escalationChoice;
+            NewRecord.BusinessBlockChoice = businessBlockChoice;
         }
 
         private void GetReportMethod(IEnumerable<object> Analytics)
@@ -320,11 +339,11 @@ namespace TimeSheetApp.ViewModel
                 Selection loadedSelection = LocalWorker.GetSelection(selectedProcess.id);
                 if (loadedSelection != null)
                 {
-                    NewRecord.BusinessBlock = Array.Find(BusinessBlock, i => i.Id == loadedSelection.BusinessBlockSelected);
-                    NewRecord.Supports = Array.Find(SupportsArr, i => i.Id == loadedSelection.SupportSelected);
+                    //NewRecord.BusinessBlock = Array.Find(BusinessBlock, i => i.Id == loadedSelection.BusinessBlockSelected);
+                    //NewRecord.Supports = Array.Find(SupportsArr, i => i.Id == loadedSelection.SupportSelected);
                     NewRecord.ClientWays = Array.Find(ClientWays, i => i.Id == loadedSelection.ClientWaySelected);
                     NewRecord.Formats = Array.Find(FormatList, i => i.Id == loadedSelection.FormatSelected);
-                    NewRecord.Escalations = Array.Find(Escalations, i => i.Id == loadedSelection.EscalationSelected);
+                    //NewRecord.Escalations = Array.Find(Escalations, i => i.Id == loadedSelection.EscalationSelected);
                     //TODO: NewRecord.riskChoise = Array.Find(risk, i => i.Id == loadedSelection.BusinessBlockSelected);
                     RaisePropertyChanged("NewRecord");
                 }
@@ -427,22 +446,25 @@ namespace TimeSheetApp.ViewModel
 
             #region Добавление в БД
             int riskID = EFDataProvider.AddRiskChoice(newItem.riskChoise);
+            int BBID = EFDataProvider.AddBusinessBlockChoice(newItem.BusinessBlockChoice);
+            int suppID = EFDataProvider.AddSupportChoiceSet(newItem.supportChoice);
+            int escalID = EFDataProvider.AddEscalationChoice(newItem.EscalationChoice);
             TimeSheetTable clonedActivity = new TimeSheetTable()
             {
                 AnalyticId = newItem.Analytic.Id,
-                BusinessBlockId = newItem.BusinessBlock.Id,
+                BusinessBlockChoice_id = BBID,
                 ClientWaysId = newItem.ClientWays.Id,
-                EscalationsId = newItem.Escalations.Id,
+                EscalationChoice_id = escalID,
                 FormatsId = newItem.Formats.Id,
                 Process_id = newItem.Process.id,
                 id = newItem.id,
                 riskChoise_id = riskID,
                 Subject = newItem.Subject,
                 comment = newItem.comment,
-                SupportsId = newItem.Supports.Id,
+                SupportChoiceId = suppID,
                 timeStart = newItem.timeStart,
                 timeEnd = newItem.timeEnd,
-                TimeSpent = newItem.TimeSpent,
+                TimeSpent = newItem.TimeSpent                
             };
             EFDataProvider.AddActivity(clonedActivity);
             #endregion
@@ -460,10 +482,10 @@ namespace TimeSheetApp.ViewModel
             #region Запоминаем выбор
             LocalWorker.StoreSelection(new Selection(
                 newItem.Process.id,
-                newItem.BusinessBlock.Id,
-                newItem.Supports.Id,
+                newItem.BusinessBlockChoice_id,
+                newItem.SupportChoiceId,
                 newItem.ClientWays.Id,
-                newItem.Escalations.Id,
+                newItem.EscalationChoice_id,
                 newItem.Formats.Id,
                 2));
             #endregion
@@ -491,13 +513,13 @@ namespace TimeSheetApp.ViewModel
                 Subject = Record.Subject,
                 comment = Record.comment,
                 Process = Record.Process,
-                BusinessBlock = Record.BusinessBlock,
-                Supports = Record.Supports,
+                BusinessBlockChoice = Record.BusinessBlockChoice,
+                supportChoice = Record.supportChoice,
                 timeStart = Record.timeStart,
                 timeEnd = Record.timeEnd,
                 TimeSpent = Record.TimeSpent,
                 ClientWays = Record.ClientWays,
-                Escalations = Record.Escalations,
+                EscalationChoice = Record.EscalationChoice,
                 Formats = Record.Formats,
                 riskChoise = Record.riskChoise
             };

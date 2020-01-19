@@ -41,7 +41,7 @@ namespace TimeSheetApp.Model
             {
                 switch (index)
                 {
-                    case (0):return Risk_id;
+                    case (0): return Risk_id;
                     case (1): return Risk_id1;
                     case (2): return Risk_id2;
                     case (3): return Risk_id3;
@@ -54,7 +54,7 @@ namespace TimeSheetApp.Model
                 }
                 return 0;
             }
-            set
+            set 
             {
                 switch (index)
                 {
@@ -67,7 +67,7 @@ namespace TimeSheetApp.Model
                     case (6): Risk_id6 = value; break;
                     case (7): Risk_id7 = value; break;
                     case (8): Risk_id8 = value; break;
-                    case (9): Risk_id9=value; break;
+                    case (9): Risk_id9 = value; break;
                 }
             }
         }

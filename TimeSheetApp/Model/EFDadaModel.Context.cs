@@ -46,5 +46,8 @@ namespace TimeSheetApp.Model
         public virtual DbSet<UpravlenieTable> UpravlenieTable { get; set; }
         public virtual DbSet<Directions> DirectionsSet { get; set; }
         public virtual DbSet<Risk> RiskSet { get; set; }
+        public virtual DbSet<supportChoice> supportChoiceSet { get; set; }
+        public virtual DbSet<EscalationChoice> EscalationChoiceSet { get; set; }
+        public virtual DbSet<BusinessBlockChoice> BusinessBlockChoiceSet { get; set; }
     }
 }

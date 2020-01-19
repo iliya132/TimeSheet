@@ -27,6 +27,9 @@
     <EntitySet Name="SubBlock" EntityType="TimeSheetDBModel.Store.SubBlock" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="Supports" EntityType="TimeSheetDBModel.Store.Supports" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="UpravlenieTable" EntityType="TimeSheetDBModel.Store.UpravlenieTable" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="supportChoiceSet" EntityType="TimeSheetDBModel.Store.supportChoiceSet" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="EscalationChoiceSet" EntityType="TimeSheetDBModel.Store.EscalationChoiceSet" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="BusinessBlockChoiceSet" EntityType="TimeSheetDBModel.Store.BusinessBlockChoiceSet" store:Type="Tables" Schema="dbo" />
     <AssociationSet Name="DepartmentsAnalytic" Association="TimeSheetDBModel.Store.DepartmentsAnalytic">
       <End Role="Departments" EntitySet="Departments" />
       <End Role="Analytic" EntitySet="Analytic" />
@@ -51,24 +54,12 @@
       <End Role="RoleTable" EntitySet="RoleTable" />
       <End Role="Analytic" EntitySet="Analytic" />
     </AssociationSet>
-    <AssociationSet Name="BusinessBlockTimeSheetTable" Association="TimeSheetDBModel.Store.BusinessBlockTimeSheetTable">
-      <End Role="BusinessBlock" EntitySet="BusinessBlock" />
-      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
-    </AssociationSet>
     <AssociationSet Name="ClientWaysTimeSheetTable" Association="TimeSheetDBModel.Store.ClientWaysTimeSheetTable">
       <End Role="ClientWays" EntitySet="ClientWays" />
       <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
     </AssociationSet>
-    <AssociationSet Name="EscalationsTimeSheetTable" Association="TimeSheetDBModel.Store.EscalationsTimeSheetTable">
-      <End Role="Escalations" EntitySet="Escalations" />
-      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
-    </AssociationSet>
     <AssociationSet Name="FormatsTimeSheetTable" Association="TimeSheetDBModel.Store.FormatsTimeSheetTable">
       <End Role="Formats" EntitySet="Formats" />
-      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
-    </AssociationSet>
-    <AssociationSet Name="SupportsTimeSheetTable" Association="TimeSheetDBModel.Store.SupportsTimeSheetTable">
-      <End Role="Supports" EntitySet="Supports" />
       <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
     </AssociationSet>
     <AssociationSet Name="AnalyticTimeSheetTable" Association="TimeSheetDBModel.Store.AnalyticTimeSheetTable">
@@ -102,6 +93,30 @@
     <AssociationSet Name="RiskriskChoise" Association="TimeSheetDBModel.Store.RiskriskChoise">
       <End Role="Risk" EntitySet="RiskSet" />
       <End Role="riskChoise" EntitySet="riskChoise" />
+    </AssociationSet>
+    <AssociationSet Name="TimeSheetTablesupportChoice" Association="TimeSheetDBModel.Store.TimeSheetTablesupportChoice">
+      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+      <End Role="supportChoice" EntitySet="supportChoiceSet" />
+    </AssociationSet>
+    <AssociationSet Name="supportChoiceSupports" Association="TimeSheetDBModel.Store.supportChoiceSupports">
+      <End Role="supportChoice" EntitySet="supportChoiceSet" />
+      <End Role="Supports" EntitySet="Supports" />
+    </AssociationSet>
+    <AssociationSet Name="EscalationChoiceEscalations" Association="TimeSheetDBModel.Store.EscalationChoiceEscalations">
+      <End Role="EscalationChoice" EntitySet="EscalationChoiceSet" />
+      <End Role="Escalations" EntitySet="Escalations" />
+    </AssociationSet>
+    <AssociationSet Name="TimeSheetTableEscalationChoice" Association="TimeSheetDBModel.Store.TimeSheetTableEscalationChoice">
+      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+      <End Role="EscalationChoice" EntitySet="EscalationChoiceSet" />
+    </AssociationSet>
+    <AssociationSet Name="BusinessBlockBusinessBlockChoice" Association="TimeSheetDBModel.Store.BusinessBlockBusinessBlockChoice">
+      <End Role="BusinessBlock" EntitySet="BusinessBlock" />
+      <End Role="BusinessBlockChoice" EntitySet="BusinessBlockChoiceSet" />
+    </AssociationSet>
+    <AssociationSet Name="TimeSheetTableBusinessBlockChoice" Association="TimeSheetDBModel.Store.TimeSheetTableBusinessBlockChoice">
+      <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+      <End Role="BusinessBlockChoice" EntitySet="BusinessBlockChoiceSet" />
     </AssociationSet>
   </EntityContainer>
   <EntityType Name="Analytic">
@@ -137,14 +152,16 @@
     <Property Name="TimeSpent" Type="int" Nullable="false" />
     <Property Name="comment" Type="nvarchar(max)" Nullable="true" />
     <Property Name="Subject" Type="nvarchar(max)" Nullable="true" />
-    <Property Name="BusinessBlockId" Type="int" Nullable="false" />
     <Property Name="ClientWaysId" Type="int" Nullable="false" />
-    <Property Name="EscalationsId" Type="int" Nullable="false" />
+    <Property Name="EscalationChoiceId" Type="int" Nullable="false" />
     <Property Name="FormatsId" Type="int" Nullable="false" />
-    <Property Name="SupportsId" Type="int" Nullable="false" />
+    <Property Name="SupportChoiceId" Type="int" Nullable="false" />
     <Property Name="AnalyticId" Type="int" Nullable="false" />
     <Property Name="Process_id" Type="int" Nullable="false" DefaultValue="1" />
     <Property Name="riskChoise_id" Type="int" Nullable="false" />
+    <Property Name="EscalationChoice_id" Type="int" Nullable="false" />
+    <Property Name="BusinessBlockChoice_id" Type="int" Nullable="false" />
+    <Property Name="supportChoice_id" Type="int" Nullable="false" />
   </EntityType>
   <EntityType Name="Block">
     <Key>
@@ -286,6 +303,57 @@
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
   </EntityType>
+  <EntityType Name="supportChoiceSet">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Support_id" Type="int" Nullable="true" />
+    <Property Name="Support_id1" Type="int" Nullable="true" />
+    <Property Name="Support_id2" Type="int" Nullable="true" />
+    <Property Name="Support_id3" Type="int" Nullable="true" />
+    <Property Name="Support_id4" Type="int" Nullable="true" />
+    <Property Name="Support_id5" Type="int" Nullable="true" />
+    <Property Name="Support_id6" Type="int" Nullable="true" />
+    <Property Name="Support_id7" Type="int" Nullable="true" />
+    <Property Name="Support_id8" Type="int" Nullable="true" />
+    <Property Name="Support_id9" Type="int" Nullable="true" />
+    <Property Name="Supports_Id" Type="int" Nullable="true" />
+  </EntityType>
+  <EntityType Name="EscalationChoiceSet">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Escalation_id" Type="int" Nullable="true" />
+    <Property Name="Escalation_id1" Type="int" Nullable="true" />
+    <Property Name="Escalation_id2" Type="int" Nullable="true" />
+    <Property Name="Escalation_id3" Type="int" Nullable="true" />
+    <Property Name="Escalation_id4" Type="int" Nullable="true" />
+    <Property Name="Escalation_id5" Type="int" Nullable="true" />
+    <Property Name="Escalation_id6" Type="int" Nullable="true" />
+    <Property Name="Escalation_id7" Type="int" Nullable="true" />
+    <Property Name="Escalation_id8" Type="int" Nullable="true" />
+    <Property Name="Escalation_id9" Type="int" Nullable="true" />
+    <Property Name="Escalations_Id" Type="int" Nullable="true" />
+  </EntityType>
+  <EntityType Name="BusinessBlockChoiceSet">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="BusinessBlockid" Type="int" Nullable="true" />
+    <Property Name="BusinessBlock_id1" Type="int" Nullable="true" />
+    <Property Name="BusinessBlock_id2" Type="int" Nullable="true" />
+    <Property Name="BusinessBlock_id3" Type="int" Nullable="true" />
+    <Property Name="BusinessBlock_id4" Type="int" Nullable="true" />
+    <Property Name="BusinessBlock_id5" Type="int" Nullable="true" />
+    <Property Name="BusinessBlock_id6" Type="int" Nullable="true" />
+    <Property Name="BusinessBlock_id7" Type="int" Nullable="true" />
+    <Property Name="BusinessBlock_id8" Type="int" Nullable="true" />
+    <Property Name="BusinessBlock_id9" Type="int" Nullable="true" />
+    <Property Name="BusinessBlock_Id" Type="int" Nullable="true" />
+  </EntityType>
   <Association Name="DepartmentsAnalytic">
     <End Role="Departments" Type="TimeSheetDBModel.Store.Departments" Multiplicity="1" />
     <End Role="Analytic" Type="TimeSheetDBModel.Store.Analytic" Multiplicity="*" />
@@ -358,18 +426,6 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
-  <Association Name="BusinessBlockTimeSheetTable">
-    <End Role="BusinessBlock" Type="TimeSheetDBModel.Store.BusinessBlock" Multiplicity="1" />
-    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
-    <ReferentialConstraint>
-      <Principal Role="BusinessBlock">
-        <PropertyRef Name="Id" />
-      </Principal>
-      <Dependent Role="TimeSheetTable">
-        <PropertyRef Name="BusinessBlockId" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
   <Association Name="ClientWaysTimeSheetTable">
     <End Role="ClientWays" Type="TimeSheetDBModel.Store.ClientWays" Multiplicity="1" />
     <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
@@ -382,18 +438,6 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
-  <Association Name="EscalationsTimeSheetTable">
-    <End Role="Escalations" Type="TimeSheetDBModel.Store.Escalations" Multiplicity="1" />
-    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
-    <ReferentialConstraint>
-      <Principal Role="Escalations">
-        <PropertyRef Name="Id" />
-      </Principal>
-      <Dependent Role="TimeSheetTable">
-        <PropertyRef Name="EscalationsId" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
   <Association Name="FormatsTimeSheetTable">
     <End Role="Formats" Type="TimeSheetDBModel.Store.Formats" Multiplicity="1" />
     <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
@@ -403,18 +447,6 @@
       </Principal>
       <Dependent Role="TimeSheetTable">
         <PropertyRef Name="FormatsId" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
-  <Association Name="SupportsTimeSheetTable">
-    <End Role="Supports" Type="TimeSheetDBModel.Store.Supports" Multiplicity="1" />
-    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
-    <ReferentialConstraint>
-      <Principal Role="Supports">
-        <PropertyRef Name="Id" />
-      </Principal>
-      <Dependent Role="TimeSheetTable">
-        <PropertyRef Name="SupportsId" />
       </Dependent>
     </ReferentialConstraint>
   </Association>
@@ -514,6 +546,78 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
+  <Association Name="TimeSheetTablesupportChoice">
+    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
+    <End Role="supportChoice" Type="TimeSheetDBModel.Store.supportChoiceSet" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="supportChoice">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="TimeSheetTable">
+        <PropertyRef Name="supportChoice_id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="supportChoiceSupports">
+    <End Role="supportChoice" Type="TimeSheetDBModel.Store.supportChoiceSet" Multiplicity="*" />
+    <End Role="Supports" Type="TimeSheetDBModel.Store.Supports" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="Supports">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="supportChoice">
+        <PropertyRef Name="Supports_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="EscalationChoiceEscalations">
+    <End Role="EscalationChoice" Type="TimeSheetDBModel.Store.EscalationChoiceSet" Multiplicity="*" />
+    <End Role="Escalations" Type="TimeSheetDBModel.Store.Escalations" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="Escalations">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="EscalationChoice">
+        <PropertyRef Name="Escalations_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="TimeSheetTableEscalationChoice">
+    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
+    <End Role="EscalationChoice" Type="TimeSheetDBModel.Store.EscalationChoiceSet" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="EscalationChoice">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="TimeSheetTable">
+        <PropertyRef Name="EscalationChoice_id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="BusinessBlockBusinessBlockChoice">
+    <End Role="BusinessBlock" Type="TimeSheetDBModel.Store.BusinessBlock" Multiplicity="0..1" />
+    <End Role="BusinessBlockChoice" Type="TimeSheetDBModel.Store.BusinessBlockChoiceSet" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="BusinessBlock">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="BusinessBlockChoice">
+        <PropertyRef Name="BusinessBlock_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="TimeSheetTableBusinessBlockChoice">
+    <End Role="TimeSheetTable" Type="TimeSheetDBModel.Store.TimeSheetTable" Multiplicity="*" />
+    <End Role="BusinessBlockChoice" Type="TimeSheetDBModel.Store.BusinessBlockChoiceSet" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="BusinessBlockChoice">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="TimeSheetTable">
+        <PropertyRef Name="BusinessBlockChoice_id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
 </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
@@ -559,22 +663,23 @@
           <Property Name="TimeSpent" Type="Int32" Nullable="false" />
           <Property Name="comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Subject" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="BusinessBlock" Relationship="TimeSheetDBModel.BusinessBlockTimeSheetTable" FromRole="TimeSheetTable" ToRole="BusinessBlock" />
-          <Property Name="BusinessBlockId" Type="Int32" Nullable="false" />
           <NavigationProperty Name="ClientWays" Relationship="TimeSheetDBModel.ClientWaysTimeSheetTable" FromRole="TimeSheetTable" ToRole="ClientWays" />
           <Property Name="ClientWaysId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Escalations" Relationship="TimeSheetDBModel.EscalationsTimeSheetTable" FromRole="TimeSheetTable" ToRole="Escalations" />
-          <Property Name="EscalationsId" Type="Int32" Nullable="false" />
+          <Property Name="EscalationChoiceId" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Formats" Relationship="TimeSheetDBModel.FormatsTimeSheetTable" FromRole="TimeSheetTable" ToRole="Formats" />
           <Property Name="FormatsId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Supports" Relationship="TimeSheetDBModel.SupportsTimeSheetTable" FromRole="TimeSheetTable" ToRole="Supports" />
-          <Property Name="SupportsId" Type="Int32" Nullable="false" />
+          <Property Name="SupportChoiceId" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Analytic" Relationship="TimeSheetDBModel.AnalyticTimeSheetTable" FromRole="TimeSheetTable" ToRole="Analytic" />
           <Property Name="AnalyticId" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Process" Relationship="TimeSheetDBModel.ProcessTimeSheetTable" FromRole="TimeSheetTable" ToRole="Process" />
           <Property Name="Process_id" Type="Int32" Nullable="false" DefaultValue="1" />
           <NavigationProperty Name="riskChoise" Relationship="TimeSheetDBModel.riskChoiseTimeSheetTable" FromRole="TimeSheetTable" ToRole="riskChoise" />
           <Property Name="riskChoise_id" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="supportChoice" Relationship="TimeSheetDBModel.TimeSheetTablesupportChoice" FromRole="TimeSheetTable" ToRole="supportChoice" />
+          <NavigationProperty Name="EscalationChoice" Relationship="TimeSheetDBModel.TimeSheetTableEscalationChoice" FromRole="TimeSheetTable" ToRole="EscalationChoice" />
+          <Property Name="EscalationChoice_id" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="BusinessBlockChoice" Relationship="TimeSheetDBModel.TimeSheetTableBusinessBlockChoice" FromRole="TimeSheetTable" ToRole="BusinessBlockChoice" />
+          <Property Name="BusinessBlockChoice_id" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="Block">
           <Key>
@@ -590,7 +695,7 @@
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="BusinessBlockName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.BusinessBlockTimeSheetTable" FromRole="BusinessBlock" ToRole="TimeSheetTable" />
+          <NavigationProperty Name="BusinessBlockChoice" Relationship="TimeSheetDBModel.BusinessBlockBusinessBlockChoice" FromRole="BusinessBlock" ToRole="BusinessBlockChoice" />
         </EntityType>
         <EntityType Name="ClientWays">
           <Key>
@@ -622,7 +727,7 @@
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.EscalationsTimeSheetTable" FromRole="Escalations" ToRole="TimeSheetTable" />
+          <NavigationProperty Name="EscalationChoice" Relationship="TimeSheetDBModel.EscalationChoiceEscalations" FromRole="Escalations" ToRole="EscalationChoice" />
         </EntityType>
         <EntityType Name="ForceQuit">
           <Key>
@@ -728,7 +833,7 @@
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.SupportsTimeSheetTable" FromRole="Supports" ToRole="TimeSheetTable" />
+          <NavigationProperty Name="supportChoice" Relationship="TimeSheetDBModel.supportChoiceSupports" FromRole="Supports" ToRole="supportChoice" />
         </EntityType>
         <EntityType Name="UpravlenieTable">
           <Key>
@@ -783,24 +888,12 @@
             <End Role="RoleTable" EntitySet="RoleTable" />
             <End Role="Analytic" EntitySet="Analytic" />
           </AssociationSet>
-          <AssociationSet Name="BusinessBlockTimeSheetTable" Association="TimeSheetDBModel.BusinessBlockTimeSheetTable">
-            <End Role="BusinessBlock" EntitySet="BusinessBlock" />
-            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
-          </AssociationSet>
           <AssociationSet Name="ClientWaysTimeSheetTable" Association="TimeSheetDBModel.ClientWaysTimeSheetTable">
             <End Role="ClientWays" EntitySet="ClientWays" />
             <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
           </AssociationSet>
-          <AssociationSet Name="EscalationsTimeSheetTable" Association="TimeSheetDBModel.EscalationsTimeSheetTable">
-            <End Role="Escalations" EntitySet="Escalations" />
-            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
-          </AssociationSet>
           <AssociationSet Name="FormatsTimeSheetTable" Association="TimeSheetDBModel.FormatsTimeSheetTable">
             <End Role="Formats" EntitySet="Formats" />
-            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
-          </AssociationSet>
-          <AssociationSet Name="SupportsTimeSheetTable" Association="TimeSheetDBModel.SupportsTimeSheetTable">
-            <End Role="Supports" EntitySet="Supports" />
             <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
           </AssociationSet>
           <AssociationSet Name="AnalyticTimeSheetTable" Association="TimeSheetDBModel.AnalyticTimeSheetTable">
@@ -835,6 +928,33 @@
           <AssociationSet Name="RiskriskChoise" Association="TimeSheetDBModel.RiskriskChoise">
             <End Role="Risk" EntitySet="RiskSet" />
             <End Role="riskChoise" EntitySet="riskChoise" />
+          </AssociationSet>
+          <EntitySet Name="supportChoiceSet" EntityType="TimeSheetDBModel.supportChoice" />
+          <AssociationSet Name="TimeSheetTablesupportChoice" Association="TimeSheetDBModel.TimeSheetTablesupportChoice">
+            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+            <End Role="supportChoice" EntitySet="supportChoiceSet" />
+          </AssociationSet>
+          <EntitySet Name="EscalationChoiceSet" EntityType="TimeSheetDBModel.EscalationChoice" />
+          <AssociationSet Name="supportChoiceSupports" Association="TimeSheetDBModel.supportChoiceSupports">
+            <End Role="supportChoice" EntitySet="supportChoiceSet" />
+            <End Role="Supports" EntitySet="Supports" />
+          </AssociationSet>
+          <AssociationSet Name="EscalationChoiceEscalations" Association="TimeSheetDBModel.EscalationChoiceEscalations">
+            <End Role="EscalationChoice" EntitySet="EscalationChoiceSet" />
+            <End Role="Escalations" EntitySet="Escalations" />
+          </AssociationSet>
+          <AssociationSet Name="TimeSheetTableEscalationChoice" Association="TimeSheetDBModel.TimeSheetTableEscalationChoice">
+            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+            <End Role="EscalationChoice" EntitySet="EscalationChoiceSet" />
+          </AssociationSet>
+          <EntitySet Name="BusinessBlockChoiceSet" EntityType="TimeSheetDBModel.BusinessBlockChoice" />
+          <AssociationSet Name="BusinessBlockBusinessBlockChoice" Association="TimeSheetDBModel.BusinessBlockBusinessBlockChoice">
+            <End Role="BusinessBlock" EntitySet="BusinessBlock" />
+            <End Role="BusinessBlockChoice" EntitySet="BusinessBlockChoiceSet" />
+          </AssociationSet>
+          <AssociationSet Name="TimeSheetTableBusinessBlockChoice" Association="TimeSheetDBModel.TimeSheetTableBusinessBlockChoice">
+            <End Role="TimeSheetTable" EntitySet="TimeSheetTable" />
+            <End Role="BusinessBlockChoice" EntitySet="BusinessBlockChoiceSet" />
           </AssociationSet>
         </EntityContainer>
         <Association Name="DepartmentsAnalytic">
@@ -909,18 +1029,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="BusinessBlockTimeSheetTable">
-          <End Type="TimeSheetDBModel.BusinessBlock" Role="BusinessBlock" Multiplicity="1" />
-          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="BusinessBlock">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="TimeSheetTable">
-              <PropertyRef Name="BusinessBlockId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="ClientWaysTimeSheetTable">
           <End Type="TimeSheetDBModel.ClientWays" Role="ClientWays" Multiplicity="1" />
           <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
@@ -933,18 +1041,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="EscalationsTimeSheetTable">
-          <End Type="TimeSheetDBModel.Escalations" Role="Escalations" Multiplicity="1" />
-          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Escalations">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="TimeSheetTable">
-              <PropertyRef Name="EscalationsId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FormatsTimeSheetTable">
           <End Type="TimeSheetDBModel.Formats" Role="Formats" Multiplicity="1" />
           <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
@@ -954,18 +1050,6 @@
             </Principal>
             <Dependent Role="TimeSheetTable">
               <PropertyRef Name="FormatsId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="SupportsTimeSheetTable">
-          <End Type="TimeSheetDBModel.Supports" Role="Supports" Multiplicity="1" />
-          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Supports">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="TimeSheetTable">
-              <PropertyRef Name="SupportsId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1065,6 +1149,100 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="supportChoice">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Support_id" Type="Int32" Nullable="true" />
+          <Property Name="Support_id1" Type="Int32" Nullable="true" />
+          <Property Name="Support_id2" Type="Int32" Nullable="true" />
+          <Property Name="Support_id3" Type="Int32" Nullable="true" />
+          <Property Name="Support_id4" Type="Int32" Nullable="true" />
+          <Property Name="Support_id5" Type="Int32" Nullable="true" />
+          <Property Name="Support_id6" Type="Int32" Nullable="true" />
+          <Property Name="Support_id7" Type="Int32" Nullable="true" />
+          <Property Name="Support_id8" Type="Int32" Nullable="true" />
+          <Property Name="Support_id9" Type="Int32" Nullable="true" />
+          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.TimeSheetTablesupportChoice" FromRole="supportChoice" ToRole="TimeSheetTable" />
+          <NavigationProperty Name="Supports" Relationship="TimeSheetDBModel.supportChoiceSupports" FromRole="supportChoice" ToRole="Supports" />
+        </EntityType>
+        <Association Name="TimeSheetTablesupportChoice">
+          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
+          <End Type="TimeSheetDBModel.supportChoice" Role="supportChoice" Multiplicity="1" />
+        </Association>
+        <EntityType Name="EscalationChoice">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Escalation_id" Type="Int32" Nullable="true" />
+          <Property Name="Escalation_id1" Type="Int32" Nullable="true" />
+          <Property Name="Escalation_id2" Type="Int32" Nullable="true" />
+          <Property Name="Escalation_id3" Type="Int32" Nullable="true" />
+          <Property Name="Escalation_id4" Type="Int32" Nullable="true" />
+          <Property Name="Escalation_id5" Type="Int32" Nullable="true" />
+          <Property Name="Escalation_id6" Type="Int32" Nullable="true" />
+          <Property Name="Escalation_id7" Type="Int32" Nullable="true" />
+          <Property Name="Escalation_id8" Type="Int32" Nullable="true" />
+          <Property Name="Escalation_id9" Type="Int32" Nullable="true" />
+          <NavigationProperty Name="Escalations" Relationship="TimeSheetDBModel.EscalationChoiceEscalations" FromRole="EscalationChoice" ToRole="Escalations" />
+          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.TimeSheetTableEscalationChoice" FromRole="EscalationChoice" ToRole="TimeSheetTable" />
+        </EntityType>
+        <Association Name="supportChoiceSupports">
+          <End Type="TimeSheetDBModel.supportChoice" Role="supportChoice" Multiplicity="*" />
+          <End Type="TimeSheetDBModel.Supports" Role="Supports" Multiplicity="0..1" />
+        </Association>
+        <Association Name="EscalationChoiceEscalations">
+          <End Type="TimeSheetDBModel.EscalationChoice" Role="EscalationChoice" Multiplicity="*" />
+          <End Type="TimeSheetDBModel.Escalations" Role="Escalations" Multiplicity="0..1" />
+        </Association>
+        <Association Name="TimeSheetTableEscalationChoice">
+          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
+          <End Type="TimeSheetDBModel.EscalationChoice" Role="EscalationChoice" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="EscalationChoice">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="TimeSheetTable">
+              <PropertyRef Name="EscalationChoice_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="BusinessBlockChoice">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="BusinessBlockid" Type="Int32" Nullable="true" />
+          <Property Name="BusinessBlock_id1" Type="Int32" Nullable="true" />
+          <Property Name="BusinessBlock_id2" Type="Int32" Nullable="true" />
+          <Property Name="BusinessBlock_id3" Type="Int32" Nullable="true" />
+          <Property Name="BusinessBlock_id4" Type="Int32" Nullable="true" />
+          <Property Name="BusinessBlock_id5" Type="Int32" Nullable="true" />
+          <Property Name="BusinessBlock_id6" Type="Int32" Nullable="true" />
+          <Property Name="BusinessBlock_id7" Type="Int32" Nullable="true" />
+          <Property Name="BusinessBlock_id8" Type="Int32" Nullable="true" />
+          <Property Name="BusinessBlock_id9" Type="Int32" Nullable="true" />
+          <NavigationProperty Name="BusinessBlock" Relationship="TimeSheetDBModel.BusinessBlockBusinessBlockChoice" FromRole="BusinessBlockChoice" ToRole="BusinessBlock" />
+          <NavigationProperty Name="TimeSheetTable" Relationship="TimeSheetDBModel.TimeSheetTableBusinessBlockChoice" FromRole="BusinessBlockChoice" ToRole="TimeSheetTable" />
+        </EntityType>
+        <Association Name="BusinessBlockBusinessBlockChoice">
+          <End Type="TimeSheetDBModel.BusinessBlock" Role="BusinessBlock" Multiplicity="0..1" />
+          <End Type="TimeSheetDBModel.BusinessBlockChoice" Role="BusinessBlockChoice" Multiplicity="*" />
+        </Association>
+        <Association Name="TimeSheetTableBusinessBlockChoice">
+          <End Type="TimeSheetDBModel.TimeSheetTable" Role="TimeSheetTable" Multiplicity="*" />
+          <End Type="TimeSheetDBModel.BusinessBlockChoice" Role="BusinessBlockChoice" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="BusinessBlockChoice">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="TimeSheetTable">
+              <PropertyRef Name="BusinessBlockChoice_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1097,14 +1275,15 @@
           <ScalarProperty Name="TimeSpent" ColumnName="TimeSpent" />
           <ScalarProperty Name="comment" ColumnName="comment" />
           <ScalarProperty Name="Subject" ColumnName="Subject" />
-          <ScalarProperty Name="BusinessBlockId" ColumnName="BusinessBlockId" />
           <ScalarProperty Name="ClientWaysId" ColumnName="ClientWaysId" />
-          <ScalarProperty Name="EscalationsId" ColumnName="EscalationsId" />
+          <ScalarProperty Name="EscalationChoiceId" ColumnName="EscalationChoiceId" />
           <ScalarProperty Name="FormatsId" ColumnName="FormatsId" />
-          <ScalarProperty Name="SupportsId" ColumnName="SupportsId" />
+          <ScalarProperty Name="SupportChoiceId" ColumnName="SupportChoiceId" />
           <ScalarProperty Name="AnalyticId" ColumnName="AnalyticId" />
           <ScalarProperty Name="Process_id" ColumnName="Process_id" />
           <ScalarProperty Name="riskChoise_id" ColumnName="riskChoise_id" />
+          <ScalarProperty Name="EscalationChoice_id" ColumnName="EscalationChoice_id" />
+          <ScalarProperty Name="BusinessBlockChoice_id" ColumnName="BusinessBlockChoice_id" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -1274,6 +1453,92 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+    <EntitySetMapping Name="supportChoiceSet">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.supportChoice)">
+        <MappingFragment StoreEntitySet="supportChoiceSet">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="Support_id" ColumnName="Support_id" />
+          <ScalarProperty Name="Support_id1" ColumnName="Support_id1" />
+          <ScalarProperty Name="Support_id2" ColumnName="Support_id2" />
+          <ScalarProperty Name="Support_id3" ColumnName="Support_id3" />
+          <ScalarProperty Name="Support_id4" ColumnName="Support_id4" />
+          <ScalarProperty Name="Support_id5" ColumnName="Support_id5" />
+          <ScalarProperty Name="Support_id6" ColumnName="Support_id6" />
+          <ScalarProperty Name="Support_id7" ColumnName="Support_id7" />
+          <ScalarProperty Name="Support_id8" ColumnName="Support_id8" />
+          <ScalarProperty Name="Support_id9" ColumnName="Support_id9" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="EscalationChoiceSet">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.EscalationChoice)">
+        <MappingFragment StoreEntitySet="EscalationChoiceSet">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="Escalation_id" ColumnName="Escalation_id" />
+          <ScalarProperty Name="Escalation_id1" ColumnName="Escalation_id1" />
+          <ScalarProperty Name="Escalation_id2" ColumnName="Escalation_id2" />
+          <ScalarProperty Name="Escalation_id3" ColumnName="Escalation_id3" />
+          <ScalarProperty Name="Escalation_id4" ColumnName="Escalation_id4" />
+          <ScalarProperty Name="Escalation_id5" ColumnName="Escalation_id5" />
+          <ScalarProperty Name="Escalation_id6" ColumnName="Escalation_id6" />
+          <ScalarProperty Name="Escalation_id7" ColumnName="Escalation_id7" />
+          <ScalarProperty Name="Escalation_id8" ColumnName="Escalation_id8" />
+          <ScalarProperty Name="Escalation_id9" ColumnName="Escalation_id9" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="BusinessBlockChoiceSet">
+      <EntityTypeMapping TypeName="IsTypeOf(TimeSheetDBModel.BusinessBlockChoice)">
+        <MappingFragment StoreEntitySet="BusinessBlockChoiceSet">
+          <ScalarProperty Name="id" ColumnName="id" />
+          <ScalarProperty Name="BusinessBlockid" ColumnName="BusinessBlockid" />
+          <ScalarProperty Name="BusinessBlock_id1" ColumnName="BusinessBlock_id1" />
+          <ScalarProperty Name="BusinessBlock_id2" ColumnName="BusinessBlock_id2" />
+          <ScalarProperty Name="BusinessBlock_id3" ColumnName="BusinessBlock_id3" />
+          <ScalarProperty Name="BusinessBlock_id4" ColumnName="BusinessBlock_id4" />
+          <ScalarProperty Name="BusinessBlock_id5" ColumnName="BusinessBlock_id5" />
+          <ScalarProperty Name="BusinessBlock_id6" ColumnName="BusinessBlock_id6" />
+          <ScalarProperty Name="BusinessBlock_id7" ColumnName="BusinessBlock_id7" />
+          <ScalarProperty Name="BusinessBlock_id8" ColumnName="BusinessBlock_id8" />
+          <ScalarProperty Name="BusinessBlock_id9" ColumnName="BusinessBlock_id9" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <AssociationSetMapping Name="TimeSheetTablesupportChoice" TypeName="TimeSheetDBModel.TimeSheetTablesupportChoice" StoreEntitySet="TimeSheetTable">
+      <EndProperty Name="supportChoice">
+        <ScalarProperty Name="id" ColumnName="supportChoice_id" />
+      </EndProperty>
+      <EndProperty Name="TimeSheetTable">
+        <ScalarProperty Name="id" ColumnName="id" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="supportChoiceSupports" TypeName="TimeSheetDBModel.supportChoiceSupports" StoreEntitySet="supportChoiceSet">
+      <EndProperty Name="Supports">
+        <ScalarProperty Name="Id" ColumnName="Supports_Id" />
+      </EndProperty>
+      <EndProperty Name="supportChoice">
+        <ScalarProperty Name="id" ColumnName="id" />
+      </EndProperty>
+      <Condition ColumnName="Supports_Id" IsNull="false" />
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="EscalationChoiceEscalations" TypeName="TimeSheetDBModel.EscalationChoiceEscalations" StoreEntitySet="EscalationChoiceSet">
+      <EndProperty Name="Escalations">
+        <ScalarProperty Name="Id" ColumnName="Escalations_Id" />
+      </EndProperty>
+      <EndProperty Name="EscalationChoice">
+        <ScalarProperty Name="id" ColumnName="id" />
+      </EndProperty>
+      <Condition ColumnName="Escalations_Id" IsNull="false" />
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="BusinessBlockBusinessBlockChoice" TypeName="TimeSheetDBModel.BusinessBlockBusinessBlockChoice" StoreEntitySet="BusinessBlockChoiceSet">
+      <EndProperty Name="BusinessBlock">
+        <ScalarProperty Name="Id" ColumnName="BusinessBlock_Id" />
+      </EndProperty>
+      <EndProperty Name="BusinessBlockChoice">
+        <ScalarProperty Name="id" ColumnName="id" />
+      </EndProperty>
+      <Condition ColumnName="BusinessBlock_Id" IsNull="false" />
+    </AssociationSetMapping>
   </EntityContainerMapping>
 </Mapping></edmx:Mappings>
   </edmx:Runtime>

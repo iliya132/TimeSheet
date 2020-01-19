@@ -172,6 +172,9 @@
     <Compile Include="Model\BusinessBlock.cs">
       <DependentUpon>EFDadaModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Model\BusinessBlockChoice.cs">
+      <DependentUpon>EFDadaModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Model\ClientWays.cs">
       <DependentUpon>EFDadaModel.tt</DependentUpon>
     </Compile>
@@ -198,6 +201,9 @@
       <DependentUpon>EFDadaModel.edmx</DependentUpon>
     </Compile>
     <Compile Include="Model\EFDataProvider.cs" />
+    <Compile Include="Model\EscalationChoice.cs">
+      <DependentUpon>EFDadaModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Model\Escalations.cs">
       <DependentUpon>EFDadaModel.tt</DependentUpon>
     </Compile>
@@ -237,6 +243,9 @@
     </Compile>
     <Compile Include="Model\Selection.cs" />
     <Compile Include="Model\SubBlock.cs">
+      <DependentUpon>EFDadaModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\supportChoice.cs">
       <DependentUpon>EFDadaModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Model\Supports.cs">

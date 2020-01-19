@@ -29,5 +29,9 @@ namespace TimeSheetApp.Model
         void GetReport(int ReportType, Analytic[] analytics, DateTime start, DateTime end);
         bool IsCollisionedWithOtherRecords(TimeSheetTable record);
         int AddRiskChoice(riskChoise riskChoise);
+        int AddSupportChoiceSet(supportChoice _suppChoice);
+        int AddEscalationChoice(EscalationChoice escalationChoice);
+        int AddBusinessBlockChoice(BusinessBlockChoice BBChoice);
+
     }
 }

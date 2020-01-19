@@ -2,7 +2,7 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, 2012 and Azure
 -- --------------------------------------------------
--- Date Created: 01/19/2020 12:00:32
+-- Date Created: 01/19/2020 23:07:19
 -- Generated from EDMX file: C:\Users\iliya\source\repos\TimeSheet\TimeSheetApp\Model\EFDadaModel.edmx
 -- --------------------------------------------------
 
@@ -35,20 +35,11 @@ GO
 IF OBJECT_ID(N'[dbo].[FK_RoleTableAnalytic]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[Analytic] DROP CONSTRAINT [FK_RoleTableAnalytic];
 GO
-IF OBJECT_ID(N'[dbo].[FK_BusinessBlockTimeSheetTable]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[TimeSheetTable] DROP CONSTRAINT [FK_BusinessBlockTimeSheetTable];
-GO
 IF OBJECT_ID(N'[dbo].[FK_ClientWaysTimeSheetTable]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[TimeSheetTable] DROP CONSTRAINT [FK_ClientWaysTimeSheetTable];
 GO
-IF OBJECT_ID(N'[dbo].[FK_EscalationsTimeSheetTable]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[TimeSheetTable] DROP CONSTRAINT [FK_EscalationsTimeSheetTable];
-GO
 IF OBJECT_ID(N'[dbo].[FK_FormatsTimeSheetTable]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[TimeSheetTable] DROP CONSTRAINT [FK_FormatsTimeSheetTable];
-GO
-IF OBJECT_ID(N'[dbo].[FK_SupportsTimeSheetTable]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[TimeSheetTable] DROP CONSTRAINT [FK_SupportsTimeSheetTable];
 GO
 IF OBJECT_ID(N'[dbo].[FK_AnalyticTimeSheetTable]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[TimeSheetTable] DROP CONSTRAINT [FK_AnalyticTimeSheetTable];
@@ -73,6 +64,24 @@ IF OBJECT_ID(N'[dbo].[FK_riskChoiseTimeSheetTable]', 'F') IS NOT NULL
 GO
 IF OBJECT_ID(N'[dbo].[FK_RiskriskChoise]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[riskChoise] DROP CONSTRAINT [FK_RiskriskChoise];
+GO
+IF OBJECT_ID(N'[dbo].[FK_TimeSheetTablesupportChoice]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[TimeSheetTable] DROP CONSTRAINT [FK_TimeSheetTablesupportChoice];
+GO
+IF OBJECT_ID(N'[dbo].[FK_supportChoiceSupports]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[supportChoiceSet] DROP CONSTRAINT [FK_supportChoiceSupports];
+GO
+IF OBJECT_ID(N'[dbo].[FK_EscalationChoiceEscalations]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[EscalationChoiceSet] DROP CONSTRAINT [FK_EscalationChoiceEscalations];
+GO
+IF OBJECT_ID(N'[dbo].[FK_TimeSheetTableEscalationChoice]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[TimeSheetTable] DROP CONSTRAINT [FK_TimeSheetTableEscalationChoice];
+GO
+IF OBJECT_ID(N'[dbo].[FK_BusinessBlockBusinessBlockChoice]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[BusinessBlockChoiceSet] DROP CONSTRAINT [FK_BusinessBlockBusinessBlockChoice];
+GO
+IF OBJECT_ID(N'[dbo].[FK_TimeSheetTableBusinessBlockChoice]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[TimeSheetTable] DROP CONSTRAINT [FK_TimeSheetTableBusinessBlockChoice];
 GO
 
 -- --------------------------------------------------
@@ -142,6 +151,15 @@ GO
 IF OBJECT_ID(N'[dbo].[UpravlenieTable]', 'U') IS NOT NULL
     DROP TABLE [dbo].[UpravlenieTable];
 GO
+IF OBJECT_ID(N'[dbo].[supportChoiceSet]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[supportChoiceSet];
+GO
+IF OBJECT_ID(N'[dbo].[EscalationChoiceSet]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[EscalationChoiceSet];
+GO
+IF OBJECT_ID(N'[dbo].[BusinessBlockChoiceSet]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[BusinessBlockChoiceSet];
+GO
 
 -- --------------------------------------------------
 -- Creating all tables
@@ -178,14 +196,16 @@ CREATE TABLE [dbo].[TimeSheetTable] (
     [TimeSpent] int  NOT NULL,
     [comment] nvarchar(max)  NULL,
     [Subject] nvarchar(max)  NULL,
-    [BusinessBlockId] int  NOT NULL,
     [ClientWaysId] int  NOT NULL,
-    [EscalationsId] int  NOT NULL,
+    [EscalationChoiceId] int  NOT NULL,
     [FormatsId] int  NOT NULL,
-    [SupportsId] int  NOT NULL,
+    [SupportChoiceId] int  NOT NULL,
     [AnalyticId] int  NOT NULL,
     [Process_id] int  NOT NULL,
-    [riskChoise_id] int  NOT NULL
+    [riskChoise_id] int  NOT NULL,
+    [EscalationChoice_id] int  NOT NULL,
+    [BusinessBlockChoice_id] int  NOT NULL,
+    [supportChoice_id] int  NOT NULL
 );
 GO
 
@@ -329,6 +349,57 @@ CREATE TABLE [dbo].[UpravlenieTable] (
 );
 GO
 
+-- Creating table 'supportChoiceSet'
+CREATE TABLE [dbo].[supportChoiceSet] (
+    [id] int IDENTITY(1,1) NOT NULL,
+    [Support_id] int  NULL,
+    [Support_id1] int  NULL,
+    [Support_id2] int  NULL,
+    [Support_id3] int  NULL,
+    [Support_id4] int  NULL,
+    [Support_id5] int  NULL,
+    [Support_id6] int  NULL,
+    [Support_id7] int  NULL,
+    [Support_id8] int  NULL,
+    [Support_id9] int  NULL,
+    [Supports_Id] int  NULL
+);
+GO
+
+-- Creating table 'EscalationChoiceSet'
+CREATE TABLE [dbo].[EscalationChoiceSet] (
+    [id] int IDENTITY(1,1) NOT NULL,
+    [Escalation_id] int  NULL,
+    [Escalation_id1] int  NULL,
+    [Escalation_id2] int  NULL,
+    [Escalation_id3] int  NULL,
+    [Escalation_id4] int  NULL,
+    [Escalation_id5] int  NULL,
+    [Escalation_id6] int  NULL,
+    [Escalation_id7] int  NULL,
+    [Escalation_id8] int  NULL,
+    [Escalation_id9] int  NULL,
+    [Escalations_Id] int  NULL
+);
+GO
+
+-- Creating table 'BusinessBlockChoiceSet'
+CREATE TABLE [dbo].[BusinessBlockChoiceSet] (
+    [id] int IDENTITY(1,1) NOT NULL,
+    [BusinessBlockid] int  NULL,
+    [BusinessBlock_id1] int  NULL,
+    [BusinessBlock_id2] int  NULL,
+    [BusinessBlock_id3] int  NULL,
+    [BusinessBlock_id4] int  NULL,
+    [BusinessBlock_id5] int  NULL,
+    [BusinessBlock_id6] int  NULL,
+    [BusinessBlock_id7] int  NULL,
+    [BusinessBlock_id8] int  NULL,
+    [BusinessBlock_id9] int  NULL,
+    [BusinessBlock_Id] int  NULL
+);
+GO
+
 -- --------------------------------------------------
 -- Creating all PRIMARY KEY constraints
 -- --------------------------------------------------
@@ -459,6 +530,24 @@ ADD CONSTRAINT [PK_UpravlenieTable]
     PRIMARY KEY CLUSTERED ([Id] ASC);
 GO
 
+-- Creating primary key on [id] in table 'supportChoiceSet'
+ALTER TABLE [dbo].[supportChoiceSet]
+ADD CONSTRAINT [PK_supportChoiceSet]
+    PRIMARY KEY CLUSTERED ([id] ASC);
+GO
+
+-- Creating primary key on [id] in table 'EscalationChoiceSet'
+ALTER TABLE [dbo].[EscalationChoiceSet]
+ADD CONSTRAINT [PK_EscalationChoiceSet]
+    PRIMARY KEY CLUSTERED ([id] ASC);
+GO
+
+-- Creating primary key on [id] in table 'BusinessBlockChoiceSet'
+ALTER TABLE [dbo].[BusinessBlockChoiceSet]
+ADD CONSTRAINT [PK_BusinessBlockChoiceSet]
+    PRIMARY KEY CLUSTERED ([id] ASC);
+GO
+
 -- --------------------------------------------------
 -- Creating all FOREIGN KEY constraints
 -- --------------------------------------------------
@@ -553,21 +642,6 @@ ON [dbo].[Analytic]
     ([RoleTableId]);
 GO
 
--- Creating foreign key on [BusinessBlockId] in table 'TimeSheetTable'
-ALTER TABLE [dbo].[TimeSheetTable]
-ADD CONSTRAINT [FK_BusinessBlockTimeSheetTable]
-    FOREIGN KEY ([BusinessBlockId])
-    REFERENCES [dbo].[BusinessBlock]
-        ([Id])
-    ON DELETE NO ACTION ON UPDATE NO ACTION;
-GO
-
--- Creating non-clustered index for FOREIGN KEY 'FK_BusinessBlockTimeSheetTable'
-CREATE INDEX [IX_FK_BusinessBlockTimeSheetTable]
-ON [dbo].[TimeSheetTable]
-    ([BusinessBlockId]);
-GO
-
 -- Creating foreign key on [ClientWaysId] in table 'TimeSheetTable'
 ALTER TABLE [dbo].[TimeSheetTable]
 ADD CONSTRAINT [FK_ClientWaysTimeSheetTable]
@@ -583,21 +657,6 @@ ON [dbo].[TimeSheetTable]
     ([ClientWaysId]);
 GO
 
--- Creating foreign key on [EscalationsId] in table 'TimeSheetTable'
-ALTER TABLE [dbo].[TimeSheetTable]
-ADD CONSTRAINT [FK_EscalationsTimeSheetTable]
-    FOREIGN KEY ([EscalationsId])
-    REFERENCES [dbo].[Escalations]
-        ([Id])
-    ON DELETE NO ACTION ON UPDATE NO ACTION;
-GO
-
--- Creating non-clustered index for FOREIGN KEY 'FK_EscalationsTimeSheetTable'
-CREATE INDEX [IX_FK_EscalationsTimeSheetTable]
-ON [dbo].[TimeSheetTable]
-    ([EscalationsId]);
-GO
-
 -- Creating foreign key on [FormatsId] in table 'TimeSheetTable'
 ALTER TABLE [dbo].[TimeSheetTable]
 ADD CONSTRAINT [FK_FormatsTimeSheetTable]
@@ -611,21 +670,6 @@ GO
 CREATE INDEX [IX_FK_FormatsTimeSheetTable]
 ON [dbo].[TimeSheetTable]
     ([FormatsId]);
-GO
-
--- Creating foreign key on [SupportsId] in table 'TimeSheetTable'
-ALTER TABLE [dbo].[TimeSheetTable]
-ADD CONSTRAINT [FK_SupportsTimeSheetTable]
-    FOREIGN KEY ([SupportsId])
-    REFERENCES [dbo].[Supports]
-        ([Id])
-    ON DELETE NO ACTION ON UPDATE NO ACTION;
-GO
-
--- Creating non-clustered index for FOREIGN KEY 'FK_SupportsTimeSheetTable'
-CREATE INDEX [IX_FK_SupportsTimeSheetTable]
-ON [dbo].[TimeSheetTable]
-    ([SupportsId]);
 GO
 
 -- Creating foreign key on [AnalyticId] in table 'TimeSheetTable'
@@ -746,6 +790,96 @@ GO
 CREATE INDEX [IX_FK_RiskriskChoise]
 ON [dbo].[riskChoise]
     ([Risk_id]);
+GO
+
+-- Creating foreign key on [supportChoice_id] in table 'TimeSheetTable'
+ALTER TABLE [dbo].[TimeSheetTable]
+ADD CONSTRAINT [FK_TimeSheetTablesupportChoice]
+    FOREIGN KEY ([supportChoice_id])
+    REFERENCES [dbo].[supportChoiceSet]
+        ([id])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_TimeSheetTablesupportChoice'
+CREATE INDEX [IX_FK_TimeSheetTablesupportChoice]
+ON [dbo].[TimeSheetTable]
+    ([supportChoice_id]);
+GO
+
+-- Creating foreign key on [Supports_Id] in table 'supportChoiceSet'
+ALTER TABLE [dbo].[supportChoiceSet]
+ADD CONSTRAINT [FK_supportChoiceSupports]
+    FOREIGN KEY ([Supports_Id])
+    REFERENCES [dbo].[Supports]
+        ([Id])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_supportChoiceSupports'
+CREATE INDEX [IX_FK_supportChoiceSupports]
+ON [dbo].[supportChoiceSet]
+    ([Supports_Id]);
+GO
+
+-- Creating foreign key on [Escalations_Id] in table 'EscalationChoiceSet'
+ALTER TABLE [dbo].[EscalationChoiceSet]
+ADD CONSTRAINT [FK_EscalationChoiceEscalations]
+    FOREIGN KEY ([Escalations_Id])
+    REFERENCES [dbo].[Escalations]
+        ([Id])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_EscalationChoiceEscalations'
+CREATE INDEX [IX_FK_EscalationChoiceEscalations]
+ON [dbo].[EscalationChoiceSet]
+    ([Escalations_Id]);
+GO
+
+-- Creating foreign key on [EscalationChoice_id] in table 'TimeSheetTable'
+ALTER TABLE [dbo].[TimeSheetTable]
+ADD CONSTRAINT [FK_TimeSheetTableEscalationChoice]
+    FOREIGN KEY ([EscalationChoice_id])
+    REFERENCES [dbo].[EscalationChoiceSet]
+        ([id])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_TimeSheetTableEscalationChoice'
+CREATE INDEX [IX_FK_TimeSheetTableEscalationChoice]
+ON [dbo].[TimeSheetTable]
+    ([EscalationChoice_id]);
+GO
+
+-- Creating foreign key on [BusinessBlock_Id] in table 'BusinessBlockChoiceSet'
+ALTER TABLE [dbo].[BusinessBlockChoiceSet]
+ADD CONSTRAINT [FK_BusinessBlockBusinessBlockChoice]
+    FOREIGN KEY ([BusinessBlock_Id])
+    REFERENCES [dbo].[BusinessBlock]
+        ([Id])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_BusinessBlockBusinessBlockChoice'
+CREATE INDEX [IX_FK_BusinessBlockBusinessBlockChoice]
+ON [dbo].[BusinessBlockChoiceSet]
+    ([BusinessBlock_Id]);
+GO
+
+-- Creating foreign key on [BusinessBlockChoice_id] in table 'TimeSheetTable'
+ALTER TABLE [dbo].[TimeSheetTable]
+ADD CONSTRAINT [FK_TimeSheetTableBusinessBlockChoice]
+    FOREIGN KEY ([BusinessBlockChoice_id])
+    REFERENCES [dbo].[BusinessBlockChoiceSet]
+        ([id])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_TimeSheetTableBusinessBlockChoice'
+CREATE INDEX [IX_FK_TimeSheetTableBusinessBlockChoice]
+ON [dbo].[TimeSheetTable]
+    ([BusinessBlockChoice_id]);
 GO
 
 -- --------------------------------------------------
