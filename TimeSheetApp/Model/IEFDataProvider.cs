@@ -11,23 +11,22 @@ namespace TimeSheetApp.Model
     {
         bool ForcedToQuit();
         ObservableCollection<Process> GetProcesses();
-        ObservableCollection<string> GetBusinessBlocks();
-        ObservableCollection<string> GetSupports();
-        ObservableCollection<string> GetClientWays();
-        ObservableCollection<string> GetEscalation();
-        ObservableCollection<string> GetFormat();
-        ObservableCollection<string> GetRisks();
+        ObservableCollection<BusinessBlock> GetBusinessBlocks();
+        ObservableCollection<Supports> GetSupports();
+        ObservableCollection<ClientWays> GetClientWays();
+        ObservableCollection<Escalations> GetEscalation();
+        ObservableCollection<Formats> GetFormat();
+        ObservableCollection<Risk> GetRisks();
         ObservableCollection<Analytic> GetMyAnalyticsData(Analytic currentUser);
-
-        ObservableCollection<TimeSheetHistoryItem> GetTimeSheetItem();
         List<string> GetBlocksList();
         List<string> GetSubBlocksList();
-        void AddActivity(Process activity);
+        void AddActivity(TimeSheetTable activity);
         Analytic LoadAnalyticData();
         Process LoadHistoryProcess(DateTime timeStart, Analytic user);
-        int UpdateProcess(Process oldProcess, Process newProcess);
-        int DeleteProcess(DateTime timeStast, Analytic analytic);
-        ObservableCollection<TimeSheetTable> LoadTimeSpan(DateTime date, Analytic user);
+        void UpdateProcess(TimeSheetTable oldProcess, TimeSheetTable newProcess);
+        void DeleteRecord(TimeSheetTable record);
+        List<TimeSheetTable> LoadTimeSheetRecords(DateTime date, Analytic user);
         void GetReport(int ReportType, Analytic[] analytics, DateTime start, DateTime end);
+        bool IsCollisionedWithOtherRecords(TimeSheetTable record);
     }
 }

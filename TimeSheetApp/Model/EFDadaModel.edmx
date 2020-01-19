@@ -138,7 +138,6 @@
     <Property Name="comment" Type="nvarchar(max)" Nullable="true" />
     <Property Name="Subject" Type="nvarchar(max)" Nullable="true" />
     <Property Name="BusinessBlockId" Type="int" Nullable="false" />
-    <Property Name="Risk_id" Type="int" Nullable="false" />
     <Property Name="ClientWaysId" Type="int" Nullable="false" />
     <Property Name="EscalationsId" Type="int" Nullable="false" />
     <Property Name="FormatsId" Type="int" Nullable="false" />
@@ -562,7 +561,6 @@
           <Property Name="Subject" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="BusinessBlock" Relationship="TimeSheetDBModel.BusinessBlockTimeSheetTable" FromRole="TimeSheetTable" ToRole="BusinessBlock" />
           <Property Name="BusinessBlockId" Type="Int32" Nullable="false" />
-          <Property Name="Risk_id" Type="Int32" Nullable="false" />
           <NavigationProperty Name="ClientWays" Relationship="TimeSheetDBModel.ClientWaysTimeSheetTable" FromRole="TimeSheetTable" ToRole="ClientWays" />
           <Property Name="ClientWaysId" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Escalations" Relationship="TimeSheetDBModel.EscalationsTimeSheetTable" FromRole="TimeSheetTable" ToRole="Escalations" />
@@ -1100,7 +1098,6 @@
           <ScalarProperty Name="comment" ColumnName="comment" />
           <ScalarProperty Name="Subject" ColumnName="Subject" />
           <ScalarProperty Name="BusinessBlockId" ColumnName="BusinessBlockId" />
-          <ScalarProperty Name="Risk_id" ColumnName="Risk_id" />
           <ScalarProperty Name="ClientWaysId" ColumnName="ClientWaysId" />
           <ScalarProperty Name="EscalationsId" ColumnName="EscalationsId" />
           <ScalarProperty Name="FormatsId" ColumnName="FormatsId" />

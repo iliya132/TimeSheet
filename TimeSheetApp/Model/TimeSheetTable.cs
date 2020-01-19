@@ -27,7 +27,6 @@ namespace TimeSheetApp.Model
         public string comment { get; set; }
         public string Subject { get; set; }
         public int BusinessBlockId { get; set; }
-        public int Risk_id { get; set; }
         public int ClientWaysId { get; set; }
         public int EscalationsId { get; set; }
         public int FormatsId { get; set; }

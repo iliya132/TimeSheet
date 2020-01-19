@@ -5,7 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TimeSheetApp"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-        xmlns:cmd="clr-namespace:GalaSoft.MvvmLight.Command;assembly=GalaSoft.MvvmLight.Extras.WPF4"
         xmlns:mvvm="http://www.galasoft.ch/mvvmlight"
         mc:Ignorable="d"
         Title="MainWindow" Height="750" Width="1100"
@@ -14,6 +13,7 @@
     <Window.Resources>
         <local:CodeFullConverter x:Key="CodeFullConverter"/>
         <local:CodeDescriptionConverter x:Key="CodeDescriptionConverter"/>
+        <local:DateTimeConverter x:Key="DateTimeConverter"/>
     </Window.Resources>
     <Grid>
         <TabControl>
@@ -42,10 +42,10 @@
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </TextBox>
-
+                            
                         </StackPanel>
-                        <ListView Name = "ProcessList" ItemsSource="{Binding ProcessFiltered}" SelectedItem="{Binding CurrentProcess}" Margin="0,0,10,0"
-                      SelectionChanged="ProcessList_SelectionChanged" Grid.Row="1">
+                        <ListView Name = "ProcessList" ItemsSource="{Binding ProcessFiltered}" SelectedItem="{Binding NewRecord.Process}" Margin="0,0,10,0"
+                      SelectionChanged="ProcessList_SelectionChanged" Grid.Row="1" SelectedIndex="0">
                             <ListView.View>
                                 <GridView>
 
@@ -106,12 +106,12 @@
 
                         <StackPanel Grid.Row="0" Orientation="Horizontal">
                             <Image Source="Resource/calendarIcon.png" HorizontalAlignment="Left"  Margin="25,2,0,2" Width="25"/>
-                            <Image Source="Resource/AddClock.png" HorizontalAlignment="Left"  Margin="60,2,0,2" Width="25"/>
-                            <Image Source="Resource/DeleteClock.png" HorizontalAlignment="Right"  Margin="50,2,0,2" Width="25"/>
+                            <Image Name="StartIcon" Source="Resource/AddClock.png" HorizontalAlignment="Left"  Margin="60,2,0,2" Width="25" MouseDown="TimeIcon_MouseDown"/>
+                            <Image Name="EndIcon" Source="Resource/DeleteClock.png" HorizontalAlignment="Right"  Margin="50,2,0,2" Width="25" MouseDown="TimeIcon_MouseDown"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Orientation="Horizontal">
-                            <DatePicker Name="DateBox" Grid.Row="0" HorizontalAlignment="Right" Width="100" SelectedDate="{Binding CurrentDate}">
+                            <DatePicker Name="DateBox" Grid.Row="0" HorizontalAlignment="Right" Width="100" SelectedDateChanged="DateBox_SelectedDateChanged" SelectedDate="{Binding CurrentDate}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="SelectedDateChanged">
                                         <mvvm:EventToCommand Command="{Binding ReloadTimeSpan}"/>
@@ -119,50 +119,45 @@
                                 </i:Interaction.Triggers>
                             </DatePicker>
                             <xctk:TimePicker Name="TimeIn" Width="70" Margin="5,0,0,0" HorizontalAlignment="Left" TextAlignment="Center" TimeInterval="0:15:0" Grid.Row="2"
-                                 Value="{Binding CurrentTimeStart}"/>
+                                 Value="{Binding NewRecord.timeStart}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="9:0:0"/>
                             <xctk:TimePicker Name="Timeout" Width="70" Margin="5,0,0,0" HorizontalAlignment="Right" TextAlignment="Center" TimeInterval="0:15:0" Grid.Row="2"
-                                 Value="{Binding CurrentTimeEnd}"/>
+                                 Value="{Binding NewRecord.timeEnd}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="9:0:0"/>
+                            
                         </StackPanel>
 
 
 
                         <StackPanel Grid.Row="2" Margin="0,10,0,0" DataContext="{Binding Main, Source={StaticResource Locator}}">
                             <Label Content="Бизнес подразделение" FontWeight="Bold"/>
-                            <ComboBox Name="businessCombo" Margin="0,0,0,0"  ItemsSource="{Binding BusinessBlock}" SelectedIndex="{Binding CurrentProcess.BusinessBlock}" />
+                            <ComboBox Name="businessCombo" Margin="0,0,0,0" DisplayMemberPath="BusinessBlockName"  ItemsSource="{Binding BusinessBlock}" SelectedItem="{Binding NewRecord.BusinessBlock}" SelectedIndex="0"/>
                             <Label Content="Support" FontWeight="Bold"/>
-                            <ComboBox Name="supportCombo" Margin="0,0,0,0" ItemsSource="{Binding NonBusinessBlock}" SelectedIndex="{Binding CurrentProcess.Support}" />
+                            <ComboBox Name="supportCombo" Margin="0,0,0,0" DisplayMemberPath="Name" ItemsSource="{Binding NonBusinessBlock}" SelectedItem="{Binding NewRecord.Supports}" SelectedIndex="0"/>
                             <Label Content="Клиентские пути" FontWeight="Bold"/>
-                            <ComboBox Name="clientWaysCombo" Margin="0,0,0,0" ItemsSource="{Binding ClientWays}" SelectedIndex="{Binding CurrentProcess.ClientWay}" />
+                            <ComboBox Name="clientWaysCombo" Margin="0,0,0,0" DisplayMemberPath="Name" ItemsSource="{Binding ClientWays}" SelectedItem="{Binding NewRecord.ClientWays}" SelectedIndex="0"/>
                             <Label Content="Эскалация" FontWeight="Bold"/>
-                            <ComboBox Name="escalationCombo" Margin="0,0,0,0" ItemsSource="{Binding Escalations}" SelectedIndex="{Binding CurrentProcess.Escalation}" />
+                            <ComboBox Name="escalationCombo" Margin="0,0,0,0" DisplayMemberPath="Name" ItemsSource="{Binding Escalations}" SelectedItem="{Binding NewRecord.Escalations}" SelectedIndex="0"/>
                             <Label Content="Формат" FontWeight="Bold"/>
-                            <ComboBox Name="formatCombo" Margin="0,0,0,0" ItemsSource="{Binding FormatList}" SelectedIndex="{Binding CurrentProcess.Format}" />
+                            <ComboBox Name="formatCombo" Margin="0,0,0,0" DisplayMemberPath="Name" ItemsSource="{Binding FormatList}" SelectedItem="{Binding NewRecord.Formats}" SelectedIndex="0"/>
                             <Label Content="Риск" FontWeight="Bold"/>
-                            <ComboBox Name="riskCombo" ItemsSource="{Binding RiskCol}" SelectedIndex="{Binding CurrentProcess.Risk}" />
+                            <ComboBox Name="riskCombo" ItemsSource="{Binding RiskCol}" DisplayMemberPath="riskName"  SelectedIndex="0"/>
 
                             <Button Name="Add" Height="35" Margin="0,10,0,0" 
-
-                        
                         DataContext="{Binding Main, Source={StaticResource Locator}}"
                         Command="{Binding AddProcess}"
-                        CommandParameter="{Binding CurrentProcess}"
-                        Style="{StaticResource GreenButton}"
-                        >
-
+                        CommandParameter="{Binding NewRecord}"
+                        Style="{StaticResource GreenButton}">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Center">
                                     <Label Content="Добавить активность" VerticalAlignment="Center"/>
                                     <Image Source="Resource/AddIcon.png"/>
                                 </StackPanel>
-
                             </Button>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" Grid.Row="4" >
                             <Label Content="Тема" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
-                            <TextBox Name="Subject" Margin="0,0,5,0" Height="30" TextAlignment="Left" Text="{Binding Subject}"/>
+                            <TextBox Name="Subject" Margin="0,0,5,0" Height="30" TextAlignment="Left" Text="{Binding NewRecord.Subject}"/>
                             <Label Content="Комментарий" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
                             <TextBox Name="Comment" Margin="0,0,5,0" Height="150" TextWrapping="Wrap" AcceptsReturn="True" 
-                         Text="{Binding Body}"
-                         />
+                         Text="{Binding NewRecord.comment}"/>
                         </StackPanel>
 
                     </Grid>
@@ -171,11 +166,11 @@
                             <RowDefinition Height="10*"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                            <ListView Name="TimeSpanListView"  ItemsSource="{Binding TimeSheetColl}" Margin="10,0,0,0" Grid.Row="0">
+                        <ListView Name="TimeSpanListView"  ItemsSource="{Binding HistoryRecords}" Margin="10,0,0,0" Grid.Row="0">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseDoubleClick">
                                         <mvvm:EventToCommand Command="{Binding Main.EditProcess, Source={StaticResource Locator}}"
-                                                CommandParameter="{Binding ElementName=TimeSpanListView, Path=SelectedItem.timeIn}"/>
+                                                CommandParameter="{Binding ElementName=TimeSpanListView, Path=SelectedItem}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                                 <ListView.View>
@@ -187,8 +182,7 @@
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <Grid>
-                                                    <TextBlock Text="{Binding Converter={StaticResource CodeFullConverter}}" ToolTip="{Binding Converter={StaticResource CodeDescriptionConverter}}"/>
-
+                                                        <TextBlock Text="{Binding Converter={StaticResource CodeFullConverter}}" ToolTip="{Binding Converter={StaticResource CodeDescriptionConverter}}"/>
                                                     </Grid>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
@@ -200,7 +194,7 @@
                                                     <Grid>
                                                         <Button Width="25" 
                                                 Command="{Binding Main.EditProcess, Source={StaticResource Locator}}"
-                                                CommandParameter="{Binding timeIn}">
+                                                CommandParameter="{Binding}">
                                                             <Image Source="Resource/EditIcon.png" Width="15" MinWidth="15"/>
                                                         </Button>
                                                     </Grid>
@@ -213,7 +207,7 @@
                                                     <Grid>
                                                         <Button Width="25"
                                                 Command="{Binding Main.DeleteProcess, Source={StaticResource Locator}}"
-                                                CommandParameter="{Binding timeIn}">
+                                                CommandParameter="{Binding}">
                                                             <Image Source="Resource/DeleteIcon.png" Width="20" MinWidth="15"/>
                                                         </Button>
                                                     </Grid>
@@ -225,12 +219,12 @@
                             </ListView>
                             <StackPanel Orientation="Horizontal" Margin="20,5,0,0" Grid.Row="1">
                                 <Image Source="Resource/timerIcon.png" Width="25" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding Path=TotalDurationInMinutes}"  FontSize="18" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding TotalDurationInMinutes, StringFormat=Общая длительность {0:hh\\:mm}}"  FontSize="18" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Кабинет руководителя" Visibility="{Binding IsImBoss.Visibility}">
+            <TabItem Header="Кабинет руководителя">
                 <Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -244,7 +238,7 @@
                             </Grid.RowDefinitions>
                             <TextBlock Text="Сотрудники под моим руководством:" FontSize="16" VerticalAlignment="Center"/>
                             <DataGrid Name="AnalyticTable" 
-						              ItemsSource="{Binding AnalyticsData}" Grid.Row="1" 
+						              ItemsSource="{Binding SubordinateEmployees}" Grid.Row="1" 
 						              AutoGenerateColumns="False"
 						              IsReadOnly="True"
                                       AlternatingRowBackground="LightGray"
@@ -279,6 +273,7 @@
                     </Grid>
                 </Grid>
             </TabItem>
+
         </TabControl>
         
        

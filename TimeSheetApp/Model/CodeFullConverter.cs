@@ -57,4 +57,25 @@ namespace TimeSheetApp
         }
 
     }
+
+    class DateTimeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is DateTime && parameter is DateTime)
+            {
+                DateTime time = System.Convert.ToDateTime(value);
+                DateTime date = System.Convert.ToDateTime(parameter);
+                date.AddTicks(time.Ticks);
+                return date;
+            }
+            else return null; 
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return DependencyProperty.UnsetValue;
+        }
+
+    }
 }

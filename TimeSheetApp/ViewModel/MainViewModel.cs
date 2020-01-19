@@ -12,182 +12,253 @@ namespace TimeSheetApp.ViewModel
     public class MainViewModel : ViewModelBase
     {
         public IEFDataProvider EFDataProvider;
-        private bool _isBusy = false;
-        public bool isReady { get => _isBusy; set => _isBusy = value; }
-        DispatcherTimer timer1 = new DispatcherTimer();
+
         #region DataCollections
 
-        private static ObservableCollection<Process> _processlistcol;
-        private List<string> BlocksList;
-        private List<string> SubBlockList;
-        public ObservableCollection<Process> ProcessListCol { get => _processlistcol; set => _processlistcol = value; }
-        private ObservableCollection<Process> _processFiltered = new ObservableCollection<Process>();
-        public ObservableCollection<Process> ProcessFiltered { get => _processFiltered; set => _processFiltered = value; }
-        private ObservableCollection<string> _BusinessBlock;
-        public ObservableCollection<string> BusinessBlock { get => _BusinessBlock; set => _BusinessBlock = value; }
-        private ObservableCollection<string> _NonBusinessBlock;
-        public ObservableCollection<string> NonBusinessBlock { get => _NonBusinessBlock; set => _NonBusinessBlock = value; }
-        private ObservableCollection<string> _clientWays;
-        public ObservableCollection<string> ClientWays { get => _clientWays; set => _clientWays = value; }
-        private ObservableCollection<TimeSheetHistoryItem> _timeSheetHistoryItemCol;
-        public ObservableCollection<TimeSheetHistoryItem> TimeSheetHistoryItemCol { get => _timeSheetHistoryItemCol; set => _timeSheetHistoryItemCol = value; }
-        private ObservableCollection<string> _formatList;
-        public ObservableCollection<string> FormatList { get => _formatList; set => _formatList = value; }
-        private ObservableCollection<string> _riskCol;
-        public ObservableCollection<string> RiskCol { get => _riskCol; set => _riskCol = value; }
-        private ObservableCollection<TimeSheetTable> _timeSheetColl = new ObservableCollection<TimeSheetTable>();
-        public ObservableCollection<TimeSheetTable> TimeSheetColl { get => _timeSheetColl; set => _timeSheetColl = value; }
-        private ObservableCollection<string> _escalations;
-        public ObservableCollection<string> Escalations { get => _escalations; set => _escalations = value; }
-        private ObservableCollection<Model.Analytic> _analyticsData;
-        private List<Model.Analytic> SelectedAnalytics = new List<Model.Analytic>();
-        public ObservableCollection<Model.Analytic> AnalyticsData
+        #region Список процессов для выбора
+        /// <summary>
+        /// Список процессов, доступных для выбора
+        /// </summary>
+        private static ObservableCollection<Process> _processes;
+        public ObservableCollection<Process> Processes { get => _processes; set => _processes = value; }
+        /// <summary>
+        /// Список отфильтрованных процессов. К этой коллекции привязан лист ProcessList
+        /// </summary>
+        private ObservableCollection<Process> _processesFiltered = new ObservableCollection<Process>();
+        public ObservableCollection<Process> ProcessFiltered { get => _processesFiltered; set => _processesFiltered = value; }
+        #endregion
+
+        #region ComboBox Collections
+        /// <summary>
+        /// Бизнес блоки, доступные для выбора
+        /// </summary>
+        private ObservableCollection<BusinessBlock> _BusinessBlock;
+        public ObservableCollection<BusinessBlock> BusinessBlock { get => _BusinessBlock; set => _BusinessBlock = value; }
+        /// <summary>
+        /// Support's доступные для выбора
+        /// </summary>
+        private ObservableCollection<Supports> _NonBusinessBlock;
+        public ObservableCollection<Supports> NonBusinessBlock { get => _NonBusinessBlock; set => _NonBusinessBlock = value; }
+        /// <summary>
+        /// Клиентские пути, доступные для выбора
+        /// </summary>
+        private ObservableCollection<ClientWays> _clientWays;
+        public ObservableCollection<ClientWays> ClientWays { get => _clientWays; set => _clientWays = value; }
+        /// <summary>
+        /// Форматы доступные для выбора
+        /// </summary>
+        private ObservableCollection<Formats> _formatList;
+        public ObservableCollection<Formats> FormatList { get => _formatList; set => _formatList = value; }
+        /// <summary>
+        /// Риски, доступные для выбора
+        /// </summary>
+        private ObservableCollection<Risk> _riskCol;
+        public ObservableCollection<Risk> RiskCol { get => _riskCol; set => _riskCol = value; }
+        /// <summary>
+        /// Эскалации, доступные для выбора
+        /// </summary>
+        private ObservableCollection<Escalations> _escalations;
+        public ObservableCollection<Escalations> Escalations { get => _escalations; set => _escalations = value; }
+        #endregion
+
+        #region Исторические записи
+        /// <summary>
+        /// Исторические записи из БД. (Лист TimeSpanListView)
+        /// </summary>
+        private ObservableCollection<TimeSheetTable> _historyRecords = new ObservableCollection<TimeSheetTable>();
+        public ObservableCollection<TimeSheetTable> HistoryRecords { get => _historyRecords; set => _historyRecords = value; }
+        #endregion
+
+        #region Список сотрудников в подчинении
+        /// <summary>
+        /// Список сотрудников в подчинении у текущего пользователя
+        /// </summary>
+        private ObservableCollection<Analytic> _subordinateEmployees;
+        public ObservableCollection<Analytic> SubordinateEmployees
         {
-            get { return _analyticsData; }
-            set { _analyticsData = value; }
+            get { return _subordinateEmployees; }
+            set { _subordinateEmployees = value; }
         }
+        /// <summary>
+        /// Выбранные сотрудники
+        /// </summary>
+        private List<Analytic> SelectedEmployees = new List<Analytic>();
+
+        #endregion
+
         #endregion
 
         #region CurrentValues
-        private UIElement _isImBoss = new UIElement();
+        /// <summary>
+        /// Общая длительность записей в коллекции HistoryRecords
+        /// </summary>
 
-        public UIElement IsImBoss
+
+        #region Добавление нового процесса
+        /// <summary>
+        /// Текущий(добавляемый) процесс
+        /// </summary>
+        private TimeSheetTable _NewRecord = new TimeSheetTable();
+        public TimeSheetTable NewRecord
         {
-            get { return _isImBoss; }
-            set { _isImBoss = value; }
+            get { return _NewRecord; }
+            set { _NewRecord = value; }
+        }
+        private TimeSheetTable _editedRecord = new TimeSheetTable();
+        public TimeSheetTable EditedRecord
+        {
+            get { return _editedRecord; }
+            set { _editedRecord = value; }
+        }
+        private BusinessBlock _currentBusinessBlock = new BusinessBlock();
+
+        public BusinessBlock CurrentBusinessBlock
+        {
+            get { return _currentBusinessBlock; }
+            set {
+                NewRecord.BusinessBlockId = value.Id;
+                _currentBusinessBlock = value;
+            }
+        }
+        private Supports _currentSupports = new Supports();
+        public Supports CurrentSupports
+        {
+            get { return _currentSupports; }
+            set {
+                NewRecord.SupportsId = value.Id;
+                _currentSupports = value;
+            }
+        }
+        private ClientWays _currentClientWays = new ClientWays();
+        public ClientWays CurrentClientWays
+        {
+            get { return _currentClientWays; }
+            set {
+                NewRecord.ClientWaysId = value.Id;
+                _currentClientWays = value;
+            }
+        }
+        private Escalations _currentEscalation = new Escalations();
+        public Escalations CurrentEscalation
+        {
+            get { return _currentEscalation; }
+            set {
+                NewRecord.EscalationsId = value.Id;
+                _currentEscalation = value;
+            }
+        }
+        private Formats _currentFormat = new Formats();
+        public Formats CurrentFormat
+        {
+            get { return _currentFormat; }
+            set
+            {
+                NewRecord.FormatsId = value.Id;
+                _currentFormat = value;
+            }
+        }
+        private Risk _currentRisk = new Risk();
+        public Risk CurrentRisk
+        {
+            get { return _currentRisk; }
+            set
+            {
+                NewRecord.riskChoise_id = value.id;
+                _currentRisk = value;
+            }
         }
 
-        private Analytic[] _selectedAnalytic;
 
-        public Analytic[] SelectedAnalytic
+
+        #endregion
+
+        #region Редактирование процесса
+
+        private Process _currentEditedRecord = new Process();
+        public Process CurrentEditedRecord
         {
-            get { return _selectedAnalytic; }
-            set { _selectedAnalytic = value; }
+            get { return _currentEditedRecord; }
+            set { Set(ref _currentEditedRecord, value); }
         }
-        private Process _currentProcess = new Process();
-        public Process CurrentProcess { get => _currentProcess; set => Set(ref _currentProcess, value); }
 
-        private Process _currentEditedProcess = new Process();
+        #endregion
+
+        public TimeSpan TotalDurationInMinutes
+        {
+            get
+            {
+                TimeSpan totalSpan = new TimeSpan();
+                foreach (TimeSheetTable record in HistoryRecords)
+                {
+                    totalSpan += record.timeEnd - record.timeStart;
+                }
+                return totalSpan;
+            }
+        }
         DateTime _currentDate = DateTime.Now;
         public DateTime CurrentDate { get => _currentDate; set => _currentDate = value; }
-        private DateTime _currentTimeStart = DateTime.Now;
-        public DateTime CurrentTimeStart
-        {
-            get => new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, _currentTimeStart.Hour, _currentTimeStart.Minute, _currentTimeStart.Second);
-            set => _currentTimeStart = value;
-        }
-        private DateTime _currentTimeEnd = DateTime.Now.AddMinutes(15);
-        public DateTime CurrentTimeEnd
-        {
-            get => new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, _currentTimeEnd.Hour, _currentTimeEnd.Minute, _currentTimeEnd.Second);
-            set => _currentTimeEnd = value;
-        }
-
-        public Process CurrentEditedProcess
-        {
-            get { return _currentEditedProcess; }
-            set { Set(ref _currentEditedProcess, value); }
-        }
-        private List<string> _reports = new List<string>() { "Активность аналитиков" };
-
-        public List<string> Reports
-        {
-            get { return _reports; }
-            set { _reports = value; }
-        }
-        private string _body = string.Empty;
-        private string _subject = string.Empty;
-        public string Body { get => _body; set => _body = value; }
-        public string Subject { get => _subject; set => _subject = value; }
-
-        private Model.Analytic _user;
-        public Model.Analytic CurrentUser { get => _user; set => _user = value; }
-        public int SelectedReport { get; set; }
-        private DateTime _startReportDate = DateTime.Now.AddDays(-7);
-
-        public DateTime StartReportDate
-        {
-            get { return new DateTime(_startReportDate.Year, _startReportDate.Month, _startReportDate.Day, 0, 0, 1); }
-            set { _startReportDate = value; }
-        }
-        private DateTime _endReportDate = DateTime.Now;
-
-        public DateTime EndReportDate
-        {
-            get { return new DateTime(_endReportDate.Year, _endReportDate.Month, _endReportDate.Day, 23, 59, 59); }
-            set { _endReportDate = value; }
-        }
+        private Analytic _currentUser;
+        public Analytic CurrentUser { get => _currentUser; set => _currentUser = value; }
+        
         #endregion
 
         #region Commands
-        public RelayCommand<Process> AddProcess { get; }
-        public RelayCommand<DateTime> EditProcess { get; }
-        public RelayCommand<DateTime> DeleteProcess { get; }
-        public RelayCommand ReloadTimeSpan { get; }
+        public RelayCommand<TimeSheetTable> AddProcess { get; }
+        public RelayCommand<TimeSheetTable> EditProcess { get; }
+        public RelayCommand<TimeSheetTable> DeleteProcess { get; }
+        public RelayCommand ReloadTimeSheet { get; }
         public RelayCommand<string> FilterProcesses { get; }
-        public RelayCommand GetReport { get; }
-        public RelayCommand<ICollection<object>> SelectAnalytic { get; }
+        public RelayCommand ExportReport { get; }
         #endregion
 
-        System.Threading.Timer checkForUpdateTimer;
-        [PreferredConstructor]
-        public MainViewModel(Model.IEFDataProvider dataProvider)
+        public MainViewModel(IEFDataProvider dataProvider)
         {
             EFDataProvider = dataProvider;
             FillDataCollections();
-            AddProcess = new RelayCommand<Process>(AddProcessMethod);
-            EditProcess = new RelayCommand<DateTime>(EditHistoryProcess);
-            //DeleteProcess = new RelayCommand<DateTime>(DeleteHistoryProcess);
-            ReloadTimeSpan = new RelayCommand(UpdateTimeSpan);
+            AddProcess = new RelayCommand<TimeSheetTable>(AddProcessMethod);
+            EditProcess = new RelayCommand<TimeSheetTable>(EditHistoryProcess);
+            DeleteProcess = new RelayCommand<TimeSheetTable>(DeleteHistoryRecord);
+            ReloadTimeSheet = new RelayCommand(UpdateTimeSpan);
             FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
-            GetReport = new RelayCommand(GetReportMethod);
-            SelectAnalytic = new RelayCommand<ICollection<object>>(AddAnalyticToCollection);
+            ExportReport = new RelayCommand(GetReportMethod);
+            NewRecord.Analytic = CurrentUser;
+            NewRecord.AnalyticId = CurrentUser.Id;
+            NewRecord.riskChoise_id = 2;
         }
-        //public MainViewModel(Model.IDataProvider dataProvider)
-        //{
-        //    try
-        //    {
-        //        checkForUpdateTimer = new System.Threading.Timer(checkForUpdateMethod, null, 1000, 30000);
 
-        //        DataProvider = dataProvider;
-
-        //        CurrentUser = dataProvider.LoadAnalyticData();
-        //        if (CurrentUser.Role != 6) IsImBoss.Visibility = Visibility.Visible;
-        //        else IsImBoss.Visibility = Visibility.Hidden;
-
-
-        //        FillDataCollections();
-        //        LoadChoosenCount(ProcessListCol);
-        //        isReady = true;
-        //    } catch (Exception e)
-        //    {
-        //        MessageBox.Show(e.Message);
-        //    }
-        //}
-        private void AddAnalyticToCollection(ICollection<object> analytics)
+        private void DeleteHistoryRecord(TimeSheetTable record)
         {
-            try
+            EFDataProvider.DeleteRecord(record);
+            UpdateTimeSpan();
+        }
+
+        /// <summary>
+        /// Заполняет коллекции списков значениями из БД
+        /// </summary>
+        private void FillDataCollections()
+        {
+            CurrentUser = EFDataProvider.LoadAnalyticData();
+            Processes = EFDataProvider.GetProcesses();
+            BusinessBlock = EFDataProvider.GetBusinessBlocks();
+            NonBusinessBlock = EFDataProvider.GetSupports();
+            ClientWays = EFDataProvider.GetClientWays();
+            FormatList = EFDataProvider.GetFormat();
+            Escalations = EFDataProvider.GetEscalation();
+            RiskCol = EFDataProvider.GetRisks();
+            FilterProcessesMethod(string.Empty);
+            SubordinateEmployees = EFDataProvider.GetMyAnalyticsData(CurrentUser);
+            UpdateTimeSpan();
+        }
+        private void UpdateTimeSpan()
+        {
+            HistoryRecords.Clear();
+            foreach (TimeSheetTable record in EFDataProvider.LoadTimeSheetRecords(CurrentDate, CurrentUser))
             {
-                SelectedAnalytics.Clear();
-                List<Model.Analytic> analyticList = new List<Model.Analytic>();
-                foreach (object item in analytics)
-                {
-                    if (item is Model.Analytic)
-                        analyticList.Add(item as Model.Analytic);
-                }
-                foreach (Model.Analytic analytic_selected in analyticList)
-                    SelectedAnalytics.Add(analytic_selected);
+                HistoryRecords.Add(record);
             }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            RaisePropertyChanged("TotalDurationInMinutes");
         }
         private void GetReportMethod()
-        {
-
-        }
-        private void LoadChoosenCount(IEnumerable<Process> processCollection)
         {
 
         }
@@ -201,11 +272,11 @@ namespace TimeSheetApp.ViewModel
             ProcessFiltered?.Clear();
             if (string.IsNullOrWhiteSpace(filterText))
             {
-                foreach (Process proc in ProcessListCol)
+                foreach (Process proc in Processes)
                     ProcessFiltered.Add(proc);
                 return;
             }
-            foreach (Process process in ProcessListCol)
+            foreach (Process process in Processes)
             {
                 string codeFull = $"{process.Block_id}.{process.SubBlockId}.{process.id}";
                 if (process.procName.ToLower().IndexOf(filterText.ToLower()) > -1 || codeFull.IndexOf(filterText) > -1)
@@ -216,104 +287,87 @@ namespace TimeSheetApp.ViewModel
 
         }
 
-        private void FillDataCollections()
+        private void AddProcessMethod(TimeSheetTable newItem)
         {
-            CurrentUser = EFDataProvider.LoadAnalyticData();
-            ProcessListCol = EFDataProvider.GetProcesses();
-            BusinessBlock = EFDataProvider.GetBusinessBlocks();
-            NonBusinessBlock = EFDataProvider.GetSupports();
-            ClientWays = EFDataProvider.GetClientWays();
-            TimeSheetHistoryItemCol = EFDataProvider.GetTimeSheetItem();
-            FormatList = EFDataProvider.GetFormat();
-            Escalations = EFDataProvider.GetEscalation();
-            RiskCol = EFDataProvider.GetRisks();
-            BlocksList = EFDataProvider.GetBlocksList();
-            SubBlockList = EFDataProvider.GetSubBlocksList();
-            FilterProcessesMethod(string.Empty);
-            AnalyticsData = EFDataProvider.GetMyAnalyticsData(CurrentUser);
+            if (IsIntersectsWithOtherRecords(newItem))
+            {
+                MessageBox.Show("Добавляемая запись пересекается с другой активностью. Выберите другое время.", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+            else if (newItem.timeStart == newItem.timeEnd)
+            {
+                MessageBox.Show("Время начала равно времени окончания. Укажите корректное время", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+            else if (newItem.timeStart > newItem.timeEnd)
+            {
+                MessageBox.Show("Время начала больше времени окончания. Укажите корректное время", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+
+            TimeSheetTable clonedActivity = new TimeSheetTable()
+            {
+                AnalyticId = newItem.Analytic.Id,
+                BusinessBlockId = newItem.BusinessBlock.Id,
+                ClientWaysId = newItem.ClientWays.Id,
+                EscalationsId = newItem.Escalations.Id,
+                FormatsId = newItem.Formats.Id,
+                Process_id = newItem.Process.id,
+                id = newItem.id,
+                riskChoise_id = 2,
+                Subject = newItem.Subject,
+                comment = newItem.comment,
+                SupportsId = newItem.Supports.Id,
+                timeStart = newItem.timeStart,
+                timeEnd = newItem.timeEnd,
+                TimeSpent = newItem.TimeSpent,
+            };
+            EFDataProvider.AddActivity(clonedActivity);
             UpdateTimeSpan();
-
-        }
-        private void UpdateTimeSpan()
-        {
-            isReady = false;
-            TimeSheetColl = EFDataProvider.LoadTimeSpan(CurrentDate, CurrentUser);
-            isReady = true;
             RaisePropertyChanged("TotalDurationInMinutes");
+            newItem.timeStart = newItem.timeEnd;
+            newItem.timeEnd = newItem.timeEnd.AddMinutes(15);
+            newItem.Subject = string.Empty;
+            newItem.comment = string.Empty;
+            RaisePropertyChanged("NewRecord");
         }
-        private void AddProcessMethod(Process proc)
-        {
 
+        private bool IsIntersectsWithOtherRecords(TimeSheetTable record)
+        {
+            if (EFDataProvider.IsCollisionedWithOtherRecords(record))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
-        private bool IsTimeCollision(DateTime start, DateTime end)
+        private void EditHistoryProcess(TimeSheetTable Record)
         {
-            return false;
-            //if (start > end)
-            //    return true;
-            //foreach (TimeSpanClass historyProcess in TimeSheetColl)
-            //{
-            //    if ((start.Hour==historyProcess.timeIn.Hour && start.Minute >= historyProcess.timeIn.Minute && start.Minute+1 < historyProcess.timeOut.Minute) ||
-            //        (end.Hour==historyProcess.timeIn.Hour && end.Minute > historyProcess.timeIn.Minute && end.Minute < historyProcess.timeOut.Minute))
-            //        return true;
-            //}
-            //return false;
-        }
-        private void EditHistoryProcess(DateTime timeStart)
-        {
-            //if (timeStart.Year > 100)
-            //{
-            //    CurrentEditedProcess = EFDataProvider.LoadHistoryProcess(timeStart, CurrentUser);
-
-            //    EditViewModel editModel = SimpleIoc.Default.GetInstance<EditViewModel>();
-            //    editModel.CurrentEDProcess = CurrentEditedProcess;
-            //    editModel.GetIndex();
-            //    for (int i = 0; i < ProcessListCol.Count; i++)
-            //    {
-            //        if (ProcessListCol[i].id == CurrentEditedProcess.id)
-            //        {
-            //            editModel.EditedProcessID = i;
-            //            break;
-            //        }
-            //    }
-            //    EditForm modal = new EditForm();
-            //    if ((bool)modal.ShowDialog())
-            //        if (EFDataProvider.UpdateProcess(CurrentEditedProcess, editModel.CurrentEDProcess) != -1)
-            //        {
-            //            foreach (TimeSpanClass timeSpan in TimeSheetColl)
-            //                if (timeSpan.timeIn == timeStart)
-            //                {
-
-            //                    timeSpan.processName = editModel.CurrentEDProcess.procName;
-            //                }
-            //            UpdateTimeSpan();
-
-
-            //        }
-            //        else
-            //            MessageBox.Show("При обновлении данных возникла ошибка. Данные небыли обновлены", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            //    //}
-            //}
-            //private void DeleteHistoryProcess(DateTime timeStart)
-            //{
-            //    isReady = false;
-
-            //    if (EFDataProvider.DeleteProcess(timeStart, CurrentUser) != -1)
-            //    {
-            //        foreach (TimeSpanClass timeSpan in TimeSheetColl)
-            //        {
-            //            if (timeSpan.timeIn == timeStart)
-            //            {
-            //                TimeSheetColl.Remove(timeSpan);
-            //                RaisePropertyChanged("TotalDurationInMinutes");
-            //                break;
-            //            }
-            //        }
-            //    }
-            //    else
-            //        MessageBox.Show("При удалении данных возникла ошибка. Данные небыли удалены", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            //    isReady = true;
-            //}
+            if (Record == null) return;
+            EditedRecord = new TimeSheetTable()
+            {
+                Subject = Record.Subject,
+                comment = Record.comment,
+                Process = Record.Process,
+                BusinessBlock = Record.BusinessBlock,
+                Supports = Record.Supports,
+                timeStart = Record.timeStart,
+                timeEnd = Record.timeEnd,
+                TimeSpent = Record.TimeSpent,
+                ClientWays = Record.ClientWays,
+                Escalations = Record.Escalations,
+                Formats = Record.Formats,
+                riskChoise = Record.riskChoise
+            };
+            EditForm form = new EditForm();
+            if (form.ShowDialog() == true)
+            {
+                EFDataProvider.UpdateProcess(Record, EditedRecord);
+                UpdateTimeSpan();
+            }
 
         }
     }

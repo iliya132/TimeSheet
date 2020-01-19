@@ -15,7 +15,6 @@ namespace TimeSheetApp.ViewModel
         {
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
             SimpleIoc.Default.Register<MainViewModel>();
-            SimpleIoc.Default.Register<EditViewModel>();
             
             SimpleIoc.Default.Register<Model.IEFDataProvider, Model.EFDataProvider>();
         }
@@ -25,14 +24,6 @@ namespace TimeSheetApp.ViewModel
             get
             {
                 return ServiceLocator.Current.GetInstance<MainViewModel>();
-            }
-        }
-
-        public EditViewModel Edit
-        {
-            get
-            {
-                return ServiceLocator.Current.GetInstance<EditViewModel>();
             }
         }
     }

@@ -9,7 +9,7 @@
         xmlns:local="clr-namespace:TimeSheetApp"
         mc:Ignorable="d"
         Title="EditActivity" Height="450" Width="800"
-        DataContext="{Binding Edit, Source={StaticResource Locator}}"
+        DataContext="{Binding Main, Source={StaticResource Locator}}"
         Loaded="Window_Loaded"
         >
     <Grid>
@@ -25,9 +25,9 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Label Content="Тема:" FontWeight="Bold" FontSize="18"/>
-            <TextBox Name="SubjectBox" Grid.Row="1" FontSize="16" Text="{Binding CurrentEDProcess.Subject}"/>
+            <TextBox Name="SubjectBox" Grid.Row="1" FontSize="16" Text="{Binding EditedRecord.Subject}"/>
             <Label Content="Комментарий:" Grid.Row="2" FontWeight="Bold" FontSize="18"/>
-            <TextBox Name="BodyBox" Grid.Row="3" FontSize="16" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding CurrentEDProcess.Body}"/>
+            <TextBox Name="BodyBox" Grid.Row="3" FontSize="16" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding EditedRecord.comment}"/>
         </Grid>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
@@ -54,49 +54,20 @@
             <Label Margin="5,0,0,0" Content="Эскалация:" Grid.Row="8"/>
             <Label Margin="5,0,0,0" Content="Формат:" Grid.Row="10"/>
             <Label Margin="5,0,0,0" Content="Риск:" Grid.Row="12"/>
-            <ComboBox Name="ProcessList" Grid.Row="1" ItemsSource="{Binding ProcessListCol}" DisplayMemberPath="Name" SelectedIndex="{Binding SelectedProcessID}"  >
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="SelectionChanged">
-                        <mvvm:EventToCommand Command="{Binding ChangeProcess}"
-                                             CommandParameter="{Binding ElementName=ProcessList, Path=SelectedIndex}"/>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-            </ComboBox>
-            <ComboBox Name="BusinessList" Grid.Row="3" ItemsSource="{Binding Main.BusinessBlock, Source={StaticResource Locator}}" SelectedIndex="{Binding CurrentEDProcess.BusinessBlock}"/>
-            <ComboBox Name="supportList" Grid.Row="5" ItemsSource="{Binding Main.NonBusinessBlock, Source={StaticResource Locator}}" SelectedIndex="{Binding CurrentEDProcess.Support}"/>
-            <ComboBox Name="ClientWaysList" Grid.Row="7" ItemsSource="{Binding Main.ClientWays, Source={StaticResource Locator}}" SelectedIndex="{Binding CurrentEDProcess.ClientWay}"/>
-            <ComboBox Name="EscalationList" Grid.Row="9" ItemsSource="{Binding Main.Escalations, Source={StaticResource Locator}}" SelectedIndex="{Binding CurrentEDProcess.Escalation}"/>
-            <ComboBox Name="FormatList" Grid.Row="11" ItemsSource="{Binding Main.FormatList, Source={StaticResource Locator}}" SelectedIndex="{Binding CurrentEDProcess.Format}"/>
-            <ComboBox Name="RiskList" Grid.Row="13" ItemsSource="{Binding Main.RiskCol, Source={StaticResource Locator}}" SelectedIndex="{Binding CurrentEDProcess.Risk}"/>
+            <ComboBox Name="ProcessList" Grid.Row="1" ItemsSource="{Binding Processes}" DisplayMemberPath="procName" SelectedItem="{Binding EditedRecord.Process}"/>
+            <ComboBox Name="BusinessList" Grid.Row="3" ItemsSource="{Binding BusinessBlock}" DisplayMemberPath="BusinessBlockName" SelectedItem="{Binding EditedRecord.BusinessBlock}"/>
+            <ComboBox Name="supportList" Grid.Row="5" ItemsSource="{Binding NonBusinessBlock}" DisplayMemberPath="Name" SelectedItem="{Binding EditedRecord.Supports}"/>
+            <ComboBox Name="ClientWaysList" Grid.Row="7" ItemsSource="{Binding ClientWays}" DisplayMemberPath="Name" SelectedItem="{Binding EditedRecord.ClientWays}"/>
+            <ComboBox Name="EscalationList" Grid.Row="9" ItemsSource="{Binding Escalations}" DisplayMemberPath="Name" SelectedItem="{Binding EditedRecord.Escalations}"/>
+            <ComboBox Name="FormatList" Grid.Row="11" ItemsSource="{Binding FormatList}" DisplayMemberPath="Name" SelectedItem="{Binding EditedRecord.Formats}"/>
+            <ComboBox Name="RiskList" Grid.Row="13" ItemsSource="{Binding RiskCol}" DisplayMemberPath="riskName" />
             <StackPanel Orientation="Vertical" Grid.Row="14" VerticalAlignment="Center">
-                <DatePicker SelectedDate="{Binding CurrentDate}" Width="150" >
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectedDateChanged">
-                            <mvvm:EventToCommand Command="{Binding UpdateTime}"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </DatePicker>
+                <DatePicker Name="EditDatePicker" Width="150" SelectedDateChanged="EditDatePicker_SelectedDateChanged"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Label Content="Start" FontSize="16" VerticalAlignment="Center"/>
-                    <xctk:TimePicker Name="TimeStartBox" 
-                                     
-                                     Value="{Binding CurrentTimeStart}"  
-                                     Margin="5,0,0,0" FontSize="16" TimeInterval="0:15:0" ShowButtonSpinner="False" ShowDropDownButton="False">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="ValueChanged">
-                                <mvvm:EventToCommand Command="{Binding UpdateTime}"/>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </xctk:TimePicker>
+                    <xctk:TimePicker Name="EditTimeStart" Value="{Binding EditedRecord.timeStart}" Margin="5,0,0,0" FontSize="16" TimeInterval="0:15:0"/>
                     <Label Content="End" FontSize="16" Margin="20,0,0,0" VerticalAlignment="Center"/>
-                    <xctk:TimePicker Name="TimeEndBox" Value="{Binding CurrentTimeEnd}" FontSize="16" Margin="5,0,0,0"  TimeInterval="0:15:0" 
-                                     ShowButtonSpinner="False" ShowDropDownButton="False">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="ValueChanged">
-                                <mvvm:EventToCommand Command="{Binding UpdateTime}"/>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </xctk:TimePicker>
+                    <xctk:TimePicker Name="EditTimeEnd" Value="{Binding EditedRecord.timeEnd}" FontSize="16" Margin="5,0,0,0" TimeInterval="0:15:0"/>
                 </StackPanel>
                 <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0">
                     <Button Name="OKBtn" Content="ОК" Width="100" Height="30" IsDefault="True" Click="OKBtn_Click"/>

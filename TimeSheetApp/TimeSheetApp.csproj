@@ -160,7 +160,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Analytic.cs" />
     <Compile Include="EditForm.xaml.cs">
       <DependentUpon>EditForm.xaml</DependentUpon>
     </Compile>
@@ -248,9 +247,6 @@
     <Compile Include="Model\UpravlenieTable.cs">
       <DependentUpon>EFDadaModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="TimeSheetHistoryItem.cs" />
-    <Compile Include="TimeSpanClass.cs" />
-    <Compile Include="ViewModel\EditViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="EditForm.xaml">
@@ -353,6 +349,7 @@
       <LastGenOutput>EFDadaModel.Context.cs</LastGenOutput>
       <DependentUpon>EFDadaModel.edmx</DependentUpon>
     </Content>
+    <Content Include="Model\EFDadaModel.edmx.sql" />
     <Content Include="Model\EFDadaModel.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>EFDadaModel.edmx</DependentUpon>

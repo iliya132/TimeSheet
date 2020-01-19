@@ -21,20 +21,24 @@ namespace TimeSheetApp.Model
         {
             return new ObservableCollection<Process>(dataBase.Process);
         }
-        public ObservableCollection<string> GetBusinessBlocks()
+        public ObservableCollection<BusinessBlock> GetBusinessBlocks()
         {
-            return new ObservableCollection<string>(dataBase.BusinessBlock.Select(i=>i.BusinessBlockName).ToArray());
+            return new ObservableCollection<BusinessBlock>(dataBase.BusinessBlock.ToArray());
         }
 
-        public void AddActivity(Process activity)
+        public void AddActivity(TimeSheetTable activity)
         {
-            dataBase.Process.Add(activity);
+            TimeSpan span = activity.timeEnd - activity.timeStart;
+            activity.TimeSpent = (int)span.TotalMinutes;
+            dataBase.TimeSheetTable.Add(activity);
             dataBase.SaveChanges();
+            
         }
 
-        public int DeleteProcess(DateTime timeStart, Analytic analytic)
+        public void DeleteRecord(TimeSheetTable record)
         {
-            return 0;
+            dataBase.TimeSheetTable.Remove(record);
+            dataBase.SaveChanges();
         }
 
         public bool ForcedToQuit()
@@ -48,19 +52,19 @@ namespace TimeSheetApp.Model
         }
 
 
-        public ObservableCollection<string> GetClientWays()
+        public ObservableCollection<ClientWays> GetClientWays()
         {
-            return new ObservableCollection<string>(dataBase.ClientWays.Select(i=>i.Name).ToArray());
+            return new ObservableCollection<ClientWays>(dataBase.ClientWays.ToArray());
         }
 
-        public ObservableCollection<string> GetEscalation()
+        public ObservableCollection<Escalations> GetEscalation()
         {
-            return new ObservableCollection<string>(dataBase.Escalations.Select(i=>i.Name).ToArray());
+            return new ObservableCollection<Escalations>(dataBase.Escalations.ToArray());
         }
 
-        public ObservableCollection<string> GetFormat()
+        public ObservableCollection<Formats> GetFormat()
         {
-            return new ObservableCollection<string>(dataBase.Formats.Select(i => i.Name).ToArray());
+            return new ObservableCollection<Formats>(dataBase.Formats.ToArray());
         }
 
         public ObservableCollection<Analytic> GetMyAnalyticsData(Analytic currentUser)
@@ -75,9 +79,9 @@ namespace TimeSheetApp.Model
             return;
         }
 
-        public ObservableCollection<string> GetRisks()
+        public ObservableCollection<Risk> GetRisks()
         {
-            return new ObservableCollection<string>(dataBase.RiskSet.Select(i => i.riskName).ToArray());
+            return new ObservableCollection<Risk>(dataBase.RiskSet.ToArray());
         }
 
         public List<string> GetSubBlocksList()
@@ -85,20 +89,15 @@ namespace TimeSheetApp.Model
             return new List<string>(dataBase.SubBlock.Select(i => i.subblockName).ToArray());
         }
 
-        public ObservableCollection<string> GetSupports()
+        public ObservableCollection<Supports> GetSupports()
         {
-            return new ObservableCollection<string>(dataBase.Supports.Select(i => i.Name).ToArray());
+            return new ObservableCollection<Supports>(dataBase.Supports.ToArray());
         }
 
-        public ObservableCollection<TimeSheetHistoryItem> GetTimeSheetItem()
-        {
-            return new ObservableCollection<TimeSheetHistoryItem>();
-        }
 
         public Analytic LoadAnalyticData()
         {
             string user = Environment.UserName;
-            Console.WriteLine(Environment.UserName);
             return dataBase.Analytic.FirstOrDefault(i => i.userName.ToLower().Equals(Environment.UserName.ToLower()));
         }
 
@@ -108,17 +107,48 @@ namespace TimeSheetApp.Model
             return new Process();
         }
 
-        public ObservableCollection<TimeSheetTable> LoadTimeSpan(DateTime date, Analytic user)
+        public List<TimeSheetTable> LoadTimeSheetRecords(DateTime date, Analytic user)
         {
-            return new ObservableCollection<TimeSheetTable>(dataBase.TimeSheetTable.Where(i => i.AnalyticId == user.Id && DbFunctions.TruncateTime(i.timeStart) == date.Date));
+            return new List<TimeSheetTable>(dataBase.TimeSheetTable.Where(i => i.AnalyticId == user.Id && DbFunctions.TruncateTime(i.timeStart) == date.Date));
         }
 
-        public int UpdateProcess(Process oldProcess, Process newProcess)
+        public void UpdateProcess(TimeSheetTable oldProcess, TimeSheetTable newProcess)
         {
-            dataBase.Process.Remove(oldProcess);
-            dataBase.Process.Add(newProcess);
+
+            oldProcess.Subject = newProcess.Subject;
+            oldProcess.comment = newProcess.comment;
+            oldProcess.Process = newProcess.Process;
+            oldProcess.BusinessBlock = newProcess.BusinessBlock;
+            oldProcess.Supports = newProcess.Supports;
+            oldProcess.Process = newProcess.Process;
+            oldProcess.timeEnd = newProcess.timeEnd;
+            oldProcess.TimeSpent = newProcess.TimeSpent;
+            oldProcess.ClientWays = newProcess.ClientWays;
+            oldProcess.Escalations = newProcess.Escalations;
+            oldProcess.Formats = newProcess.Formats;
+            oldProcess.riskChoise = newProcess.riskChoise;
+            oldProcess.timeStart = newProcess.timeStart;
+            
             dataBase.SaveChanges();
-            return 0;
+        }
+        public bool IsCollisionedWithOtherRecords(TimeSheetTable record)
+        {
+            foreach(TimeSheetTable historyRecord in dataBase.TimeSheetTable.Where(i=>i.AnalyticId == record.AnalyticId))
+            {
+                if (isInInterval(record.timeStart, historyRecord.timeStart, historyRecord.timeEnd))
+                    {
+                    return true;
+                    }
+            }
+            return false;
+        }
+        private bool isInInterval(DateTime checkedValue, DateTime intervalStart, DateTime intervalEnd)
+        {
+            if (checkedValue >= intervalStart && checkedValue < intervalEnd)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
