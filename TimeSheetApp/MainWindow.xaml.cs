@@ -9,13 +9,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
+using TimeSheetApp.Model;
+using Xceed.Wpf.Toolkit;
 
 namespace TimeSheetApp
 {
@@ -24,57 +19,85 @@ namespace TimeSheetApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        Model.Selection selection;
         public MainWindow()
         {
             AppDomain.CurrentDomain.UnhandledException += (sender, e) => HandleError((Exception) e.ExceptionObject);
-            try
-            {
-                InitializeComponent();
-                CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(TimeSpanListView.ItemsSource);
-                view.SortDescriptions.Add(new SortDescription("timeIn", ListSortDirection.Ascending));
-                CollectionView viewProcesses = (CollectionView)CollectionViewSource.GetDefaultView(ProcessList.ItemsSource);
-                viewProcesses.SortDescriptions.Add(new SortDescription("ChoosenCounter", ListSortDirection.Descending));
-                viewProcesses.SortDescriptions.Add(new SortDescription("Block", ListSortDirection.Ascending));
-                viewProcesses.SortDescriptions.Add(new SortDescription("SubBlock", ListSortDirection.Ascending));
-                viewProcesses.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
-                PropertyGroupDescription propertyGroupDescription = new PropertyGroupDescription("ProcTypeName");
-                viewProcesses.GroupDescriptions.Add(propertyGroupDescription);
-            }catch(Exception e)
-            {
-                MessageBox.Show(e.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            InitializeComponent();
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(TimeSpanListView.ItemsSource);
+            view.SortDescriptions.Add(new SortDescription("timeStart", ListSortDirection.Ascending));
+            CollectionView viewProcesses = (CollectionView)CollectionViewSource.GetDefaultView(ProcessList.ItemsSource);
+            PropertyGroupDescription propertyGroupDescription = new PropertyGroupDescription("ProcessType1.ProcessTypeName");
+            viewProcesses.GroupDescriptions.Add(propertyGroupDescription);
+            TimeIn.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 0, 0);
+            Timeout.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 20, 0);
+            DateBox.SelectedDate = DateTime.Now;
+            
         }
-
         private void HandleError(Exception exceptionObject)
         {
-            MessageBox.Show(exceptionObject.Message, "ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            System.Windows.MessageBox.Show(exceptionObject.Message, "ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-
-        private void ProcessList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            try
-            {
-                selection = Model.LocalWorker.GetSelection((ProcessList.SelectedItem as Process).Id);
-                businessCombo.SelectedIndex = selection.BusinessBlockSelected;
-                supportCombo.SelectedIndex = selection.SupportSelected;
-                escalationCombo.SelectedIndex = selection.EscalationSelected;
-                formatCombo.SelectedIndex = selection.FormatSelected;
-                clientWaysCombo.SelectedIndex = selection.ClientWaySelected;
-                riskCombo.SelectedIndex = selection.RiskSelected;
-            }
-            catch { }
-        }
+        /// <summary>
+        /// Разворачивает интересующую группу
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Expander_Loaded(object sender, RoutedEventArgs e)
         {
-
             var expander = e.Source as Expander;
             if (expander == null)
                 return;
-            expander.IsExpanded = expander.Tag.ToString() == "Организация";
+            expander.IsExpanded = expander.Tag.ToString() == "TYPE1";
+        }
+        /// <summary>
+        /// При изменении выбранного времени устанавливает также и дату из поля DateBox.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TimeSelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if ((sender as TimePicker).Value != null && DateBox.SelectedDate != null)
+            {
+                DateTime time = (DateTime)(sender as TimePicker).Value.Value;
+                DateTime date = (DateTime)(DateBox.SelectedDate);
+                if ((sender as TimePicker).Value.Value.Day != date.Day)
+                {
+                    (sender as TimePicker).Value = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, 0);
+                }
+            }
 
+        }
+        /// <summary>
+        /// При изменении даты устанавливает дату и в полях выбора времени
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DateBox_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DateTime dateSelected = (sender as DatePicker).SelectedDate.Value;
 
+            if (TimeIn != null && Timeout != null)
+            {
+                TimeIn.Value = new DateTime(dateSelected.Year, dateSelected.Month, dateSelected.Day, TimeIn.Value.Value.Hour, TimeIn.Value.Value.Minute, 0);
+                Timeout.Value = new DateTime(dateSelected.Year, dateSelected.Month, dateSelected.Day, Timeout.Value.Value.Hour, Timeout.Value.Value.Minute, 0);
+            }
+        }
+        /// <summary>
+        /// При нажатии на иконку времени установить текущее время
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TimeIcon_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (sender == StartIcon)
+            {
+                TimeIn.Value = DateTime.Now;
+            }
+            else if (sender == EndIcon)
+            {
+                Timeout.Value = DateTime.Now;
+            }
         }
     }
 }

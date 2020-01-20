@@ -44,16 +44,18 @@ namespace TimeSheetApp.Model
                     if (selection.ProcessID == ProcessID)
                         return selection;
                 }
-            return new Selection();
+            return null;
         }
-        public static List<Selection> Load()
+        private static List<Selection> Load()
         {
             if (File.Exists($"{localPath}\\{Environment.UserName}.xml"))
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(List<Selection>));
-                XmlReader stream = new XmlTextReader(localPath + $@"\{Environment.UserName}.xml");
-                if (serializer.CanDeserialize(stream))
-                    return (List<Selection>)serializer.Deserialize(stream);
+                using (XmlReader stream = new XmlTextReader(localPath + $@"\{Environment.UserName}.xml"))
+                {
+                    if (serializer.CanDeserialize(stream))
+                        return (List<Selection>)serializer.Deserialize(stream);
+                }
             }
             return new List<Selection>();
         }

@@ -12,8 +12,9 @@ namespace TimeSheetApp.Model
         {
 
         }
-        public Selection(int _businessBlockSelected = 0, int _supportSelected = 0, int _clientWaySelected = 0, int _escalationSelected = 0, int _formatSelected = 0, int _riskSelected = 0)
+        public Selection(int _processID=1, int _businessBlockSelected = 1, int _supportSelected = 1, int _clientWaySelected = 1, int _escalationSelected = 1, int _formatSelected = 1, int _riskSelected = 1)
         {
+            ProcessID = _processID;
             BusinessBlockSelected = _businessBlockSelected;
             SupportSelected = _supportSelected;
             ClientWaySelected = _clientWaySelected;

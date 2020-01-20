@@ -19,21 +19,31 @@ namespace TimeSheetApp
     /// </summary>
     public partial class EditForm : Window
     {
-
         public EditForm()
         {
             InitializeComponent();
+            EditDatePicker.SelectedDate = EditTimeStart.Value.Value.Date;
         }
 
         private void OKBtn_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;
-            Close();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void EditDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DateTime dateSelected = (sender as DatePicker).SelectedDate.Value;
+
+            if (EditTimeStart != null && EditTimeEnd != null)
+            {
+                EditTimeStart.Value = new DateTime(dateSelected.Year, dateSelected.Month, dateSelected.Day, EditTimeStart.Value.Value.Hour, EditTimeStart.Value.Value.Minute, 0);
+                EditTimeEnd.Value = new DateTime(dateSelected.Year, dateSelected.Month, dateSelected.Day, EditTimeEnd.Value.Value.Hour, EditTimeEnd.Value.Value.Minute, 0);
+            }
         }
     }
 }
