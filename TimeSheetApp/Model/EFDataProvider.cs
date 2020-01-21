@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Data.Entity;
 using System.Data;
+using System.Windows;
 
 namespace TimeSheetApp.Model
 {
@@ -24,10 +25,158 @@ namespace TimeSheetApp.Model
             return dataBase.BusinessBlock.ToArray();
         }
 
+        public int AddRiskChoice(riskChoise riskChoise)
+        {
+            if (riskChoise == null)
+            {
+                riskChoise = new riskChoise()
+                {
+                    Risk_id = 1
+                };
+            }
+            if (dataBase.riskChoise.Any(i=>
+            i.Risk_id==riskChoise.Risk_id &&
+            i.Risk_id1 == riskChoise.Risk_id1 &&
+            i.Risk_id2 == riskChoise.Risk_id2 &&
+            i.Risk_id3 == riskChoise.Risk_id3 &&
+            i.Risk_id4 == riskChoise.Risk_id4 &&
+            i.Risk_id5 == riskChoise.Risk_id5 &&
+            i.Risk_id6 == riskChoise.Risk_id6 &&
+            i.Risk_id7 == riskChoise.Risk_id7 &&
+            i.Risk_id8 == riskChoise.Risk_id8
+            ))
+            {
+                return dataBase.riskChoise.First(
+            i => i.Risk_id == riskChoise.Risk_id &&
+            i.Risk_id1 == riskChoise.Risk_id1 &&
+            i.Risk_id2 == riskChoise.Risk_id2 &&
+            i.Risk_id3 == riskChoise.Risk_id3 &&
+            i.Risk_id4 == riskChoise.Risk_id4 &&
+            i.Risk_id5 == riskChoise.Risk_id5 &&
+            i.Risk_id6 == riskChoise.Risk_id6 &&
+            i.Risk_id7 == riskChoise.Risk_id7 &&
+            i.Risk_id8 == riskChoise.Risk_id8).id;
+            }
+            else
+            {
+                dataBase.riskChoise.Add(riskChoise);
+                dataBase.SaveChanges();
+                return riskChoise.id;
+            }
+        }
+        public int AddBusinessBlockChoice(BusinessBlockChoice BBChoice)
+        {
+            if (BBChoice == null)
+            {
+                BBChoice = new BusinessBlockChoice() { BusinessBlockid = 1 };
+            }
+            if (dataBase.BusinessBlockChoiceSet.Any(i =>
+            i.BusinessBlockid == BBChoice.BusinessBlockid &&
+            i.BusinessBlock_id1 == BBChoice.BusinessBlock_id1 &&
+            i.BusinessBlock_id2 == BBChoice.BusinessBlock_id2 &&
+            i.BusinessBlock_id3 == BBChoice.BusinessBlock_id3 &&
+            i.BusinessBlock_id4 == BBChoice.BusinessBlock_id4 &&
+            i.BusinessBlock_id5 == BBChoice.BusinessBlock_id5 &&
+            i.BusinessBlock_id6 == BBChoice.BusinessBlock_id6 &&
+            i.BusinessBlock_id7 == BBChoice.BusinessBlock_id7 &&
+            i.BusinessBlock_id8 == BBChoice.BusinessBlock_id8
+            ))
+            {
+                return dataBase.BusinessBlockChoiceSet.First(
+            i => i.BusinessBlockid == BBChoice.BusinessBlockid &&
+            i.BusinessBlock_id1 == BBChoice.BusinessBlock_id1 &&
+            i.BusinessBlock_id2 == BBChoice.BusinessBlock_id2 &&
+            i.BusinessBlock_id3 == BBChoice.BusinessBlock_id3 &&
+            i.BusinessBlock_id4 == BBChoice.BusinessBlock_id4 &&
+            i.BusinessBlock_id5 == BBChoice.BusinessBlock_id5 &&
+            i.BusinessBlock_id6 == BBChoice.BusinessBlock_id6 &&
+            i.BusinessBlock_id7 == BBChoice.BusinessBlock_id7 &&
+            i.BusinessBlock_id8 == BBChoice.BusinessBlock_id8).id;
+            }
+            else
+            {
+                dataBase.BusinessBlockChoiceSet.Add(BBChoice);
+                dataBase.SaveChanges();
+                return BBChoice.id;
+            }
+        }
+        public int AddEscalationChoice(EscalationChoice escalationChoice)
+        {
+            if (escalationChoice == null)
+            {
+                escalationChoice = new EscalationChoice() { Escalation_id = 1 };
+            }
+            if (dataBase.EscalationChoiceSet.Any(i =>
+            i.Escalation_id == escalationChoice.Escalation_id &&
+            i.Escalation_id1 == escalationChoice.Escalation_id1 &&
+            i.Escalation_id2 == escalationChoice.Escalation_id2 &&
+            i.Escalation_id3 == escalationChoice.Escalation_id3 &&
+            i.Escalation_id4 == escalationChoice.Escalation_id4 &&
+            i.Escalation_id5 == escalationChoice.Escalation_id5 &&
+            i.Escalation_id6 == escalationChoice.Escalation_id6 &&
+            i.Escalation_id7 == escalationChoice.Escalation_id7 &&
+            i.Escalation_id8 == escalationChoice.Escalation_id8
+            ))
+            {
+                return dataBase.EscalationChoiceSet.First(
+            i => i.Escalation_id == escalationChoice.Escalation_id &&
+            i.Escalation_id1 == escalationChoice.Escalation_id1 &&
+            i.Escalation_id2 == escalationChoice.Escalation_id2 &&
+            i.Escalation_id3 == escalationChoice.Escalation_id3 &&
+            i.Escalation_id4 == escalationChoice.Escalation_id4 &&
+            i.Escalation_id5 == escalationChoice.Escalation_id5 &&
+            i.Escalation_id6 == escalationChoice.Escalation_id6 &&
+            i.Escalation_id7 == escalationChoice.Escalation_id7 &&
+            i.Escalation_id8 == escalationChoice.Escalation_id8).id;
+            }
+            else
+            {
+                dataBase.EscalationChoiceSet.Add(escalationChoice);
+                dataBase.SaveChanges();
+                return escalationChoice.id;
+            }
+        }
+        public int AddSupportChoiceSet(supportChoice _suppChoice)
+        {
+            if (_suppChoice == null)
+            {
+                _suppChoice = new supportChoice() { Support_id = 1 };
+            }
+            if (dataBase.supportChoiceSet.Any(i =>
+            i.Support_id == _suppChoice.Support_id &&
+            i.Support_id1 == _suppChoice.Support_id1 &&
+            i.Support_id2 == _suppChoice.Support_id2 &&
+            i.Support_id3 == _suppChoice.Support_id3 &&
+            i.Support_id4 == _suppChoice.Support_id4 &&
+            i.Support_id5 == _suppChoice.Support_id5 &&
+            i.Support_id6 == _suppChoice.Support_id6 &&
+            i.Support_id7 == _suppChoice.Support_id7 &&
+            i.Support_id8 == _suppChoice.Support_id8
+            ))
+            {
+                return dataBase.supportChoiceSet.First(
+            i => i.Support_id == _suppChoice.Support_id &&
+            i.Support_id1 == _suppChoice.Support_id1 &&
+            i.Support_id2 == _suppChoice.Support_id2 &&
+            i.Support_id3 == _suppChoice.Support_id3 &&
+            i.Support_id4 == _suppChoice.Support_id4 &&
+            i.Support_id5 == _suppChoice.Support_id5 &&
+            i.Support_id6 == _suppChoice.Support_id6 &&
+            i.Support_id7 == _suppChoice.Support_id7 &&
+            i.Support_id8 == _suppChoice.Support_id8).id;
+            }
+            else
+            {
+                dataBase.supportChoiceSet.Add(_suppChoice);
+                dataBase.SaveChanges();
+                return _suppChoice.id;
+            }
+        }
         public void AddActivity(TimeSheetTable activity)
         {
             TimeSpan span = activity.timeEnd - activity.timeStart;
             activity.TimeSpent = (int)span.TotalMinutes;
+            activity.supportChoice = dataBase.supportChoiceSet.FirstOrDefault(i => i.id == activity.supportChoice_id);
             dataBase.TimeSheetTable.Add(activity);
             dataBase.SaveChanges();
             
@@ -96,7 +245,12 @@ namespace TimeSheetApp.Model
         {
             return dataBase.Supports.ToArray();
         }
-
+        public Visibility isAnalyticHasAccess(Analytic currentUser)
+        {
+            if (currentUser.Role.Id < 6)
+                return Visibility.Visible;
+            else return Visibility.Hidden;
+        }
 
         public Analytic LoadAnalyticData()
         {
@@ -131,13 +285,13 @@ namespace TimeSheetApp.Model
             oldProcess.Subject = newProcess.Subject;
             oldProcess.comment = newProcess.comment;
             oldProcess.Process = newProcess.Process;
-            oldProcess.BusinessBlock = newProcess.BusinessBlock;
-            oldProcess.Supports = newProcess.Supports;
+            oldProcess.BusinessBlockChoice = newProcess.BusinessBlockChoice;
+            oldProcess.supportChoice = newProcess.supportChoice;
             oldProcess.Process = newProcess.Process;
             oldProcess.timeEnd = newProcess.timeEnd;
             oldProcess.TimeSpent = newProcess.TimeSpent;
             oldProcess.ClientWays = newProcess.ClientWays;
-            oldProcess.Escalations = newProcess.Escalations;
+            oldProcess.EscalationChoice = newProcess.EscalationChoice;
             oldProcess.Formats = newProcess.Formats;
             oldProcess.riskChoise = newProcess.riskChoise;
             oldProcess.timeStart = newProcess.timeStart;
@@ -207,10 +361,10 @@ namespace TimeSheetApp.Model
                 row["timeStart"] = ReportEntity[i].timeStart;
                 row["timeEnd"] = ReportEntity[i].timeEnd;
                 row["TimeSpent"] = ReportEntity[i].TimeSpent;
-                row["BusinessBlockName"] = ReportEntity[i].BusinessBlock.BusinessBlockName;
-                row["SupportsName"] = ReportEntity[i].Supports.Name;
+                row["BusinessBlockName"] = ReportEntity[i].BusinessBlockChoice_id;
+                row["SupportsName"] = ReportEntity[i].supportChoice_id;
                 row["ClientWaysName"] = ReportEntity[i].ClientWays.Name;
-                row["EscalationsName"] = ReportEntity[i].Escalations.Name;
+                row["EscalationsName"] = ReportEntity[i].EscalationChoice_id;
                 row["FormatsName"] = ReportEntity[i].Formats.Name;
                 row["RiskName"] = 0;
                 }

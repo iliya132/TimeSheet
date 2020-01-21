@@ -101,10 +101,10 @@
                     </Grid>
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="290"/>
-                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="10*"/>
+                            <RowDefinition Height="6*"/>
                         </Grid.RowDefinitions>
 
 
@@ -125,9 +125,9 @@
                                 </i:Interaction.Triggers>
                             </DatePicker>
                             <xctk:TimePicker Name="TimeIn" Width="70" Margin="5,0,0,0" HorizontalAlignment="Left" TextAlignment="Center" TimeInterval="0:15:0" Grid.Row="2"
-                                 Value="{Binding NewRecord.timeStart}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="9:0:0"/>
+                                 Value="{Binding NewRecord.timeStart}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0"/>
                             <xctk:TimePicker Name="Timeout" Width="70" Margin="5,0,0,0" HorizontalAlignment="Right" TextAlignment="Center" TimeInterval="0:15:0" Grid.Row="2"
-                                 Value="{Binding NewRecord.timeEnd}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="9:0:0"/>
+                                 Value="{Binding NewRecord.timeEnd}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0"/>
                             
                         </StackPanel>
 
@@ -135,17 +135,41 @@
 
                         <StackPanel Grid.Row="2" Margin="0,10,0,0" DataContext="{Binding Main, Source={StaticResource Locator}}">
                             <Label Content="Бизнес подразделение" FontWeight="Bold"/>
-                            <ComboBox Name="businessCombo" Margin="0,0,0,0" DisplayMemberPath="BusinessBlockName"  ItemsSource="{Binding BusinessBlock}" SelectedItem="{Binding NewRecord.BusinessBlock}" SelectedIndex="0"/>
+                            <xctk:CheckComboBox Name="businessCombo" Height="30" DisplayMemberPath="BusinessBlockName"  ItemsSource="{Binding BusinessBlock}" >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ItemSelectionChanged">
+                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding ElementName=riskCombo, Path=SelectedItems}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </xctk:CheckComboBox>
                             <Label Content="Support" FontWeight="Bold"/>
-                            <ComboBox Name="supportCombo" Margin="0,0,0,0" DisplayMemberPath="Name" ItemsSource="{Binding SupportsArr}" SelectedItem="{Binding NewRecord.Supports}" SelectedIndex="0"/>
+                            <xctk:CheckComboBox Height="30" Name="supportCombo" DisplayMemberPath="Name" ItemsSource="{Binding SupportsArr}" >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ItemSelectionChanged">
+                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding ElementName=supportCombo, Path=SelectedItems}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </xctk:CheckComboBox>
                             <Label Content="Клиентские пути" FontWeight="Bold"/>
-                            <ComboBox Name="clientWaysCombo" Margin="0,0,0,0" DisplayMemberPath="Name" ItemsSource="{Binding ClientWays}" SelectedItem="{Binding NewRecord.ClientWays}" SelectedIndex="0"/>
+                            <ComboBox Name="clientWaysCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding ClientWays}" SelectedItem="{Binding NewRecord.ClientWays}" SelectedIndex="0"/>
                             <Label Content="Эскалация" FontWeight="Bold"/>
-                            <ComboBox Name="escalationCombo" Margin="0,0,0,0" DisplayMemberPath="Name" ItemsSource="{Binding Escalations}" SelectedItem="{Binding NewRecord.Escalations}" SelectedIndex="0"/>
+                            <xctk:CheckComboBox Name="escalationCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding Escalations}" >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ItemSelectionChanged">
+                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding ElementName=escalationCombo, Path=SelectedItems}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </xctk:CheckComboBox>
                             <Label Content="Формат" FontWeight="Bold"/>
-                            <ComboBox Name="formatCombo" Margin="0,0,0,0" DisplayMemberPath="Name" ItemsSource="{Binding FormatList}" SelectedItem="{Binding NewRecord.Formats}" SelectedIndex="0"/>
+                            <ComboBox Name="formatCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding FormatList}" SelectedItem="{Binding NewRecord.Formats}" SelectedIndex="0"/>
                             <Label Content="Риск" FontWeight="Bold"/>
-                            <ComboBox Name="riskCombo" ItemsSource="{Binding RiskCol}" DisplayMemberPath="riskName"  SelectedIndex="0"/>
+                            <xctk:CheckComboBox Name="riskCombo" Height="30" ItemsSource="{Binding RiskCol}" DisplayMemberPath="riskName" >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="ItemSelectionChanged">
+                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding ElementName=riskCombo, Path=SelectedItems}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </xctk:CheckComboBox>
 
                             <Button Name="Add" Height="35" Margin="0,10,0,0" 
                         DataContext="{Binding Main, Source={StaticResource Locator}}"
@@ -230,7 +254,7 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Кабинет руководителя">
+            <TabItem Header="Кабинет руководителя" Visibility="{Binding ReportAcess}">
                 <Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>

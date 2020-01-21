@@ -93,7 +93,7 @@ namespace TimeSheetApp.ViewModel
         /// <summary>
         /// Общая длительность записей в коллекции HistoryRecords
         /// </summary>
-
+        public Visibility ReportAcess { get; set; }
 
         #region Добавление нового процесса
         /// <summary>
@@ -111,22 +111,22 @@ namespace TimeSheetApp.ViewModel
             get { return _editedRecord; }
             set { _editedRecord = value; }
         }
-        private BusinessBlock _currentBusinessBlock = new BusinessBlock();
+        private BusinessBlockChoice _currentBusinessBlock = new BusinessBlockChoice();
 
-        public BusinessBlock CurrentBusinessBlock
+        public BusinessBlockChoice CurrentBusinessBlock
         {
             get { return _currentBusinessBlock; }
             set {
-                NewRecord.BusinessBlockId = value.Id;
+                NewRecord.BusinessBlockChoice = value;
                 _currentBusinessBlock = value;
             }
         }
-        private Supports _currentSupports = new Supports();
-        public Supports CurrentSupports
+        private supportChoice _currentSupports = new supportChoice();
+        public supportChoice CurrentSupports
         {
             get { return _currentSupports; }
             set {
-                NewRecord.SupportsId = value.Id;
+                NewRecord.supportChoice = value;
                 _currentSupports = value;
             }
         }
@@ -139,12 +139,12 @@ namespace TimeSheetApp.ViewModel
                 _currentClientWays = value;
             }
         }
-        private Escalations _currentEscalation = new Escalations();
-        public Escalations CurrentEscalation
+        private EscalationChoice _currentEscalation = new EscalationChoice();
+        public EscalationChoice CurrentEscalation
         {
             get { return _currentEscalation; }
             set {
-                NewRecord.EscalationsId = value.Id;
+                NewRecord.EscalationChoice = value;
                 _currentEscalation = value;
             }
         }
@@ -217,6 +217,15 @@ namespace TimeSheetApp.ViewModel
             set { _endReportDate = value; }
         }
         #endregion
+
+        #region Мультивыбор
+        riskChoise riskChoise = new riskChoise();
+        BusinessBlockChoice businessBlockChoice = new BusinessBlockChoice();
+        supportChoice supportChoice = new supportChoice();
+        EscalationChoice escalationChoice = new EscalationChoice();
+        public BusinessBlock defBlock;
+        #endregion
+
         public TimeSpan TotalDurationInMinutes
         {
             get
@@ -247,6 +256,7 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand ReloadHistoryRecords { get; }
         public RelayCommand CheckTimeForIntersection { get; }
         public RelayCommand<IEnumerable<object>> GetReport { get; }
+        public RelayCommand<IList<object>> StoreSelection { get; }
         #endregion
 
         public MainViewModel(IEFDataProvider dataProvider)
@@ -263,9 +273,102 @@ namespace TimeSheetApp.ViewModel
             ExportReport = new RelayCommand(GetReportMethod);
             GetReport = new RelayCommand<IEnumerable<object>>(GetReportMethod);
             ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
+            StoreSelection = new RelayCommand<IList<object>>(StoreMultiplyChoice);
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
             NewRecord.riskChoise_id = 2;
+            ReportAcess = EFDataProvider.isAnalyticHasAccess(CurrentUser);
+            RaisePropertyChanged("ReportAcess");
+        }
+
+        private void StoreMultiplyChoice(IList<object> choice)
+        {
+            int countOfChoice = choice.Count();
+            for (int i = 0; i < countOfChoice; i++)
+            {
+                if (choice[i] is Risk)
+                {
+                    switch (i)
+                    {
+                        case (0): riskChoise.Risk_id = (choice[i] as Risk).id; break;
+                        case (1): riskChoise.Risk_id1 = (choice[i] as Risk).id; break;
+                        case (2): riskChoise.Risk_id2 = (choice[i] as Risk).id; break;
+                        case (3): riskChoise.Risk_id3 = (choice[i] as Risk).id; break;
+                        case (4): riskChoise.Risk_id4 = (choice[i] as Risk).id; break;
+                        case (5): riskChoise.Risk_id5 = (choice[i] as Risk).id; break;
+                        case (6): riskChoise.Risk_id6 = (choice[i] as Risk).id; break;
+                        case (7): riskChoise.Risk_id7 = (choice[i] as Risk).id; break;
+                        case (8): riskChoise.Risk_id8 = (choice[i] as Risk).id; break;
+                        case (9): riskChoise.Risk_id9 = (choice[i] as Risk).id; break;
+                    }
+                    
+                } else if(choice[i] is BusinessBlock)
+                {
+                    switch (i)
+                    {
+                        case (0): businessBlockChoice.BusinessBlockid = (choice[i] as BusinessBlock).Id; break;
+                        case (1): businessBlockChoice.BusinessBlock_id1 = (choice[i] as BusinessBlock).Id; break;
+                        case (2): businessBlockChoice.BusinessBlock_id2 = (choice[i] as BusinessBlock).Id; break;
+                        case (3): businessBlockChoice.BusinessBlock_id3 = (choice[i] as BusinessBlock).Id; break;
+                        case (4): businessBlockChoice.BusinessBlock_id4 = (choice[i] as BusinessBlock).Id; break;
+                        case (5): businessBlockChoice.BusinessBlock_id5 = (choice[i] as BusinessBlock).Id; break;
+                        case (6): businessBlockChoice.BusinessBlock_id6 = (choice[i] as BusinessBlock).Id; break;
+                        case (7): businessBlockChoice.BusinessBlock_id7 = (choice[i] as BusinessBlock).Id; break;
+                        case (8): businessBlockChoice.BusinessBlock_id8 = (choice[i] as BusinessBlock).Id; break;
+                        case (9): businessBlockChoice.BusinessBlock_id9 = (choice[i] as BusinessBlock).Id; break;
+                        case (10): businessBlockChoice.BusinessBlock_id10 = (choice[i] as BusinessBlock).Id; break;
+                        case (11): businessBlockChoice.BusinessBlock_id11 = (choice[i] as BusinessBlock).Id; break;
+                        case (12): businessBlockChoice.BusinessBlock_id12 = (choice[i] as BusinessBlock).Id; break;
+                        case (13): businessBlockChoice.BusinessBlock_id13 = (choice[i] as BusinessBlock).Id; break;
+                        case (14): businessBlockChoice.BusinessBlock_id14 = (choice[i] as BusinessBlock).Id; break;
+                    }
+                } else if (choice[i] is Escalations)
+                {
+                    switch (i)
+                    {
+                        case (0): escalationChoice.Escalation_id = (choice[i] as Escalations).Id; break;
+                        case (1): escalationChoice.Escalation_id1 = (choice[i] as Escalations).Id; break;
+                        case (2): escalationChoice.Escalation_id2 = (choice[i] as Escalations).Id; break;
+                        case (3): escalationChoice.Escalation_id3 = (choice[i] as Escalations).Id; break;
+                        case (4): escalationChoice.Escalation_id4 = (choice[i] as Escalations).Id; break;
+                        case (5): escalationChoice.Escalation_id5 = (choice[i] as Escalations).Id; break;
+                        case (6): escalationChoice.Escalation_id6 = (choice[i] as Escalations).Id; break;
+                        case (7): escalationChoice.Escalation_id7 = (choice[i] as Escalations).Id; break;
+                        case (8): escalationChoice.Escalation_id8 = (choice[i] as Escalations).Id; break;
+                        case (9): escalationChoice.Escalation_id9 = (choice[i] as Escalations).Id; break;
+                        case (10): escalationChoice.Escalation_id10 = (choice[i] as Escalations).Id; break;
+                        case (11): escalationChoice.Escalation_id11 = (choice[i] as Escalations).Id; break;
+                        case (12): escalationChoice.Escalation_id12 = (choice[i] as Escalations).Id; break;
+                        case (13): escalationChoice.Escalation_id13 = (choice[i] as Escalations).Id; break;
+                        case (14): escalationChoice.Escalation_id14 = (choice[i] as Escalations).Id; break;
+                    }
+                }
+                else if (choice[i] is Supports)
+                {
+                    switch (i)
+                    {
+                        case (0): supportChoice.Support_id = (choice[i] as Supports).Id; break;
+                        case (1): supportChoice.Support_id1 = (choice[i] as Supports).Id; break;
+                        case (2): supportChoice.Support_id2 = (choice[i] as Supports).Id; break;
+                        case (3): supportChoice.Support_id3 = (choice[i] as Supports).Id; break;
+                        case (4): supportChoice.Support_id4 = (choice[i] as Supports).Id; break;
+                        case (5): supportChoice.Support_id5 = (choice[i] as Supports).Id; break;
+                        case (6): supportChoice.Support_id6 = (choice[i] as Supports).Id; break;
+                        case (7): supportChoice.Support_id7 = (choice[i] as Supports).Id; break;
+                        case (8): supportChoice.Support_id8 = (choice[i] as Supports).Id; break;
+                        case (9): supportChoice.Support_id9 = (choice[i] as Supports).Id; break;
+                        case (10): supportChoice.Support_id10 = (choice[i] as Supports).Id; break;
+                        case (11): supportChoice.Support_id11 = (choice[i] as Supports).Id; break;
+                        case (12): supportChoice.Support_id12 = (choice[i] as Supports).Id; break;
+                        case (13): supportChoice.Support_id13 = (choice[i] as Supports).Id; break;
+                        case (14): supportChoice.Support_id14 = (choice[i] as Supports).Id; break;
+                    }
+                }
+            }
+            NewRecord.riskChoise = riskChoise;
+            NewRecord.supportChoice = supportChoice;
+            NewRecord.EscalationChoice = escalationChoice;
+            NewRecord.BusinessBlockChoice = businessBlockChoice;
         }
 
         private void GetReportMethod(IEnumerable<object> Analytics)
@@ -298,11 +401,17 @@ namespace TimeSheetApp.ViewModel
                 Selection loadedSelection = LocalWorker.GetSelection(selectedProcess.id);
                 if (loadedSelection != null)
                 {
-                    NewRecord.BusinessBlock = Array.Find(BusinessBlock, i => i.Id == loadedSelection.BusinessBlockSelected);
-                    NewRecord.Supports = Array.Find(SupportsArr, i => i.Id == loadedSelection.SupportSelected);
-                    NewRecord.ClientWays = Array.Find(ClientWays, i => i.Id == loadedSelection.ClientWaySelected);
-                    NewRecord.Formats = Array.Find(FormatList, i => i.Id == loadedSelection.FormatSelected);
-                    NewRecord.Escalations = Array.Find(Escalations, i => i.Id == loadedSelection.EscalationSelected);
+                    //NewRecord.BusinessBlock = Array.Find(BusinessBlock, i => i.Id == loadedSelection.BusinessBlockSelected);
+                    //NewRecord.Supports = Array.Find(SupportsArr, i => i.Id == loadedSelection.SupportSelected);
+                    if ((NewRecord.ClientWays = Array.Find(ClientWays, i => i.Id == loadedSelection.ClientWaySelected)) == null)
+                    {
+                        NewRecord.ClientWays = ClientWays[0];
+                    }
+                    if ((NewRecord.Formats = Array.Find(FormatList, i => i.Id == loadedSelection.FormatSelected)) == null)
+                    {
+                        NewRecord.Formats = FormatList[0];
+                    }
+                    //NewRecord.Escalations = Array.Find(Escalations, i => i.Id == loadedSelection.EscalationSelected);
                     //TODO: NewRecord.riskChoise = Array.Find(risk, i => i.Id == loadedSelection.BusinessBlockSelected);
                     RaisePropertyChanged("NewRecord");
                 }
@@ -330,6 +439,7 @@ namespace TimeSheetApp.ViewModel
             FilterProcessesMethod(string.Empty);
             SubordinateEmployees = EFDataProvider.GetMyAnalyticsData(CurrentUser);
             UpdateTimeSpan();
+            defBlock = BusinessBlock[0];
         }
         private void UpdateTimeSpan()
         {
@@ -401,23 +511,29 @@ namespace TimeSheetApp.ViewModel
             }
             #endregion
 
+
+
             #region Добавление в БД
+            int riskID = EFDataProvider.AddRiskChoice(newItem.riskChoise);
+            int BBID = EFDataProvider.AddBusinessBlockChoice(newItem.BusinessBlockChoice);
+            int suppID = EFDataProvider.AddSupportChoiceSet(newItem.supportChoice);
+            int escalID = EFDataProvider.AddEscalationChoice(newItem.EscalationChoice);
             TimeSheetTable clonedActivity = new TimeSheetTable()
             {
                 AnalyticId = newItem.Analytic.Id,
-                BusinessBlockId = newItem.BusinessBlock.Id,
+                BusinessBlockChoice_id = BBID,
                 ClientWaysId = newItem.ClientWays.Id,
-                EscalationsId = newItem.Escalations.Id,
+                EscalationChoice_id = escalID,
                 FormatsId = newItem.Formats.Id,
                 Process_id = newItem.Process.id,
                 id = newItem.id,
-                riskChoise_id = 2,
+                riskChoise_id = riskID,
                 Subject = newItem.Subject,
                 comment = newItem.comment,
-                SupportsId = newItem.Supports.Id,
+                supportChoice_id = suppID,
                 timeStart = newItem.timeStart,
                 timeEnd = newItem.timeEnd,
-                TimeSpent = newItem.TimeSpent,
+                TimeSpent = newItem.TimeSpent                
             };
             EFDataProvider.AddActivity(clonedActivity);
             #endregion
@@ -435,10 +551,10 @@ namespace TimeSheetApp.ViewModel
             #region Запоминаем выбор
             LocalWorker.StoreSelection(new Selection(
                 newItem.Process.id,
-                newItem.BusinessBlock.Id,
-                newItem.Supports.Id,
+                newItem.BusinessBlockChoice_id,
+                newItem.supportChoice_id,
                 newItem.ClientWays.Id,
-                newItem.Escalations.Id,
+                newItem.EscalationChoice_id,
                 newItem.Formats.Id,
                 2));
             #endregion
@@ -466,13 +582,13 @@ namespace TimeSheetApp.ViewModel
                 Subject = Record.Subject,
                 comment = Record.comment,
                 Process = Record.Process,
-                BusinessBlock = Record.BusinessBlock,
-                Supports = Record.Supports,
+                BusinessBlockChoice = Record.BusinessBlockChoice,
+                supportChoice = Record.supportChoice,
                 timeStart = Record.timeStart,
                 timeEnd = Record.timeEnd,
                 TimeSpent = Record.TimeSpent,
                 ClientWays = Record.ClientWays,
-                Escalations = Record.Escalations,
+                EscalationChoice = Record.EscalationChoice,
                 Formats = Record.Formats,
                 riskChoise = Record.riskChoise
             };

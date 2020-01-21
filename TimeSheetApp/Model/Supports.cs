@@ -17,13 +17,13 @@ namespace TimeSheetApp.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Supports()
         {
-            this.TimeSheetTable = new HashSet<TimeSheetTable>();
+            this.supportChoice = new HashSet<supportChoice>();
         }
     
         public int Id { get; set; }
         public string Name { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TimeSheetTable> TimeSheetTable { get; set; }
+        public virtual ICollection<supportChoice> supportChoice { get; set; }
     }
 }

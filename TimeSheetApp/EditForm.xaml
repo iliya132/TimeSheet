@@ -48,22 +48,22 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="5*"/>
+                <RowDefinition Height="6*"/>
             </Grid.RowDefinitions>
             <Label Margin="5,0,0,0" Content="Процесс:" Grid.Row="0"/>
-            <Label Margin="5,0,0,0" Content="Бизнес подразделение:" Grid.Row="2"/>
-            <Label Margin="5,0,0,0" Content="Support:" Grid.Row="4"/>
+            <Label Foreground="DarkGray" Margin="5,0,0,0" Content="Бизнес подразделение:" Grid.Row="2"/>
+            <Label Foreground="DarkGray" Margin="5,0,0,0" Content="Support:" Grid.Row="4"/>
             <Label Margin="5,0,0,0" Content="Клиентские пути:" Grid.Row="6"/>
-            <Label Margin="5,0,0,0" Content="Эскалация:" Grid.Row="8"/>
+            <Label Foreground="DarkGray" Margin="5,0,0,0" Content="Эскалация:" Grid.Row="8"/>
             <Label Margin="5,0,0,0" Content="Формат:" Grid.Row="10"/>
-            <Label Margin="5,0,0,0" Content="Риск:" Grid.Row="12"/>
+            <Label Foreground="DarkGray" Margin="5,0,0,0" Content="Риск:" Grid.Row="12"/>
             <ComboBox Name="ProcessList" Grid.Row="1" ItemsSource="{Binding Processes}" DisplayMemberPath="procName" SelectedItem="{Binding EditedRecord.Process}"/>
-            <ComboBox Name="BusinessList" Grid.Row="3" ItemsSource="{Binding BusinessBlock}" DisplayMemberPath="BusinessBlockName" SelectedItem="{Binding EditedRecord.BusinessBlock}"/>
-            <ComboBox Name="supportList" Grid.Row="5" ItemsSource="{Binding SupportsArr}" DisplayMemberPath="Name" SelectedItem="{Binding EditedRecord.Supports}"/>
+            <ComboBox IsEnabled="False" Name="BusinessList" Grid.Row="3" ItemsSource="{Binding BusinessBlock}" DisplayMemberPath="BusinessBlockName" SelectedItem="{Binding EditedRecord.BusinessBlock}"/>
+            <ComboBox IsEnabled="False" Name="supportList" Grid.Row="5" ItemsSource="{Binding SupportsArr}" DisplayMemberPath="Name" SelectedItem="{Binding EditedRecord.Supports}"/>
             <ComboBox Name="ClientWaysList" Grid.Row="7" ItemsSource="{Binding ClientWays}" DisplayMemberPath="Name" SelectedItem="{Binding EditedRecord.ClientWays}"/>
-            <ComboBox Name="EscalationList" Grid.Row="9" ItemsSource="{Binding Escalations}" DisplayMemberPath="Name" SelectedItem="{Binding EditedRecord.Escalations}"/>
+            <ComboBox IsEnabled="False" Name="EscalationList" Grid.Row="9" ItemsSource="{Binding Escalations}" DisplayMemberPath="Name" SelectedItem="{Binding EditedRecord.Escalations}"/>
             <ComboBox Name="FormatList" Grid.Row="11" ItemsSource="{Binding FormatList}" DisplayMemberPath="Name" SelectedItem="{Binding EditedRecord.Formats}"/>
-            <ComboBox Name="RiskList" Grid.Row="13" ItemsSource="{Binding RiskCol}" DisplayMemberPath="riskName" />
+            <ComboBox IsEnabled="False" Name="RiskList" Grid.Row="13" ItemsSource="{Binding RiskCol}" DisplayMemberPath="riskName" />
             <StackPanel Orientation="Vertical" Grid.Row="14" VerticalAlignment="Center">
                 <DatePicker Name="EditDatePicker" Width="150" SelectedDateChanged="EditDatePicker_SelectedDateChanged" Margin="0,10,0,10"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -86,6 +86,7 @@
                     
                 </StackPanel>
                 <TextBlock Text="Указанное время пересекается с другой записью" Visibility="{Binding IsTimeCorrect, Converter={StaticResource InvertBoolean}}" HorizontalAlignment="Center" Foreground="red"/>
+                <TextBlock Text="или введено неверно" Visibility="{Binding IsTimeCorrect, Converter={StaticResource InvertBoolean}}" HorizontalAlignment="Center" Foreground="red"/>
                 <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0">
                     <Button Name="OKBtn" Content="ОК" Width="100" Height="30" IsDefault="True" Click="OKBtn_Click" IsEnabled="{Binding IsTimeCorrect}"/>
                     <Button Name="CancelBtn" Content="Отмена" Width="100" Margin="30,0,0,0" IsCancel="True"/>

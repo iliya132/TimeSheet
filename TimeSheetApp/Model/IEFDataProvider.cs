@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace TimeSheetApp.Model
 {
@@ -28,5 +29,10 @@ namespace TimeSheetApp.Model
         List<TimeSheetTable> LoadTimeSheetRecords(DateTime date, Analytic user);
         void GetReport(int ReportType, Analytic[] analytics, DateTime start, DateTime end);
         bool IsCollisionedWithOtherRecords(TimeSheetTable record);
+        int AddRiskChoice(riskChoise riskChoise);
+        int AddSupportChoiceSet(supportChoice _suppChoice);
+        int AddEscalationChoice(EscalationChoice escalationChoice);
+        int AddBusinessBlockChoice(BusinessBlockChoice BBChoice);
+        Visibility isAnalyticHasAccess(Analytic currentUser);
     }
 }

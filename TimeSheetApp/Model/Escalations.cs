@@ -17,13 +17,13 @@ namespace TimeSheetApp.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Escalations()
         {
-            this.TimeSheetTable = new HashSet<TimeSheetTable>();
+            this.EscalationChoice = new HashSet<EscalationChoice>();
         }
     
         public int Id { get; set; }
         public string Name { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TimeSheetTable> TimeSheetTable { get; set; }
+        public virtual ICollection<EscalationChoice> EscalationChoice { get; set; }
     }
 }
