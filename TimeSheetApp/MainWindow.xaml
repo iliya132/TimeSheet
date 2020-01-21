@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="750" Width="1100"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
-        IsEnabled="True">
+        IsEnabled="True" Icon="Resource/MainIco.ico" WindowStartupLocation="CenterScreen" >
     <Window.Resources>
         <local:CodeFullConverter x:Key="CodeFullConverter"/>
         <local:CodeDescriptionConverter x:Key="CodeDescriptionConverter"/>
@@ -17,6 +17,9 @@
         
     </Window.Resources>
     <Grid>
+        <Button Name="HelpBtn" HorizontalAlignment="Right" VerticalAlignment="Top" Width="25" Height="25" Click="HelpBtn_Click" Background="AliceBlue">
+            <Image Source="Resource/Help.png"/>
+        </Button>
         <TabControl>
             <TabItem Header="Учет времени">
             <Grid>
@@ -53,7 +56,7 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                             <ListView.View>
-                                <GridView>
+                                <GridView AllowsColumnReorder="False">
 
                                     <GridViewColumn Header="Код" >
                                         <GridViewColumn.CellTemplate>
@@ -64,7 +67,7 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="Процесс" Width="240" DisplayMemberBinding="{Binding Path=procName}"/>
+                                    <GridViewColumn Header="Процесс" Width="297" DisplayMemberBinding="{Binding Path=procName}"/>
                                 </GridView>
                             </ListView.View>
                             <ListView.GroupStyle>
@@ -138,7 +141,7 @@
                             <xctk:CheckComboBox Name="businessCombo" Height="30" DisplayMemberPath="BusinessBlockName"  ItemsSource="{Binding BusinessBlock}" >
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="ItemSelectionChanged">
-                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding ElementName=riskCombo, Path=SelectedItems}"/>
+                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding ElementName=businessCombo, Path=SelectedItems}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </xctk:CheckComboBox>

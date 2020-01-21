@@ -8,14 +8,14 @@ using System.Windows;
 
 namespace TimeSheetApp.Model
 {
-    class EFDataProvider:IEFDataProvider
+    class EFDataProvider : IEFDataProvider
     {
         Model.TimeSheetDBEntities dataBase = new TimeSheetDBEntities();
         public EFDataProvider()
         {
-            
+
         }
-        public string GetCodeDescription(Process process)=> $"{process.Block1.blockName}\r\n{process.SubBlockNav.subblockName}\r\n{process.procName}";
+        public string GetCodeDescription(Process process) => $"{process.Block1.blockName}\r\n{process.SubBlockNav.subblockName}\r\n{process.procName}";
         public ObservableCollection<Process> GetProcesses()
         {
             return new ObservableCollection<Process>(dataBase.Process);
@@ -23,6 +23,29 @@ namespace TimeSheetApp.Model
         public BusinessBlock[] GetBusinessBlocks()
         {
             return dataBase.BusinessBlock.ToArray();
+        }
+        /// <summary>
+        /// Возвращает объект из модели соответствующий входящему id
+        /// </summary>
+        /// <param name="ObjectId"></param>
+        /// <param name="Type">0-BusinessBlock, 1-Supports, 2-Escalation, 3-RiskChoice</param>
+        /// <returns></returns>
+        public object GetChoice(int ObjectId, int Type)
+        {
+            switch (Type)
+            {
+                case (0):
+                    return dataBase.BusinessBlockChoiceSet.FirstOrDefault(i => i.id == ObjectId);
+                case (1):
+                    return dataBase.supportChoiceSet.FirstOrDefault(i => i.id == ObjectId);
+                case (2):
+                    return dataBase.EscalationChoiceSet.FirstOrDefault(i => i.id == ObjectId);
+                case (3):
+                    return dataBase.riskChoise.FirstOrDefault(i => i.id == ObjectId);
+                default:
+                    return null;
+            }
+
         }
 
         public int AddRiskChoice(riskChoise riskChoise)
@@ -34,8 +57,8 @@ namespace TimeSheetApp.Model
                     Risk_id = 1
                 };
             }
-            if (dataBase.riskChoise.Any(i=>
-            i.Risk_id==riskChoise.Risk_id &&
+            if (dataBase.riskChoise.Any(i =>
+            i.Risk_id == riskChoise.Risk_id &&
             i.Risk_id1 == riskChoise.Risk_id1 &&
             i.Risk_id2 == riskChoise.Risk_id2 &&
             i.Risk_id3 == riskChoise.Risk_id3 &&
@@ -179,7 +202,7 @@ namespace TimeSheetApp.Model
             activity.supportChoice = dataBase.supportChoiceSet.FirstOrDefault(i => i.id == activity.supportChoice_id);
             dataBase.TimeSheetTable.Add(activity);
             dataBase.SaveChanges();
-            
+
         }
 
         public void DeleteRecord(TimeSheetTable record)
@@ -195,7 +218,7 @@ namespace TimeSheetApp.Model
 
         public List<string> GetBlocksList()
         {
-            return new List<string>(dataBase.Block.Select(i=>i.blockName).ToArray());
+            return new List<string>(dataBase.Block.Select(i => i.blockName).ToArray());
         }
 
 
@@ -255,14 +278,25 @@ namespace TimeSheetApp.Model
         public Analytic LoadAnalyticData()
         {
             string user = Environment.UserName;
-            if (dataBase.Analytic.Any(i=>i.userName==user))
+            if (dataBase.Analytic.Any(i => i.userName == user))
             {
                 return dataBase.Analytic.FirstOrDefault(i => i.userName.ToLower().Equals(Environment.UserName.ToLower()));
             }
             else
             {
-                dataBase.Analytic.Add(new Analytic() { userName = user,DepartmentsId=1, DirectionsId=1, FirstName="NotSet", LastName="NotSet",
-                FatherName="NotSet", OtdelTableId=1, PositionsId=1, RoleTableId=1, UpravlenieTableId=1});
+                dataBase.Analytic.Add(new Analytic()
+                {
+                    userName = user,
+                    DepartmentsId = 1,
+                    DirectionsId = 1,
+                    FirstName = "NotSet",
+                    LastName = "NotSet",
+                    FatherName = "NotSet",
+                    OtdelTableId = 1,
+                    PositionsId = 1,
+                    RoleTableId = 1,
+                    UpravlenieTableId = 1
+                });
                 dataBase.SaveChanges();
                 return dataBase.Analytic.FirstOrDefault(i => i.userName.ToLower().Equals(Environment.UserName.ToLower()));
             }
@@ -281,7 +315,7 @@ namespace TimeSheetApp.Model
 
         public void UpdateProcess(TimeSheetTable oldProcess, TimeSheetTable newProcess)
         {
-            
+
             oldProcess.Subject = newProcess.Subject;
             oldProcess.comment = newProcess.comment;
             oldProcess.Process = newProcess.Process;
@@ -295,20 +329,21 @@ namespace TimeSheetApp.Model
             oldProcess.Formats = newProcess.Formats;
             oldProcess.riskChoise = newProcess.riskChoise;
             oldProcess.timeStart = newProcess.timeStart;
-            
+
             dataBase.SaveChanges();
         }
         public bool IsCollisionedWithOtherRecords(TimeSheetTable record)
         {
-            foreach(TimeSheetTable historyRecord in dataBase.TimeSheetTable.Where(i=>i.AnalyticId == record.AnalyticId))
+            foreach (TimeSheetTable historyRecord in dataBase.TimeSheetTable.Where(i => i.AnalyticId == record.AnalyticId))
             {
                 if (isInInterval(record.timeStart, record.timeEnd, historyRecord.timeStart, historyRecord.timeEnd))
-                    {
-                        return true;
-                    }
+                {
+                    return true;
+                }
             }
             return false;
         }
+
         private bool isInInterval(DateTime checkedValueStart, DateTime checkedValueEnd, DateTime intervalStart, DateTime intervalEnd)
         {
             if ((checkedValueStart >= intervalStart && checkedValueStart < intervalEnd) || //начальная дата в интервале
@@ -341,7 +376,7 @@ namespace TimeSheetApp.Model
             dataTable.Columns.Add("FormatsName");
             dataTable.Columns.Add("RiskName");
 
-            foreach(Analytic analytic in analytics)
+            foreach (Analytic analytic in analytics)
             {
                 List<TimeSheetTable> ReportEntity = new List<TimeSheetTable>();
                 ReportEntity = dataBase.TimeSheetTable.Where(
@@ -349,24 +384,24 @@ namespace TimeSheetApp.Model
                     record.timeStart > timeStart && record.timeStart < timeEnd).ToList();
                 for (int i = 0; i < ReportEntity.Count; i++)
                 {
-                DataRow row = dataTable.Rows.Add();
-                row["LastName"] = ReportEntity[i].Analytic.LastName;
-                row["FirstName"] = ReportEntity[i].Analytic.FirstName;
-                row["FatherName"] = ReportEntity[i].Analytic.FatherName;
-                row["BlockName"] = ReportEntity[i].Process.Block1.blockName;
-                row["SubBlockName"] = ReportEntity[i].Process.SubBlockNav.subblockName;
-                row["ProcessName"] = ReportEntity[i].Process.procName;
-                row["Subject"] = ReportEntity[i].Subject;
-                row["Body"] = ReportEntity[i].comment;
-                row["timeStart"] = ReportEntity[i].timeStart;
-                row["timeEnd"] = ReportEntity[i].timeEnd;
-                row["TimeSpent"] = ReportEntity[i].TimeSpent;
-                row["BusinessBlockName"] = ReportEntity[i].BusinessBlockChoice_id;
-                row["SupportsName"] = ReportEntity[i].supportChoice_id;
-                row["ClientWaysName"] = ReportEntity[i].ClientWays.Name;
-                row["EscalationsName"] = ReportEntity[i].EscalationChoice_id;
-                row["FormatsName"] = ReportEntity[i].Formats.Name;
-                row["RiskName"] = 0;
+                    DataRow row = dataTable.Rows.Add();
+                    row["LastName"] = ReportEntity[i].Analytic.LastName;
+                    row["FirstName"] = ReportEntity[i].Analytic.FirstName;
+                    row["FatherName"] = ReportEntity[i].Analytic.FatherName;
+                    row["BlockName"] = ReportEntity[i].Process.Block1.blockName;
+                    row["SubBlockName"] = ReportEntity[i].Process.SubBlockNav.subblockName;
+                    row["ProcessName"] = ReportEntity[i].Process.procName;
+                    row["Subject"] = ReportEntity[i].Subject;
+                    row["Body"] = ReportEntity[i].comment;
+                    row["timeStart"] = ReportEntity[i].timeStart;
+                    row["timeEnd"] = ReportEntity[i].timeEnd;
+                    row["TimeSpent"] = ReportEntity[i].TimeSpent;
+                    row["BusinessBlockName"] = ReportEntity[i].BusinessBlockChoice_id;
+                    row["SupportsName"] = ReportEntity[i].supportChoice_id;
+                    row["ClientWaysName"] = ReportEntity[i].ClientWays.Name;
+                    row["EscalationsName"] = ReportEntity[i].EscalationChoice_id;
+                    row["FormatsName"] = ReportEntity[i].Formats.Name;
+                    row["RiskName"] = 0;
                 }
             }
             return dataTable;

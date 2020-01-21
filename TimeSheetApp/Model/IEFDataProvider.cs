@@ -11,6 +11,7 @@ namespace TimeSheetApp.Model
     public interface IEFDataProvider
     {
         bool ForcedToQuit();
+        object GetChoice(int choice, int set);
         ObservableCollection<Process> GetProcesses();
         BusinessBlock[] GetBusinessBlocks();
         Supports[] GetSupports();

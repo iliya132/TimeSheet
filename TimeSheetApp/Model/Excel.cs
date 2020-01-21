@@ -94,7 +94,7 @@ namespace TimeSheetApp.Model
                 }
             }
 
-            string fileName = $"Report{DateTime.Now.ToString("ddMMyyyy_HHmmss")}.xlsx";
+            string fileName = $"Report{DateTime.Now.ToString($"Reports\\{Environment.UserName}ddMMyyyy_HHmmss")}.xlsx";
             FileInfo newExcelFile = new FileInfo(fileName);
             excel.SaveAs(newExcelFile);
             excel.Dispose();

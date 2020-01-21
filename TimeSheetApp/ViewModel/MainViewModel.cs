@@ -116,7 +116,8 @@ namespace TimeSheetApp.ViewModel
         public BusinessBlockChoice CurrentBusinessBlock
         {
             get { return _currentBusinessBlock; }
-            set {
+            set
+            {
                 NewRecord.BusinessBlockChoice = value;
                 _currentBusinessBlock = value;
             }
@@ -125,7 +126,8 @@ namespace TimeSheetApp.ViewModel
         public supportChoice CurrentSupports
         {
             get { return _currentSupports; }
-            set {
+            set
+            {
                 NewRecord.supportChoice = value;
                 _currentSupports = value;
             }
@@ -134,7 +136,8 @@ namespace TimeSheetApp.ViewModel
         public ClientWays CurrentClientWays
         {
             get { return _currentClientWays; }
-            set {
+            set
+            {
                 NewRecord.ClientWaysId = value.Id;
                 _currentClientWays = value;
             }
@@ -143,7 +146,8 @@ namespace TimeSheetApp.ViewModel
         public EscalationChoice CurrentEscalation
         {
             get { return _currentEscalation; }
-            set {
+            set
+            {
                 NewRecord.EscalationChoice = value;
                 _currentEscalation = value;
             }
@@ -168,7 +172,7 @@ namespace TimeSheetApp.ViewModel
                 _currentRisk = value;
             }
         }
-        
+
 
 
         #endregion
@@ -183,14 +187,14 @@ namespace TimeSheetApp.ViewModel
         }
         private DateTime initalTimeStart { get; set; }
         private DateTime initalTimeEnd { get; set; }
-        
+
         private bool _isTimeCorrect = true;
-        public bool IsTimeCorrect { get=>_isTimeCorrect; set=>_isTimeCorrect=value; }
+        public bool IsTimeCorrect { get => _isTimeCorrect; set => _isTimeCorrect = value; }
 
         #endregion
 
         #region Формирование отчета
-        private List<string> _reportsAvailable = new List<string>() 
+        private List<string> _reportsAvailable = new List<string>()
         {
             "Отчет по активности аналитиков"
         };
@@ -242,7 +246,7 @@ namespace TimeSheetApp.ViewModel
         public DateTime CurrentDate { get => _currentDate; set => _currentDate = value; }
         private Analytic _currentUser;
         public Analytic CurrentUser { get => _currentUser; set => _currentUser = value; }
-        
+        private bool isEditState = false;
         #endregion
 
         #region Commands
@@ -301,8 +305,9 @@ namespace TimeSheetApp.ViewModel
                         case (8): riskChoise.Risk_id8 = (choice[i] as Risk).id; break;
                         case (9): riskChoise.Risk_id9 = (choice[i] as Risk).id; break;
                     }
-                    
-                } else if(choice[i] is BusinessBlock)
+
+                }
+                else if (choice[i] is BusinessBlock)
                 {
                     switch (i)
                     {
@@ -322,7 +327,8 @@ namespace TimeSheetApp.ViewModel
                         case (13): businessBlockChoice.BusinessBlock_id13 = (choice[i] as BusinessBlock).Id; break;
                         case (14): businessBlockChoice.BusinessBlock_id14 = (choice[i] as BusinessBlock).Id; break;
                     }
-                } else if (choice[i] is Escalations)
+                }
+                else if (choice[i] is Escalations)
                 {
                     switch (i)
                     {
@@ -365,16 +371,26 @@ namespace TimeSheetApp.ViewModel
                     }
                 }
             }
-            NewRecord.riskChoise = riskChoise;
-            NewRecord.supportChoice = supportChoice;
-            NewRecord.EscalationChoice = escalationChoice;
-            NewRecord.BusinessBlockChoice = businessBlockChoice;
+            if (!isEditState)
+            {
+                NewRecord.riskChoise = riskChoise;
+                NewRecord.supportChoice = supportChoice;
+                NewRecord.EscalationChoice = escalationChoice;
+                NewRecord.BusinessBlockChoice = businessBlockChoice;
+            }
+            else
+            {
+                EditedRecord.riskChoise = riskChoise;
+                EditedRecord.supportChoice = supportChoice;
+                EditedRecord.EscalationChoice = escalationChoice;
+                EditedRecord.BusinessBlockChoice = businessBlockChoice;
+            }
         }
 
         private void GetReportMethod(IEnumerable<object> Analytics)
         {
             SelectedAnalytics.Clear();
-            foreach(Analytic analytic in Analytics)
+            foreach (Analytic analytic in Analytics)
             {
                 SelectedAnalytics.Add(analytic);
             }
@@ -401,8 +417,11 @@ namespace TimeSheetApp.ViewModel
                 Selection loadedSelection = LocalWorker.GetSelection(selectedProcess.id);
                 if (loadedSelection != null)
                 {
-                    //NewRecord.BusinessBlock = Array.Find(BusinessBlock, i => i.Id == loadedSelection.BusinessBlockSelected);
-                    //NewRecord.Supports = Array.Find(SupportsArr, i => i.Id == loadedSelection.SupportSelected);
+
+                    NewRecord.BusinessBlockChoice = (BusinessBlockChoice)EFDataProvider.GetChoice(loadedSelection.BusinessBlockSelected, 0);
+                    NewRecord.supportChoice = (supportChoice)EFDataProvider.GetChoice(loadedSelection.SupportSelected, 1);
+                    NewRecord.EscalationChoice = (EscalationChoice)EFDataProvider.GetChoice(loadedSelection.EscalationSelected, 2);
+                    NewRecord.riskChoise = (riskChoise)EFDataProvider.GetChoice(loadedSelection.RiskSelected, 3);
                     if ((NewRecord.ClientWays = Array.Find(ClientWays, i => i.Id == loadedSelection.ClientWaySelected)) == null)
                     {
                         NewRecord.ClientWays = ClientWays[0];
@@ -411,8 +430,6 @@ namespace TimeSheetApp.ViewModel
                     {
                         NewRecord.Formats = FormatList[0];
                     }
-                    //NewRecord.Escalations = Array.Find(Escalations, i => i.Id == loadedSelection.EscalationSelected);
-                    //TODO: NewRecord.riskChoise = Array.Find(risk, i => i.Id == loadedSelection.BusinessBlockSelected);
                     RaisePropertyChanged("NewRecord");
                 }
             }
@@ -463,7 +480,7 @@ namespace TimeSheetApp.ViewModel
         {
             ProcessFiltered?.Clear();
             Dictionary<Process, int> sortRule = new Dictionary<Process, int>();
-            
+
             if (string.IsNullOrWhiteSpace(filterText))
             {
                 foreach (Process proc in Processes)
@@ -533,7 +550,7 @@ namespace TimeSheetApp.ViewModel
                 supportChoice_id = suppID,
                 timeStart = newItem.timeStart,
                 timeEnd = newItem.timeEnd,
-                TimeSpent = newItem.TimeSpent                
+                TimeSpent = newItem.TimeSpent
             };
             EFDataProvider.AddActivity(clonedActivity);
             #endregion
@@ -594,13 +611,23 @@ namespace TimeSheetApp.ViewModel
             };
             initalTimeStart = Record.timeStart;
             initalTimeEnd = Record.timeEnd;
+            isEditState = true;
             EditForm form = new EditForm();
             if (form.ShowDialog() == true)
             {
+                CheckTimeForIntesectionMethod();
+                int riskID = EFDataProvider.AddRiskChoice(EditedRecord.riskChoise);
+                int BBID = EFDataProvider.AddBusinessBlockChoice(EditedRecord.BusinessBlockChoice);
+                int suppID = EFDataProvider.AddSupportChoiceSet(EditedRecord.supportChoice);
+                int escalID = EFDataProvider.AddEscalationChoice(EditedRecord.EscalationChoice);
+                EditedRecord.riskChoise_id = riskID;
+                EditedRecord.BusinessBlockChoice_id = BBID;
+                EditedRecord.supportChoice_id = suppID;
+                EditedRecord.EscalationChoice_id = escalID;
                 EFDataProvider.UpdateProcess(Record, EditedRecord);
                 UpdateTimeSpan();
-                
             }
+            isEditState = false;
 
         }
     }

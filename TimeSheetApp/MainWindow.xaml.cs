@@ -21,13 +21,11 @@ namespace TimeSheetApp
     {
         public MainWindow()
         {
-            AppDomain.CurrentDomain.UnhandledException += (sender, e) => HandleError((Exception) e.ExceptionObject);
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) => HandleError((Exception)e.ExceptionObject);
             InitializeComponent();
             CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(TimeSpanListView.ItemsSource);
             view.SortDescriptions.Add(new SortDescription("timeStart", ListSortDirection.Ascending));
             CollectionView viewProcesses = (CollectionView)CollectionViewSource.GetDefaultView(ProcessList.ItemsSource);
-            PropertyGroupDescription propertyGroupDescription = new PropertyGroupDescription("ProcessType1.ProcessTypeName");
-            viewProcesses.GroupDescriptions.Add(propertyGroupDescription);
             TimeIn.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 0, 0);
             Timeout.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 20, 0);
             DateBox.SelectedDate = DateTime.Now;
@@ -48,10 +46,10 @@ namespace TimeSheetApp
         /// <param name="e"></param>
         private void Expander_Loaded(object sender, RoutedEventArgs e)
         {
-            var expander = e.Source as Expander;
-            if (expander == null)
-                return;
-            expander.IsExpanded = expander.Tag.ToString() == "Организация";
+            //var expander = e.Source as Expander;
+            //if (expander == null)
+            //    return;
+            //expander.IsExpanded = expander.Tag.ToString() == "Организация";
         }
         /// <summary>
         /// При изменении выбранного времени устанавливает также и дату из поля DateBox.
@@ -101,6 +99,11 @@ namespace TimeSheetApp
             {
                 Timeout.Value = DateTime.Now;
             }
+        }
+
+        private void HelpBtn_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("TimeSheetHelp.chm");
         }
     }
 }
