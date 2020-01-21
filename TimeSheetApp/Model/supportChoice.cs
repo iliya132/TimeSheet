@@ -31,45 +31,15 @@ namespace TimeSheetApp.Model
         public Nullable<int> Support_id7 { get; set; }
         public Nullable<int> Support_id8 { get; set; }
         public Nullable<int> Support_id9 { get; set; }
+        public Nullable<int> Support_id10 { get; set; }
+        public Nullable<int> Support_id11 { get; set; }
+        public Nullable<int> Support_id12 { get; set; }
+        public Nullable<int> Support_id13 { get; set; }
+        public Nullable<int> Support_id14 { get; set; }
+        public Nullable<int> Support_id15 { get; set; }
     
+        public virtual Supports Supports { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TimeSheetTable> TimeSheetTable { get; set; }
-        public virtual Supports Supports { get; set; }
-        public Nullable<int> this[int index]
-        {
-            get
-            {
-                switch (index)
-                {
-                    case (0): return Support_id;
-                    case (1): return Support_id1;
-                    case (2): return Support_id2;
-                    case (3): return Support_id3;
-                    case (4): return Support_id4;
-                    case (5): return Support_id5;
-                    case (6): return Support_id6;
-                    case (7): return Support_id7;
-                    case (8): return Support_id8;
-                    case (9): return Support_id9;
-                }
-                return 0;
-            }
-            set
-            {
-                switch (index)
-                {
-                    case (0): Support_id = value; break;
-                    case (1): Support_id1 = value; break;
-                    case (2): Support_id2 = value; break;
-                    case (3): Support_id3 = value; break;
-                    case (4): Support_id4 = value; break;
-                    case (5): Support_id5 = value; break;
-                    case (6): Support_id6 = value; break;
-                    case (7): Support_id7 = value; break;
-                    case (8): Support_id8 = value; break;
-                    case (9): Support_id9 = value; break;
-                }
-            }
-        }
     }
 }

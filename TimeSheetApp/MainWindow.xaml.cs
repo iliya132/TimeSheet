@@ -31,7 +31,10 @@ namespace TimeSheetApp
             TimeIn.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 0, 0);
             Timeout.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 20, 0);
             DateBox.SelectedDate = DateTime.Now;
-            
+            businessCombo.SelectedItem = businessCombo.Items[0];
+            supportCombo.SelectedItem = supportCombo.Items[0];
+            escalationCombo.SelectedItem = escalationCombo.Items[0];
+            riskCombo.SelectedItem = riskCombo.Items[0];
         }
         private void HandleError(Exception exceptionObject)
         {
@@ -48,7 +51,7 @@ namespace TimeSheetApp
             var expander = e.Source as Expander;
             if (expander == null)
                 return;
-            expander.IsExpanded = expander.Tag.ToString() == "TYPE1";
+            expander.IsExpanded = expander.Tag.ToString() == "Организация";
         }
         /// <summary>
         /// При изменении выбранного времени устанавливает также и дату из поля DateBox.

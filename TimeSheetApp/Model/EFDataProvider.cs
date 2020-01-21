@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Data.Entity;
 using System.Data;
+using System.Windows;
 
 namespace TimeSheetApp.Model
 {
@@ -26,6 +27,13 @@ namespace TimeSheetApp.Model
 
         public int AddRiskChoice(riskChoise riskChoise)
         {
+            if (riskChoise == null)
+            {
+                riskChoise = new riskChoise()
+                {
+                    Risk_id = 1
+                };
+            }
             if (dataBase.riskChoise.Any(i=>
             i.Risk_id==riskChoise.Risk_id &&
             i.Risk_id1 == riskChoise.Risk_id1 &&
@@ -58,6 +66,10 @@ namespace TimeSheetApp.Model
         }
         public int AddBusinessBlockChoice(BusinessBlockChoice BBChoice)
         {
+            if (BBChoice == null)
+            {
+                BBChoice = new BusinessBlockChoice() { BusinessBlockid = 1 };
+            }
             if (dataBase.BusinessBlockChoiceSet.Any(i =>
             i.BusinessBlockid == BBChoice.BusinessBlockid &&
             i.BusinessBlock_id1 == BBChoice.BusinessBlock_id1 &&
@@ -90,6 +102,10 @@ namespace TimeSheetApp.Model
         }
         public int AddEscalationChoice(EscalationChoice escalationChoice)
         {
+            if (escalationChoice == null)
+            {
+                escalationChoice = new EscalationChoice() { Escalation_id = 1 };
+            }
             if (dataBase.EscalationChoiceSet.Any(i =>
             i.Escalation_id == escalationChoice.Escalation_id &&
             i.Escalation_id1 == escalationChoice.Escalation_id1 &&
@@ -122,6 +138,10 @@ namespace TimeSheetApp.Model
         }
         public int AddSupportChoiceSet(supportChoice _suppChoice)
         {
+            if (_suppChoice == null)
+            {
+                _suppChoice = new supportChoice() { Support_id = 1 };
+            }
             if (dataBase.supportChoiceSet.Any(i =>
             i.Support_id == _suppChoice.Support_id &&
             i.Support_id1 == _suppChoice.Support_id1 &&
@@ -156,7 +176,7 @@ namespace TimeSheetApp.Model
         {
             TimeSpan span = activity.timeEnd - activity.timeStart;
             activity.TimeSpent = (int)span.TotalMinutes;
-            activity.supportChoice = dataBase.supportChoiceSet.FirstOrDefault(i => i.id == activity.SupportChoiceId);
+            activity.supportChoice = dataBase.supportChoiceSet.FirstOrDefault(i => i.id == activity.supportChoice_id);
             dataBase.TimeSheetTable.Add(activity);
             dataBase.SaveChanges();
             
@@ -225,7 +245,12 @@ namespace TimeSheetApp.Model
         {
             return dataBase.Supports.ToArray();
         }
-
+        public Visibility isAnalyticHasAccess(Analytic currentUser)
+        {
+            if (currentUser.Role.Id < 6)
+                return Visibility.Visible;
+            else return Visibility.Hidden;
+        }
 
         public Analytic LoadAnalyticData()
         {
@@ -337,7 +362,7 @@ namespace TimeSheetApp.Model
                 row["timeEnd"] = ReportEntity[i].timeEnd;
                 row["TimeSpent"] = ReportEntity[i].TimeSpent;
                 row["BusinessBlockName"] = ReportEntity[i].BusinessBlockChoice_id;
-                row["SupportsName"] = ReportEntity[i].SupportChoiceId;
+                row["SupportsName"] = ReportEntity[i].supportChoice_id;
                 row["ClientWaysName"] = ReportEntity[i].ClientWays.Name;
                 row["EscalationsName"] = ReportEntity[i].EscalationChoice_id;
                 row["FormatsName"] = ReportEntity[i].Formats.Name;

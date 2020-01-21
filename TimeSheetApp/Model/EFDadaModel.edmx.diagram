@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="69b0ec7c7d8746868e3e7e89c254b57d" Name="Diagram1" ZoomLevel="127">
+      <Diagram DiagramId="69b0ec7c7d8746868e3e7e89c254b57d" Name="Diagram1" ZoomLevel="106">
         <EntityTypeShape EntityType="TimeSheetDBModel.Analytic" Width="1.5" PointX="3.25" PointY="0.5" IsExpanded="true" />
         <EntityTypeShape EntityType="TimeSheetDBModel.Risk" Width="1.5" PointX="16.375" PointY="3.75" IsExpanded="true" />
         <EntityTypeShape EntityType="TimeSheetDBModel.TimeSheetTable" Width="1.875" PointX="7.875" PointY="0.5" IsExpanded="true" />
@@ -42,15 +42,15 @@
         <AssociationConnector Association="TimeSheetDBModel.ProcessTimeSheetTable" />
         <AssociationConnector Association="TimeSheetDBModel.riskChoiseTimeSheetTable" />
         <AssociationConnector Association="TimeSheetDBModel.RiskriskChoise" />
-        <EntityTypeShape EntityType="TimeSheetDBModel.supportChoice" Width="1.5" PointX="13.875" PointY="4.25" />
-        <AssociationConnector Association="TimeSheetDBModel.TimeSheetTablesupportChoice" />
+        <EntityTypeShape EntityType="TimeSheetDBModel.supportChoice" Width="1.5" PointX="12" PointY="4.25" />
         <EntityTypeShape EntityType="TimeSheetDBModel.EscalationChoice" Width="1.5" PointX="13.875" PointY="7.875" />
         <AssociationConnector Association="TimeSheetDBModel.supportChoiceSupports" />
         <AssociationConnector Association="TimeSheetDBModel.EscalationChoiceEscalations" />
         <AssociationConnector Association="TimeSheetDBModel.TimeSheetTableEscalationChoice" />
-        <EntityTypeShape EntityType="TimeSheetDBModel.BusinessBlockChoice" Width="1.75" PointX="13.875" PointY="11.5" />
+        <EntityTypeShape EntityType="TimeSheetDBModel.BusinessBlockChoice" Width="1.75" PointX="13.875" PointY="12.625" />
         <AssociationConnector Association="TimeSheetDBModel.BusinessBlockBusinessBlockChoice" />
         <AssociationConnector Association="TimeSheetDBModel.TimeSheetTableBusinessBlockChoice" />
+        <AssociationConnector Association="TimeSheetDBModel.TimeSheetTablesupportChoice" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

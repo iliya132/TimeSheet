@@ -2,13 +2,13 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, 2012 and Azure
 -- --------------------------------------------------
--- Date Created: 01/19/2020 23:07:19
--- Generated from EDMX file: C:\Users\iliya\source\repos\TimeSheet\TimeSheetApp\Model\EFDadaModel.edmx
+-- Date Created: 01/20/2020 14:32:20
+-- Generated from EDMX file: C:\Users\u_m0x0c\Source\Repos\TimeSheetMain\TimeSheetApp\Model\EFDadaModel.edmx
 -- --------------------------------------------------
 
 SET QUOTED_IDENTIFIER OFF;
 GO
-USE [TimeSheetDB];
+USE [TimeSheet];
 GO
 IF SCHEMA_ID(N'dbo') IS NULL EXECUTE(N'CREATE SCHEMA [dbo]');
 GO
@@ -65,9 +65,6 @@ GO
 IF OBJECT_ID(N'[dbo].[FK_RiskriskChoise]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[riskChoise] DROP CONSTRAINT [FK_RiskriskChoise];
 GO
-IF OBJECT_ID(N'[dbo].[FK_TimeSheetTablesupportChoice]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[TimeSheetTable] DROP CONSTRAINT [FK_TimeSheetTablesupportChoice];
-GO
 IF OBJECT_ID(N'[dbo].[FK_supportChoiceSupports]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[supportChoiceSet] DROP CONSTRAINT [FK_supportChoiceSupports];
 GO
@@ -82,6 +79,9 @@ IF OBJECT_ID(N'[dbo].[FK_BusinessBlockBusinessBlockChoice]', 'F') IS NOT NULL
 GO
 IF OBJECT_ID(N'[dbo].[FK_TimeSheetTableBusinessBlockChoice]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[TimeSheetTable] DROP CONSTRAINT [FK_TimeSheetTableBusinessBlockChoice];
+GO
+IF OBJECT_ID(N'[dbo].[FK_TimeSheetTablesupportChoice]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[TimeSheetTable] DROP CONSTRAINT [FK_TimeSheetTablesupportChoice];
 GO
 
 -- --------------------------------------------------
@@ -199,7 +199,6 @@ CREATE TABLE [dbo].[TimeSheetTable] (
     [ClientWaysId] int  NOT NULL,
     [EscalationChoiceId] int  NOT NULL,
     [FormatsId] int  NOT NULL,
-    [SupportChoiceId] int  NOT NULL,
     [AnalyticId] int  NOT NULL,
     [Process_id] int  NOT NULL,
     [riskChoise_id] int  NOT NULL,
@@ -362,6 +361,12 @@ CREATE TABLE [dbo].[supportChoiceSet] (
     [Support_id7] int  NULL,
     [Support_id8] int  NULL,
     [Support_id9] int  NULL,
+    [Support_id10] int  NULL,
+    [Support_id11] int  NULL,
+    [Support_id12] int  NULL,
+    [Support_id13] int  NULL,
+    [Support_id14] int  NULL,
+    [Support_id15] int  NULL,
     [Supports_Id] int  NULL
 );
 GO
@@ -379,6 +384,12 @@ CREATE TABLE [dbo].[EscalationChoiceSet] (
     [Escalation_id7] int  NULL,
     [Escalation_id8] int  NULL,
     [Escalation_id9] int  NULL,
+    [Escalation_id10] int  NULL,
+    [Escalation_id11] int  NULL,
+    [Escalation_id12] int  NULL,
+    [Escalation_id13] int  NULL,
+    [Escalation_id14] int  NULL,
+    [Escalation_id15] int  NULL,
     [Escalations_Id] int  NULL
 );
 GO
@@ -396,6 +407,12 @@ CREATE TABLE [dbo].[BusinessBlockChoiceSet] (
     [BusinessBlock_id7] int  NULL,
     [BusinessBlock_id8] int  NULL,
     [BusinessBlock_id9] int  NULL,
+    [BusinessBlock_id10] int  NULL,
+    [BusinessBlock_id11] int  NULL,
+    [BusinessBlock_id12] int  NULL,
+    [BusinessBlock_id13] int  NULL,
+    [BusinessBlock_id14] int  NULL,
+    [BusinessBlock_id15] int  NULL,
     [BusinessBlock_Id] int  NULL
 );
 GO
@@ -792,21 +809,6 @@ ON [dbo].[riskChoise]
     ([Risk_id]);
 GO
 
--- Creating foreign key on [supportChoice_id] in table 'TimeSheetTable'
-ALTER TABLE [dbo].[TimeSheetTable]
-ADD CONSTRAINT [FK_TimeSheetTablesupportChoice]
-    FOREIGN KEY ([supportChoice_id])
-    REFERENCES [dbo].[supportChoiceSet]
-        ([id])
-    ON DELETE NO ACTION ON UPDATE NO ACTION;
-GO
-
--- Creating non-clustered index for FOREIGN KEY 'FK_TimeSheetTablesupportChoice'
-CREATE INDEX [IX_FK_TimeSheetTablesupportChoice]
-ON [dbo].[TimeSheetTable]
-    ([supportChoice_id]);
-GO
-
 -- Creating foreign key on [Supports_Id] in table 'supportChoiceSet'
 ALTER TABLE [dbo].[supportChoiceSet]
 ADD CONSTRAINT [FK_supportChoiceSupports]
@@ -880,6 +882,21 @@ GO
 CREATE INDEX [IX_FK_TimeSheetTableBusinessBlockChoice]
 ON [dbo].[TimeSheetTable]
     ([BusinessBlockChoice_id]);
+GO
+
+-- Creating foreign key on [supportChoice_id] in table 'TimeSheetTable'
+ALTER TABLE [dbo].[TimeSheetTable]
+ADD CONSTRAINT [FK_TimeSheetTablesupportChoice]
+    FOREIGN KEY ([supportChoice_id])
+    REFERENCES [dbo].[supportChoiceSet]
+        ([id])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_TimeSheetTablesupportChoice'
+CREATE INDEX [IX_FK_TimeSheetTablesupportChoice]
+ON [dbo].[TimeSheetTable]
+    ([supportChoice_id]);
 GO
 
 -- --------------------------------------------------

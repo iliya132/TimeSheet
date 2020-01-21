@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace TimeSheetApp.Model
 {
@@ -32,6 +33,6 @@ namespace TimeSheetApp.Model
         int AddSupportChoiceSet(supportChoice _suppChoice);
         int AddEscalationChoice(EscalationChoice escalationChoice);
         int AddBusinessBlockChoice(BusinessBlockChoice BBChoice);
-
+        Visibility isAnalyticHasAccess(Analytic currentUser);
     }
 }

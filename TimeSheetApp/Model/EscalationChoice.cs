@@ -31,45 +31,15 @@ namespace TimeSheetApp.Model
         public Nullable<int> Escalation_id7 { get; set; }
         public Nullable<int> Escalation_id8 { get; set; }
         public Nullable<int> Escalation_id9 { get; set; }
+        public Nullable<int> Escalation_id10 { get; set; }
+        public Nullable<int> Escalation_id11 { get; set; }
+        public Nullable<int> Escalation_id12 { get; set; }
+        public Nullable<int> Escalation_id13 { get; set; }
+        public Nullable<int> Escalation_id14 { get; set; }
+        public Nullable<int> Escalation_id15 { get; set; }
     
         public virtual Escalations Escalations { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TimeSheetTable> TimeSheetTable { get; set; }
-        public Nullable<int> this[int index]
-        {
-            get
-            {
-                switch (index)
-                {
-                    case (0): return Escalation_id;
-                    case (1): return Escalation_id1;
-                    case (2): return Escalation_id2;
-                    case (3): return Escalation_id3;
-                    case (4): return Escalation_id4;
-                    case (5): return Escalation_id5;
-                    case (6): return Escalation_id6;
-                    case (7): return Escalation_id7;
-                    case (8): return Escalation_id8;
-                    case (9): return Escalation_id9;
-                }
-                return 0;
-            }
-            set
-            {
-                switch (index)
-                {
-                    case (0): Escalation_id = value; break;
-                    case (1): Escalation_id1 = value; break;
-                    case (2): Escalation_id2 = value; break;
-                    case (3): Escalation_id3 = value; break;
-                    case (4): Escalation_id4 = value; break;
-                    case (5): Escalation_id5 = value; break;
-                    case (6): Escalation_id6 = value; break;
-                    case (7): Escalation_id7 = value; break;
-                    case (8): Escalation_id8 = value; break;
-                    case (9): Escalation_id9 = value; break;
-                }
-            }
-        }
     }
 }

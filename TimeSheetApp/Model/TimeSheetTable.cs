@@ -27,22 +27,21 @@ namespace TimeSheetApp.Model
         public string comment { get; set; }
         public string Subject { get; set; }
         public int ClientWaysId { get; set; }
-        public int EscalationChoiceId { get; set; }
         public int FormatsId { get; set; }
-        public int SupportChoiceId { get; set; }
         public int AnalyticId { get; set; }
         public int Process_id { get; set; }
         public int riskChoise_id { get; set; }
         public int EscalationChoice_id { get; set; }
         public int BusinessBlockChoice_id { get; set; }
+        public int supportChoice_id { get; set; }
     
         public virtual ClientWays ClientWays { get; set; }
         public virtual Formats Formats { get; set; }
         public virtual Analytic Analytic { get; set; }
         public virtual Process Process { get; set; }
         public virtual riskChoise riskChoise { get; set; }
-        public virtual supportChoice supportChoice { get; set; }
         public virtual EscalationChoice EscalationChoice { get; set; }
         public virtual BusinessBlockChoice BusinessBlockChoice { get; set; }
+        public virtual supportChoice supportChoice { get; set; }
     }
 }

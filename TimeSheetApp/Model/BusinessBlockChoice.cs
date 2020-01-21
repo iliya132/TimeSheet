@@ -31,45 +31,15 @@ namespace TimeSheetApp.Model
         public Nullable<int> BusinessBlock_id7 { get; set; }
         public Nullable<int> BusinessBlock_id8 { get; set; }
         public Nullable<int> BusinessBlock_id9 { get; set; }
+        public Nullable<int> BusinessBlock_id10 { get; set; }
+        public Nullable<int> BusinessBlock_id11 { get; set; }
+        public Nullable<int> BusinessBlock_id12 { get; set; }
+        public Nullable<int> BusinessBlock_id13 { get; set; }
+        public Nullable<int> BusinessBlock_id14 { get; set; }
+        public Nullable<int> BusinessBlock_id15 { get; set; }
     
         public virtual BusinessBlock BusinessBlock { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TimeSheetTable> TimeSheetTable { get; set; }
-        public Nullable<int> this[int index]
-        {
-            get
-            {
-                switch (index)
-                {
-                    case (0): return BusinessBlockid;
-                    case (1): return BusinessBlock_id1;
-                    case (2): return BusinessBlock_id2;
-                    case (3): return BusinessBlock_id3;
-                    case (4): return BusinessBlock_id4;
-                    case (5): return BusinessBlock_id5;
-                    case (6): return BusinessBlock_id6;
-                    case (7): return BusinessBlock_id7;
-                    case (8): return BusinessBlock_id8;
-                    case (9): return BusinessBlock_id9;
-                }
-                return 0;
-            }
-            set
-            {
-                switch (index)
-                {
-                    case (0): BusinessBlockid = value; break;
-                    case (1): BusinessBlock_id1 = value; break;
-                    case (2): BusinessBlock_id2 = value; break;
-                    case (3): BusinessBlock_id3 = value; break;
-                    case (4): BusinessBlock_id4 = value; break;
-                    case (5): BusinessBlock_id5 = value; break;
-                    case (6): BusinessBlock_id6 = value; break;
-                    case (7): BusinessBlock_id7 = value; break;
-                    case (8): BusinessBlock_id8 = value; break;
-                    case (9): BusinessBlock_id9 = value; break;
-                }
-            }
-        }
     }
 }
