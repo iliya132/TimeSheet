@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using TimeSheetApp.Model;
 using Xceed.Wpf.Toolkit;
 
 namespace TimeSheetApp
@@ -29,10 +22,6 @@ namespace TimeSheetApp
             TimeIn.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 0, 0);
             Timeout.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 20, 0);
             DateBox.SelectedDate = DateTime.Now;
-            businessCombo.SelectedItem = businessCombo.Items[0];
-            supportCombo.SelectedItem = supportCombo.Items[0];
-            escalationCombo.SelectedItem = escalationCombo.Items[0];
-            riskCombo.SelectedItem = riskCombo.Items[0];
         }
         private void HandleError(Exception exceptionObject)
         {

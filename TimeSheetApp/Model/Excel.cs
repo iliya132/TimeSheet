@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OfficeOpenXml;
-using System.IO;
+﻿using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using System;
+using System.Data;
 using System.Drawing;
+using System.IO;
 
 namespace TimeSheetApp.Model
 {
@@ -94,7 +90,7 @@ namespace TimeSheetApp.Model
                 }
             }
 
-            string fileName = $"Report{DateTime.Now.ToString($"Reports\\{Environment.UserName}ddMMyyyy_HHmmss")}.xlsx";
+            string fileName = $"Reports\\Report{Environment.UserName}{DateTime.Now.ToString($"ddMMyyyy_HHmmss")}.xlsx";
             FileInfo newExcelFile = new FileInfo(fileName);
             excel.SaveAs(newExcelFile);
             excel.Dispose();

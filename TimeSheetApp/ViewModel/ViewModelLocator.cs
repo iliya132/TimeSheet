@@ -1,9 +1,6 @@
 
 using CommonServiceLocator;
-using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace TimeSheetApp.ViewModel
 {

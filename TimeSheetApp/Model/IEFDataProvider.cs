@@ -11,7 +11,7 @@ namespace TimeSheetApp.Model
     public interface IEFDataProvider
     {
         bool ForcedToQuit();
-        object GetChoice(int choice, int set);
+        List<object> GetChoice(int ObjectId, int Type);
         ObservableCollection<Process> GetProcesses();
         BusinessBlock[] GetBusinessBlocks();
         Supports[] GetSupports();
@@ -35,5 +35,9 @@ namespace TimeSheetApp.Model
         int AddEscalationChoice(EscalationChoice escalationChoice);
         int AddBusinessBlockChoice(BusinessBlockChoice BBChoice);
         Visibility isAnalyticHasAccess(Analytic currentUser);
+        Risk[] LoadRiskChoice(riskChoise choice);
+        Escalations[] LoadEscalationChoice(EscalationChoice escalationChoice);
+        Supports[] LoadSupportsChoice(supportChoice supportChoice);
+        BusinessBlock[] LoadBusinessBlockChoice(BusinessBlockChoice businessBlockChoice);
     }
 }

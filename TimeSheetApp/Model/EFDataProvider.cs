@@ -30,21 +30,90 @@ namespace TimeSheetApp.Model
         /// <param name="ObjectId"></param>
         /// <param name="Type">0-BusinessBlock, 1-Supports, 2-Escalation, 3-RiskChoice</param>
         /// <returns></returns>
-        public object GetChoice(int ObjectId, int Type)
+        public List<object> GetChoice(int ObjectId, int Type)
         {
+            List<object> returnValue = new List<object>();
             switch (Type)
             {
+                //TODO: переписать этот ужас)
                 case (0):
-                    return dataBase.BusinessBlockChoiceSet.FirstOrDefault(i => i.id == ObjectId);
+                    BusinessBlockChoice choice = dataBase.BusinessBlockChoiceSet.FirstOrDefault(i => i.id == ObjectId);
+                    if (choice != null)
+                    {
+                        if (choice.BusinessBlockid != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlockid));
+                        if (choice.BusinessBlock_id1 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id1));
+                        if (choice.BusinessBlock_id2 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id2));
+                        if (choice.BusinessBlock_id3 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id3));
+                        if (choice.BusinessBlock_id4 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id4));
+                        if (choice.BusinessBlock_id5 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id5));
+                        if (choice.BusinessBlock_id6 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id6));
+                        if (choice.BusinessBlock_id7 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id7));
+                        if (choice.BusinessBlock_id8 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id8));
+                        if (choice.BusinessBlock_id9 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id9));
+                        if (choice.BusinessBlock_id10 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id10));
+                        if (choice.BusinessBlock_id11 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id11));
+                        if (choice.BusinessBlock_id12 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id12));
+                        if (choice.BusinessBlock_id13 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id13));
+                        if (choice.BusinessBlock_id14 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id14));
+                        if (choice.BusinessBlock_id15 != null) returnValue.Add(dataBase.BusinessBlock.FirstOrDefault(i => i.Id == choice.BusinessBlock_id15));
+                    }
+                    break;
                 case (1):
-                    return dataBase.supportChoiceSet.FirstOrDefault(i => i.id == ObjectId);
+                    supportChoice supChoice = dataBase.supportChoiceSet.FirstOrDefault(i => i.id == ObjectId);
+                    if (supChoice == null) break;
+                    if (supChoice.Support_id != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id));
+                    if (supChoice.Support_id1 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id1));
+                    if (supChoice.Support_id2 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id2));
+                    if (supChoice.Support_id3 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id3));
+                    if (supChoice.Support_id4 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id4));
+                    if (supChoice.Support_id5 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id5));
+                    if (supChoice.Support_id6 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id6));
+                    if (supChoice.Support_id7 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id7));
+                    if (supChoice.Support_id8 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id8));
+                    if (supChoice.Support_id9 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id9));
+                    if (supChoice.Support_id10 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id10));
+                    if (supChoice.Support_id11 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id11));
+                    if (supChoice.Support_id12 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id12));
+                    if (supChoice.Support_id13 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id13));
+                    if (supChoice.Support_id14 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id14));
+                    if (supChoice.Support_id15 != null) returnValue.Add(dataBase.Supports.FirstOrDefault(i => i.Id == supChoice.Support_id15));
+                    break;
                 case (2):
-                    return dataBase.EscalationChoiceSet.FirstOrDefault(i => i.id == ObjectId);
+                    EscalationChoice EscChoice = dataBase.EscalationChoiceSet.FirstOrDefault(i => i.id == ObjectId);
+                    if (EscChoice == null) break;
+                    if (EscChoice.Escalation_id != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==   EscChoice.Escalation_id));
+                    if (EscChoice.Escalation_id1 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id1));
+                    if (EscChoice.Escalation_id2 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id2));
+                    if (EscChoice.Escalation_id3 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id3));
+                    if (EscChoice.Escalation_id4 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id4));
+                    if (EscChoice.Escalation_id5 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id5));
+                    if (EscChoice.Escalation_id6 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id6));
+                    if (EscChoice.Escalation_id7 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id7));
+                    if (EscChoice.Escalation_id8 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id8));
+                    if (EscChoice.Escalation_id9 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id9));
+                    if (EscChoice.Escalation_id10 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id10));
+                    if (EscChoice.Escalation_id11 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id11));
+                    if (EscChoice.Escalation_id12 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id12));
+                    if (EscChoice.Escalation_id13 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id13));
+                    if (EscChoice.Escalation_id14 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id14));
+                    if (EscChoice.Escalation_id15 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id15));
+                    break;
                 case (3):
-                    return dataBase.riskChoise.FirstOrDefault(i => i.id == ObjectId);
-                default:
-                    return null;
+                    riskChoise riskChoice = dataBase.riskChoise.FirstOrDefault(i => i.id == ObjectId);
+                    if (riskChoice == null) break;
+                    if (riskChoice.Risk_id != null) returnValue.Add( dataBase.RiskSet.FirstOrDefault(i => i.id ==  riskChoice.Risk_id));
+                    if (riskChoice.Risk_id1 != null) returnValue.Add(dataBase.RiskSet.FirstOrDefault(i => i.id == riskChoice.Risk_id1));
+                    if (riskChoice.Risk_id2 != null) returnValue.Add(dataBase.RiskSet.FirstOrDefault(i => i.id == riskChoice.Risk_id2));
+                    if (riskChoice.Risk_id3 != null) returnValue.Add(dataBase.RiskSet.FirstOrDefault(i => i.id == riskChoice.Risk_id3));
+                    if (riskChoice.Risk_id4 != null) returnValue.Add(dataBase.RiskSet.FirstOrDefault(i => i.id == riskChoice.Risk_id4));
+                    if (riskChoice.Risk_id5 != null) returnValue.Add(dataBase.RiskSet.FirstOrDefault(i => i.id == riskChoice.Risk_id5));
+                    if (riskChoice.Risk_id6 != null) returnValue.Add(dataBase.RiskSet.FirstOrDefault(i => i.id == riskChoice.Risk_id6));
+                    if (riskChoice.Risk_id7 != null) returnValue.Add(dataBase.RiskSet.FirstOrDefault(i => i.id == riskChoice.Risk_id7));
+                    if (riskChoice.Risk_id8 != null) returnValue.Add(dataBase.RiskSet.FirstOrDefault(i => i.id == riskChoice.Risk_id8));
+                    if (riskChoice.Risk_id9 != null) returnValue.Add(dataBase.RiskSet.FirstOrDefault(i => i.id == riskChoice.Risk_id9));
+                    break;
             }
+            return returnValue;
 
         }
 
@@ -199,7 +268,11 @@ namespace TimeSheetApp.Model
         {
             TimeSpan span = activity.timeEnd - activity.timeStart;
             activity.TimeSpent = (int)span.TotalMinutes;
+            activity.BusinessBlockChoice = dataBase.BusinessBlockChoiceSet.FirstOrDefault(i => i.id == activity.BusinessBlockChoice_id);
             activity.supportChoice = dataBase.supportChoiceSet.FirstOrDefault(i => i.id == activity.supportChoice_id);
+            activity.EscalationChoice = dataBase.EscalationChoiceSet.FirstOrDefault(i => i.id == activity.EscalationChoice_id);
+            activity.riskChoise = dataBase.riskChoise.FirstOrDefault(i => i.id == activity.riskChoise_id);
+
             dataBase.TimeSheetTable.Add(activity);
             dataBase.SaveChanges();
 
@@ -236,10 +309,77 @@ namespace TimeSheetApp.Model
         {
             return dataBase.Formats.ToArray();
         }
-
+        public Risk[] LoadRiskChoice(riskChoise riskChoice)
+        {
+            return dataBase.RiskSet.Where(
+                risk =>
+            risk.id == riskChoice.Risk_id ||
+            risk.id == riskChoice.Risk_id1 ||
+            risk.id == riskChoice.Risk_id2 ||
+            risk.id == riskChoice.Risk_id3 ||
+            risk.id == riskChoice.Risk_id4 ||
+            risk.id == riskChoice.Risk_id5 ||
+            risk.id == riskChoice.Risk_id6 ||
+            risk.id == riskChoice.Risk_id7 ||
+            risk.id == riskChoice.Risk_id8 ||
+            risk.id == riskChoice.Risk_id9).ToArray();
+        }
+        public BusinessBlock[] LoadBusinessBlockChoice(BusinessBlockChoice businessBlockChoice)
+        {
+            return dataBase.BusinessBlock.Where(
+                businessBlock =>
+            businessBlock.Id == businessBlockChoice.BusinessBlockid ||
+            businessBlock.Id == businessBlockChoice.BusinessBlock_id1 ||
+            businessBlock.Id == businessBlockChoice.BusinessBlock_id2 ||
+            businessBlock.Id == businessBlockChoice.BusinessBlock_id3 ||
+            businessBlock.Id == businessBlockChoice.BusinessBlock_id4 ||
+            businessBlock.Id == businessBlockChoice.BusinessBlock_id5 ||
+            businessBlock.Id == businessBlockChoice.BusinessBlock_id6 ||
+            businessBlock.Id == businessBlockChoice.BusinessBlock_id7 ||
+            businessBlock.Id == businessBlockChoice.BusinessBlock_id8 ||
+            businessBlock.Id == businessBlockChoice.BusinessBlock_id9).ToArray();
+        }
+        public Supports[] LoadSupportsChoice(supportChoice supportChoice)
+        {
+            return dataBase.Supports.Where(
+                support =>
+            support.Id == supportChoice.Support_id ||
+            support.Id == supportChoice.Support_id1 ||
+            support.Id == supportChoice.Support_id2 ||
+            support.Id == supportChoice.Support_id3 ||
+            support.Id == supportChoice.Support_id4 ||
+            support.Id == supportChoice.Support_id5 ||
+            support.Id == supportChoice.Support_id6 ||
+            support.Id == supportChoice.Support_id7 ||
+            support.Id == supportChoice.Support_id8 ||
+            support.Id == supportChoice.Support_id9).ToArray();
+        }
+        public Escalations[] LoadEscalationChoice(EscalationChoice escalationChoice)
+        {
+            return dataBase.Escalations.Where(
+                escalation =>
+            escalation.Id == escalationChoice.Escalation_id ||
+            escalation.Id == escalationChoice.Escalation_id1 ||
+            escalation.Id == escalationChoice.Escalation_id2 ||
+            escalation.Id == escalationChoice.Escalation_id3 ||
+            escalation.Id == escalationChoice.Escalation_id4 ||
+            escalation.Id == escalationChoice.Escalation_id5 ||
+            escalation.Id == escalationChoice.Escalation_id6 ||
+            escalation.Id == escalationChoice.Escalation_id7 ||
+            escalation.Id == escalationChoice.Escalation_id8 ||
+            escalation.Id == escalationChoice.Escalation_id9).ToArray();
+        }
         public ObservableCollection<Analytic> GetMyAnalyticsData(Analytic currentUser)
         {
-            return new ObservableCollection<Analytic>(dataBase.Analytic.Where(i => i.OtdelTableId == currentUser.OtdelTableId).ToArray());
+            switch (currentUser.RoleTableId)
+            {
+                case (1): return new ObservableCollection<Analytic>(dataBase.Analytic.Where(i => i.DepartmentsId == currentUser.DepartmentsId).ToArray());
+                case (2): return new ObservableCollection<Analytic>(dataBase.Analytic.Where(i => i.DirectionsId == currentUser.DirectionsId).ToArray());
+                case (3): return new ObservableCollection<Analytic>(dataBase.Analytic.Where(i => i.UpravlenieTableId == currentUser.UpravlenieTableId).ToArray());
+                case (4): return new ObservableCollection<Analytic>(dataBase.Analytic.Where(i => i.OtdelTableId == currentUser.OtdelTableId).ToArray());
+                case (5): return new ObservableCollection<Analytic>(dataBase.Analytic.ToArray());
+                default: return new ObservableCollection<Analytic>(dataBase.Analytic.Where(i => i.Id == currentUser.Id).ToArray());
+            }
         }
 
 
@@ -329,8 +469,13 @@ namespace TimeSheetApp.Model
             oldProcess.Formats = newProcess.Formats;
             oldProcess.riskChoise = newProcess.riskChoise;
             oldProcess.timeStart = newProcess.timeStart;
+            oldProcess.BusinessBlockChoice = dataBase.BusinessBlockChoiceSet.FirstOrDefault(i => i.id == newProcess.BusinessBlockChoice_id);
+            oldProcess.supportChoice = dataBase.supportChoiceSet.FirstOrDefault(i => i.id == newProcess.supportChoice_id);
+            oldProcess.EscalationChoice = dataBase.EscalationChoiceSet.FirstOrDefault(i => i.id == newProcess.EscalationChoice_id);
+            oldProcess.riskChoise = dataBase.riskChoise.FirstOrDefault(i => i.id == newProcess.riskChoise_id);
 
             dataBase.SaveChanges();
+
         }
         public bool IsCollisionedWithOtherRecords(TimeSheetTable record)
         {

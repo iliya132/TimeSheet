@@ -14,7 +14,6 @@
         <local:CodeFullConverter x:Key="CodeFullConverter"/>
         <local:CodeDescriptionConverter x:Key="CodeDescriptionConverter"/>
         <local:DateTimeConverter x:Key="DateTimeConverter"/>
-        
     </Window.Resources>
     <Grid>
         <Button Name="HelpBtn" HorizontalAlignment="Right" VerticalAlignment="Top" Width="25" Height="25" Click="HelpBtn_Click" Background="AliceBlue">
@@ -51,6 +50,10 @@
                         <ListView Name = "ProcessList" ItemsSource="{Binding ProcessFiltered}" SelectedItem="{Binding NewRecord.Process}" Margin="0,0,10,0" Grid.Row="1" SelectedIndex="0">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="SelectionChanged">
+                                    <mvvm:EventToCommand Command="{Binding LoadSelectionForSelectedProcess}"
+                                                         CommandParameter="{Binding ElementName=ProcessList, Path=SelectedItem}"/>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="Loaded">
                                     <mvvm:EventToCommand Command="{Binding LoadSelectionForSelectedProcess}"
                                                          CommandParameter="{Binding ElementName=ProcessList, Path=SelectedItem}"/>
                                 </i:EventTrigger>
@@ -138,38 +141,38 @@
 
                         <StackPanel Grid.Row="2" Margin="0,10,0,0" DataContext="{Binding Main, Source={StaticResource Locator}}">
                             <Label Content="Бизнес подразделение" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="businessCombo" Height="30" DisplayMemberPath="BusinessBlockName"  ItemsSource="{Binding BusinessBlock}" >
+                            <xctk:CheckComboBox Name="businessCombo" Height="30" DisplayMemberPath="BusinessBlockName"  ItemsSource="{Binding BusinessBlock}" SelectedItemsOverride="{Binding NewBusinessBlockChoiceCollection}" Delimiter=", " IsSelectAllActive="True" IsTextSearchCaseSensitive="True">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="ItemSelectionChanged">
-                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding ElementName=businessCombo, Path=SelectedItems}"/>
+                                        <mvvm:EventToCommand Command="{Binding StoreSelection}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </xctk:CheckComboBox>
                             <Label Content="Support" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Height="30" Name="supportCombo" DisplayMemberPath="Name" ItemsSource="{Binding SupportsArr}" >
+                            <xctk:CheckComboBox Height="30" Name="supportCombo" DisplayMemberPath="Name" ItemsSource="{Binding SupportsArr}" SelectedItemsOverride="{Binding NewSupportsChoiceCollection}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="ItemSelectionChanged">
-                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding ElementName=supportCombo, Path=SelectedItems}"/>
+                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding SupportsChoiceCollection}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </xctk:CheckComboBox>
                             <Label Content="Клиентские пути" FontWeight="Bold"/>
                             <ComboBox Name="clientWaysCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding ClientWays}" SelectedItem="{Binding NewRecord.ClientWays}" SelectedIndex="0"/>
                             <Label Content="Эскалация" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="escalationCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding Escalations}" >
+                            <xctk:CheckComboBox Name="escalationCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding Escalations}" SelectedItemsOverride="{Binding NewEscalationsChoiceCollection}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="ItemSelectionChanged">
-                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding ElementName=escalationCombo, Path=SelectedItems}"/>
+                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding EscalationsChoiceCollection}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </xctk:CheckComboBox>
                             <Label Content="Формат" FontWeight="Bold"/>
                             <ComboBox Name="formatCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding FormatList}" SelectedItem="{Binding NewRecord.Formats}" SelectedIndex="0"/>
                             <Label Content="Риск" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="riskCombo" Height="30" ItemsSource="{Binding RiskCol}" DisplayMemberPath="riskName" >
+                            <xctk:CheckComboBox Name="riskCombo" Height="30" ItemsSource="{Binding RiskCol}" DisplayMemberPath="riskName" SelectedItemsOverride="{Binding NewRiskChoiceCollection}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="ItemSelectionChanged">
-                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding ElementName=riskCombo, Path=SelectedItems}"/>
+                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding RiskChoiceCollection}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </xctk:CheckComboBox>

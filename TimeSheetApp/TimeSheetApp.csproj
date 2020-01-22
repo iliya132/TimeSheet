@@ -212,7 +212,6 @@
       <DependentUpon>EFDadaModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Model\Excel.cs" />
-    <Compile Include="Model\ExcelWorker.cs" />
     <Compile Include="Model\ForceQuit.cs">
       <DependentUpon>EFDadaModel.tt</DependentUpon>
     </Compile>
