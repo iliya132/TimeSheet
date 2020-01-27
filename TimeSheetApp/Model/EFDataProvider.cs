@@ -15,6 +15,30 @@ namespace TimeSheetApp.Model
         {
 
         }
+        public Stack<string> GetSubjectHints(Process process)
+        {
+            Stack<string> subjects = new Stack<string>();
+            int proc_id;
+
+            if (process != null)
+            {
+                proc_id = process.id;
+                foreach (string item in dataBase.TimeSheetTable.Where(i => i.Analytic.userName.ToLower().Equals(Environment.UserName.ToLower()) &&
+                    i.Subject.Length > 0 && i.Process_id == proc_id).Select(i => i.Subject).Distinct().ToArray())
+                {
+                    subjects.Push(item);
+                }
+            }
+            else
+            {
+                foreach (string item in dataBase.TimeSheetTable.Where(i => i.Analytic.userName.ToLower().Equals(Environment.UserName.ToLower()) &&
+                    i.Subject.Length > 0).Select(i => i.Subject).Distinct().ToArray())
+                {
+                    subjects.Push(item);
+                }
+            }
+            return subjects;
+        }
         public string GetCodeDescription(Process process) => $"{process.Block1.blockName}\r\n{process.SubBlockNav.subblockName}\r\n{process.procName}";
         public ObservableCollection<Process> GetProcesses()
         {
@@ -81,16 +105,16 @@ namespace TimeSheetApp.Model
                 case (2):
                     EscalationChoice EscChoice = dataBase.EscalationChoiceSet.FirstOrDefault(i => i.id == ObjectId);
                     if (EscChoice == null) break;
-                    if (EscChoice.Escalation_id != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==   EscChoice.Escalation_id));
-                    if (EscChoice.Escalation_id1 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id1));
-                    if (EscChoice.Escalation_id2 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id2));
-                    if (EscChoice.Escalation_id3 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id3));
-                    if (EscChoice.Escalation_id4 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id4));
-                    if (EscChoice.Escalation_id5 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id5));
-                    if (EscChoice.Escalation_id6 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id6));
-                    if (EscChoice.Escalation_id7 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id7));
-                    if (EscChoice.Escalation_id8 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id8));
-                    if (EscChoice.Escalation_id9 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id ==  EscChoice.Escalation_id9));
+                    if (EscChoice.Escalation_id != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id));
+                    if (EscChoice.Escalation_id1 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id1));
+                    if (EscChoice.Escalation_id2 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id2));
+                    if (EscChoice.Escalation_id3 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id3));
+                    if (EscChoice.Escalation_id4 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id4));
+                    if (EscChoice.Escalation_id5 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id5));
+                    if (EscChoice.Escalation_id6 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id6));
+                    if (EscChoice.Escalation_id7 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id7));
+                    if (EscChoice.Escalation_id8 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id8));
+                    if (EscChoice.Escalation_id9 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id9));
                     if (EscChoice.Escalation_id10 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id10));
                     if (EscChoice.Escalation_id11 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id11));
                     if (EscChoice.Escalation_id12 != null) returnValue.Add(dataBase.Escalations.FirstOrDefault(i => i.Id == EscChoice.Escalation_id12));
@@ -101,7 +125,7 @@ namespace TimeSheetApp.Model
                 case (3):
                     riskChoise riskChoice = dataBase.riskChoise.FirstOrDefault(i => i.id == ObjectId);
                     if (riskChoice == null) break;
-                    if (riskChoice.Risk_id != null) returnValue.Add( dataBase.RiskSet.FirstOrDefault(i => i.id ==  riskChoice.Risk_id));
+                    if (riskChoice.Risk_id != null) returnValue.Add(dataBase.RiskSet.FirstOrDefault(i => i.id == riskChoice.Risk_id));
                     if (riskChoice.Risk_id1 != null) returnValue.Add(dataBase.RiskSet.FirstOrDefault(i => i.id == riskChoice.Risk_id1));
                     if (riskChoice.Risk_id2 != null) returnValue.Add(dataBase.RiskSet.FirstOrDefault(i => i.id == riskChoice.Risk_id2));
                     if (riskChoice.Risk_id3 != null) returnValue.Add(dataBase.RiskSet.FirstOrDefault(i => i.id == riskChoice.Risk_id3));
@@ -121,10 +145,7 @@ namespace TimeSheetApp.Model
         {
             if (riskChoise == null)
             {
-                riskChoise = new riskChoise()
-                {
-                    Risk_id = 1
-                };
+                riskChoise = new riskChoise();
             }
             if (dataBase.riskChoise.Any(i =>
             i.Risk_id == riskChoise.Risk_id &&
@@ -160,7 +181,7 @@ namespace TimeSheetApp.Model
         {
             if (BBChoice == null)
             {
-                BBChoice = new BusinessBlockChoice() { BusinessBlockid = 1 };
+                BBChoice = new BusinessBlockChoice();
             }
             if (dataBase.BusinessBlockChoiceSet.Any(i =>
             i.BusinessBlockid == BBChoice.BusinessBlockid &&
@@ -196,7 +217,7 @@ namespace TimeSheetApp.Model
         {
             if (escalationChoice == null)
             {
-                escalationChoice = new EscalationChoice() { Escalation_id = 1 };
+                escalationChoice = new EscalationChoice();
             }
             if (dataBase.EscalationChoiceSet.Any(i =>
             i.Escalation_id == escalationChoice.Escalation_id &&
@@ -232,7 +253,7 @@ namespace TimeSheetApp.Model
         {
             if (_suppChoice == null)
             {
-                _suppChoice = new supportChoice() { Support_id = 1 };
+                _suppChoice = new supportChoice();
             }
             if (dataBase.supportChoiceSet.Any(i =>
             i.Support_id == _suppChoice.Support_id &&

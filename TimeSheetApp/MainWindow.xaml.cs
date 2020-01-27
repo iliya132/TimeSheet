@@ -16,8 +16,16 @@ namespace TimeSheetApp
         {
             AppDomain.CurrentDomain.UnhandledException += (sender, e) => HandleError((Exception)e.ExceptionObject);
             InitializeComponent();
+            #region Группировка добавленных активностей по времени начала
             CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(TimeSpanListView.ItemsSource);
             view.SortDescriptions.Add(new SortDescription("timeStart", ListSortDirection.Ascending));
+            #endregion
+
+            #region группировка аналитиков в подчинении
+            CollectionView AnalyticsView = (CollectionView)CollectionViewSource.GetDefaultView(AnalyticTable.ItemsSource);
+            AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("OtdelTableId"));
+            #endregion
+
             CollectionView viewProcesses = (CollectionView)CollectionViewSource.GetDefaultView(ProcessList.ItemsSource);
             TimeIn.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 0, 0);
             Timeout.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 20, 0);
@@ -92,7 +100,12 @@ namespace TimeSheetApp
 
         private void HelpBtn_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start("TimeSheetHelp.chm");
+            System.Diagnostics.Process.Start("Help\\TimeSheetHelp.pdf");
+        }
+
+        private void Add_Click(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }

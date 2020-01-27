@@ -10,6 +10,7 @@ namespace TimeSheetApp.Model
 {
     public interface IEFDataProvider
     {
+        Stack<string> GetSubjectHints(Process process);
         bool ForcedToQuit();
         List<object> GetChoice(int ObjectId, int Type);
         ObservableCollection<Process> GetProcesses();

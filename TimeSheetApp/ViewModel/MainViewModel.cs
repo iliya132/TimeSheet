@@ -98,6 +98,7 @@ namespace TimeSheetApp.ViewModel
         private ObservableCollection<Supports> _supportsChoiceCollection = new ObservableCollection<Supports>();
         public ObservableCollection<Supports> SupportsChoiceCollection { get => _supportsChoiceCollection; set => _supportsChoiceCollection = value; }
         #endregion
+
         #region MainForm multiChoiceCollections
         private ObservableCollection<Risk> _newRiskChoiceCollection = new ObservableCollection<Risk>();
         public ObservableCollection<Risk> NewRiskChoiceCollection { get => _newRiskChoiceCollection; set => _newRiskChoiceCollection = value; }
@@ -108,6 +109,16 @@ namespace TimeSheetApp.ViewModel
         private ObservableCollection<Supports> _newSupportsChoiceCollection = new ObservableCollection<Supports>();
         public ObservableCollection<Supports> NewSupportsChoiceCollection { get => _newSupportsChoiceCollection; set => _newSupportsChoiceCollection = value; }
         #endregion
+
+        public bool IgnoreSubjectTextChange { get; set; }
+        /// <summary>
+        /// подсказки для ввода текста в поле Тема
+        /// </summary>
+
+        private Stack<string> subjectsFromDB;
+        private ObservableCollection<string> subjectHints = new ObservableCollection<string>();
+        public ObservableCollection<string> SubjectHints { get => subjectHints; set => subjectHints = value; }
+
         /// <summary>
         /// Общая длительность записей в коллекции HistoryRecords
         /// </summary>
@@ -287,6 +298,7 @@ namespace TimeSheetApp.ViewModel
         {
             EFDataProvider = dataProvider;
             FillDataCollections();
+            updateSubjectHints();
             AddProcess = new RelayCommand<TimeSheetTable>(AddProcessMethod);
             EditProcess = new RelayCommand<TimeSheetTable>(EditHistoryProcess);
             DeleteProcess = new RelayCommand<TimeSheetTable>(DeleteHistoryRecord);
@@ -304,7 +316,21 @@ namespace TimeSheetApp.ViewModel
             ReportAcess = EFDataProvider.isAnalyticHasAccess(CurrentUser);
             RaisePropertyChanged("ReportAcess");
         }
+        private void updateSubjectHints()
+        {
+            subjectsFromDB = EFDataProvider.GetSubjectHints(NewRecord.Process);
 
+            SubjectHints.Clear();
+            int itemsCount = subjectsFromDB.Count;
+            for (int i = 0; i < 10 && i < itemsCount; i++)
+            {
+                if (subjectsFromDB.Count > 0)
+                {
+                    SubjectHints.Add(subjectsFromDB.Pop());
+                }
+            }
+
+        }
         private void StoreMultiplyChoice()
         {
             editBusinessBlockChoice = new BusinessBlockChoice();
@@ -471,10 +497,10 @@ namespace TimeSheetApp.ViewModel
             if (selectedProcess != null)
             {
                 Selection loadedSelection = LocalWorker.GetSelection(selectedProcess.id);
-                
+
                 if (loadedSelection != null)
                 {
-                    foreach(BusinessBlock block in EFDataProvider.GetChoice(loadedSelection.BusinessBlockSelected, 0))
+                    foreach (BusinessBlock block in EFDataProvider.GetChoice(loadedSelection.BusinessBlockSelected, 0))
                     {
                         NewBusinessBlockChoiceCollection.Add(block);
                     }
@@ -501,6 +527,7 @@ namespace TimeSheetApp.ViewModel
                     RaisePropertyChanged("NewRecord");
                 }
             }
+            updateSubjectHints();
         }
         private void DeleteHistoryRecord(TimeSheetTable record)
         {
@@ -578,6 +605,8 @@ namespace TimeSheetApp.ViewModel
         }
         private void AddProcessMethod(TimeSheetTable newItem)
         {
+            Console.WriteLine(newItem.Subject);
+
             #region UnitTest's
             if (IsIntersectsWithOtherRecords(newItem))
             {
@@ -626,9 +655,15 @@ namespace TimeSheetApp.ViewModel
             #region Обновление представления
             UpdateTimeSpan();
             RaisePropertyChanged("TotalDurationInMinutes");
+            updateSubjectHints();
+            RaisePropertyChanged("subjectHints");
             newItem.timeStart = newItem.timeEnd;
             newItem.timeEnd = newItem.timeEnd.AddMinutes(15);
+            IgnoreSubjectTextChange = false;
             newItem.Subject = string.Empty;
+
+            IgnoreSubjectTextChange = true;
+
             newItem.comment = string.Empty;
             RaisePropertyChanged("NewRecord");
             #endregion

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TimeSheetApp"
+        xmlns:Usercontrols="clr-namespace:TimeSheetApp.Controls"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:mvvm="http://www.galasoft.ch/mvvmlight"
         mc:Ignorable="d"
@@ -101,7 +102,7 @@
                         </ListView>
                         <StackPanel Orientation="Vertical" Grid.Row="2">
                         <Label Content="Описание:" FontSize="16" FontWeight="Bold" />
-                        <TextBlock Margin="5,5,10,5" Text="{Binding ElementName=ProcessList, Path=SelectedItem.Comment}"  Height="auto" TextWrapping="Wrap"/>
+                        <TextBox Margin="5,5,10,5" Text="{Binding ElementName=ProcessList, Path=SelectedItem.Comment}"  Height="auto" TextWrapping="Wrap" IsReadOnly="True" OverridesDefaultStyle="True" Background="{x:Null}"/>
                             
                         </StackPanel>
                     </Grid>
@@ -121,7 +122,7 @@
                             <Image Name="StartIcon" Source="Resource/AddClock.png" HorizontalAlignment="Left"  Margin="60,2,0,2" Width="25" MouseDown="TimeIcon_MouseDown"/>
                             <Image Name="EndIcon" Source="Resource/DeleteClock.png" HorizontalAlignment="Right"  Margin="50,2,0,2" Width="25" MouseDown="TimeIcon_MouseDown"/>
                         </StackPanel>
-
+                        
                         <StackPanel Grid.Row="1" Orientation="Horizontal">
                             <DatePicker Name="DateBox" Grid.Row="0" HorizontalAlignment="Right" Width="100" SelectedDateChanged="DateBox_SelectedDateChanged" SelectedDate="{Binding CurrentDate}">
                                 <i:Interaction.Triggers>
@@ -181,16 +182,16 @@
                         DataContext="{Binding Main, Source={StaticResource Locator}}"
                         Command="{Binding AddProcess}"
                         CommandParameter="{Binding NewRecord}"
-                        Style="{StaticResource GreenButton}">
+                        Style="{StaticResource GreenButton}" Click="Add_Click">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Center">
-                                    <Label Content="Добавить активность" VerticalAlignment="Center"/>
+                                    <Label Content="Добавить активность" VerticalAlignment="Center" />
                                     <Image Source="Resource/AddIcon.png"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" Grid.Row="4" >
                             <Label Content="Тема" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
-                            <TextBox Name="Subject" Margin="0,0,5,0" Height="30" TextAlignment="Left" Text="{Binding NewRecord.Subject}"/>
+                            <Usercontrols:HintTextBox x:Name="Subject" Margin="0,0,5,0" Height="30" Text="{Binding NewRecord.Subject, Mode=TwoWay}" ItemsSource="{Binding SubjectHints, Mode=OneWay}" IgnoreTextChange="{Binding IgnoreSubjectTextChange}"/>
                             <Label Content="Комментарий" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
                             <TextBox Name="Comment" Margin="0,0,5,0" Height="150" TextWrapping="Wrap" AcceptsReturn="True" 
                          Text="{Binding NewRecord.comment}"/>
@@ -280,9 +281,8 @@
                                       AlternatingRowBackground="LightGray"
                                       AlternationCount="2"
 						  >
-
-
                                 <DataGrid.Columns>
+                                    
                                     <DataGridTextColumn Header="Фамилия" Binding="{Binding LastName}"/>
                                     <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}"/>
                                     <DataGridTextColumn Header="Отчество" Binding="{Binding FatherName}"/>
