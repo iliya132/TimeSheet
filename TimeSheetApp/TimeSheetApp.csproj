@@ -170,99 +170,37 @@
     <Compile Include="EditForm.xaml.cs">
       <DependentUpon>EditForm.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Model\Analytic.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Block.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\BusinessBlock.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\BusinessBlockChoice.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ClientWays.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
+    <Compile Include="Model\AnalyticOrdered.cs" />
     <Compile Include="Model\CodeFullConverter.cs" />
-    <Compile Include="Model\Departments.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Directions.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\EFDadaModel.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>EFDadaModel.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\EFDadaModel.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\EFDadaModel.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>EFDadaModel.edmx</DependentUpon>
-    </Compile>
     <Compile Include="Model\EFDataProvider.cs" />
-    <Compile Include="Model\EscalationChoice.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Escalations.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
+    <Compile Include="Model\EntitiesBase\Analytic.cs" />
+    <Compile Include="Model\EntitiesBase\Block.cs" />
+    <Compile Include="Model\EntitiesBase\BusinessBlock.cs" />
+    <Compile Include="Model\EntitiesBase\BusinessBlockChoice.cs" />
+    <Compile Include="Model\EntitiesBase\ClientWays.cs" />
+    <Compile Include="Model\EntitiesBase\Departments.cs" />
+    <Compile Include="Model\EntitiesBase\Directions.cs" />
+    <Compile Include="Model\EntitiesBase\Escalation.cs" />
+    <Compile Include="Model\EntitiesBase\EscalationChoice.cs" />
+    <Compile Include="Model\EntitiesBase\Formats.cs" />
+    <Compile Include="Model\EntitiesBase\Otdel.cs" />
+    <Compile Include="Model\EntitiesBase\Positions.cs" />
+    <Compile Include="Model\EntitiesBase\Process.cs" />
+    <Compile Include="Model\EntitiesBase\ProcessType.cs" />
+    <Compile Include="Model\EntitiesBase\Result.cs" />
+    <Compile Include="Model\EntitiesBase\Risk.cs" />
+    <Compile Include="Model\EntitiesBase\RiskChoice.cs" />
+    <Compile Include="Model\EntitiesBase\Role.cs" />
+    <Compile Include="Model\EntitiesBase\SubBlock.cs" />
+    <Compile Include="Model\EntitiesBase\SupportChoice.cs" />
+    <Compile Include="Model\EntitiesBase\Supports.cs" />
+    <Compile Include="Model\EntitiesBase\TimeSheetTable.cs" />
+    <Compile Include="Model\EntitiesBase\Upravlenie.cs" />
     <Compile Include="Model\Excel.cs" />
-    <Compile Include="Model\ForceQuit.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Formats.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="Model\IEFDataProvider.cs" />
     <Compile Include="Model\LocalWorker.cs" />
-    <Compile Include="Model\OtdelTable.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Positions.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Process.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ProcessType.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Result.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Risk.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\riskChoise.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\RoleTable.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="Model\Selection.cs" />
-    <Compile Include="Model\SubBlock.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\supportChoice.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\Supports.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\TimeSheetTable.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\UpravlenieTable.cs">
-      <DependentUpon>EFDadaModel.tt</DependentUpon>
-    </Compile>
+    <Compile Include="Model\TimeSheetContext.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="Controls\HintTextBox.xaml">
@@ -308,13 +246,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EntityDeploy Include="Model\EFDadaModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>EFDadaModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <None Include="Model\EFDadaModel.edmx.diagram">
-      <DependentUpon>EFDadaModel.edmx</DependentUpon>
-    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -365,17 +296,6 @@
     <Resource Include="MainIco.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Model\EFDadaModel.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>EFDadaModel.Context.cs</LastGenOutput>
-      <DependentUpon>EFDadaModel.edmx</DependentUpon>
-    </Content>
-    <Content Include="Model\EFDadaModel.edmx.sql" />
-    <Content Include="Model\EFDadaModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>EFDadaModel.edmx</DependentUpon>
-      <LastGenOutput>EFDadaModel.cs</LastGenOutput>
-    </Content>
     <Resource Include="Resource\help.png" />
     <SplashScreen Include="Resource\Splash.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
