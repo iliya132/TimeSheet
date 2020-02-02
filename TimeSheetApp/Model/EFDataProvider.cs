@@ -628,7 +628,6 @@ namespace TimeSheetApp.Model
         {
             string user = Environment.UserName;
             Analytic analytic;
-            Console.WriteLine($"Count:= {context.AnalyticSet.Count()}");
             if (context.AnalyticSet.Any(i => i.UserName == user))
             {
                 analytic = context.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(Environment.UserName.ToLower()));

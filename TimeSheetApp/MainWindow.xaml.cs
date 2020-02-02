@@ -22,17 +22,44 @@ namespace TimeSheetApp
             #endregion
 
             #region группировка аналитиков в подчинении
-            CollectionView AnalyticsView = (CollectionView)CollectionViewSource.GetDefaultView(AnalyticTable.ItemsSource);
-            AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("FirstStructure"));
-            AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("SecondStructure"));
-            AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("ThirdStructure"));
-            AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("FourStructure"));
+            //CollectionView AnalyticsView = (CollectionView)CollectionViewSource.GetDefaultView(AnalyticTable.ItemsSource);
+            //AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("FirstStructure"));
+            //AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("SecondStructure"));
+            //AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("ThirdStructure"));
+            //AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("FourStructure"));
+            //PropertyGroupDescription groupDescription = new PropertyGroupDescription();
+
+
+
+            //DependencyProperty dependencyProperty;
+            //dependencyProperty = DependencyProperty.Register("Template", typeof(ControlTemplate), typeof(DataGrid));
+            //GroupStyle groupStyle = new GroupStyle();
+            //Style style = new Style(typeof(GroupItem));
+
+            //groupStyle.ContainerStyle = new Style(typeof(GroupItem));
+            //ControlTemplate controlTemplate = new ControlTemplate(typeof(GroupItem));
+            //Setter setter = new Setter(dependencyProperty, controlTemplate);
+            //Expander expander = new Expander();
+            //TemplateContent templateContent = controlTemplate.Template;
+            //setter.Value = templateContent;
+
+
+            //groupStyle.ContainerStyle.Setters.Add(setter);
+            //AnalyticTable.GroupStyle.Add(groupStyle);
+            #endregion
+
+            #region TreeView
+
+            
+
             #endregion
 
             CollectionView viewProcesses = (CollectionView)CollectionViewSource.GetDefaultView(ProcessList.ItemsSource);
             TimeIn.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 0, 0);
             Timeout.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 20, 0);
             DateBox.SelectedDate = DateTime.Now;
+
+
 
         }
         private void HandleError(Exception exceptionObject)

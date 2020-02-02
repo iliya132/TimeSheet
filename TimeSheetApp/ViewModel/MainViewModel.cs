@@ -88,6 +88,10 @@ namespace TimeSheetApp.ViewModel
             set { subordinatedOrdered = value; }
         }
 
+        private ObservableCollection<Node> nodes = new ObservableCollection<Node>();
+        public ObservableCollection<Node> NodesCollection { get => nodes; set => nodes = value; }
+
+        private List<string> categories = new List<string>();
         #endregion
 
         #endregion
@@ -321,6 +325,7 @@ namespace TimeSheetApp.ViewModel
             ReportAcess = EFDataProvider.IsAnalyticHasAccess(CurrentUser);
             RaisePropertyChanged(nameof(ReportAcess));
             TestNewEF();
+            GenerateNodes();
         }
 
         private void TestNewEF()
@@ -332,6 +337,96 @@ namespace TimeSheetApp.ViewModel
                     Name = "Тестовый отдел"
                 });
                 context.SaveChanges();
+            }
+        }
+        private void GenerateNodes()
+        {
+
+            foreach (AnalyticOrdered analytic in SubordinatedOrdered)
+            {
+                #region initialize
+                
+                if (NodesCollection.Count < 1)
+                    NodesCollection.Add(new Node(analytic.FirstStructure));
+
+                #endregion
+
+                #region Generate Ierarhial
+                foreach (Node node in NodesCollection)
+                {
+
+                    #region 1stGen
+
+                    if (string.IsNullOrEmpty(analytic.FirstStructure)) break;
+                    Node firstGen = Node.FindNode(analytic.FirstStructure, NodesCollection);
+                    if (firstGen == null)
+                    {
+                        firstGen = new Node(analytic.FirstStructure);
+                        NodesCollection.Add(firstGen);
+                    }
+
+                    #endregion
+
+                    #region 2ndGen
+
+                    if (string.IsNullOrEmpty(analytic.SecondStructure))
+                    {
+                        firstGen.Analytics.Add(analytic);
+                        break;
+                    }
+
+                    Node secondGen = Node.FindNode(analytic.SecondStructure, NodesCollection);
+                    if (secondGen == null)
+                    {
+                        firstGen.AddChild(new Node(analytic.SecondStructure));
+                        secondGen = Node.FindNode(analytic.SecondStructure, NodesCollection);
+                    }
+
+                    #endregion
+
+                    #region 3ndGen
+
+                    if (string.IsNullOrEmpty(analytic.ThirdStructure))
+                    {
+                        secondGen.Analytics.Add(analytic);
+                        break;
+                    }
+
+                    Node thirdGen = Node.FindNode(analytic.ThirdStructure, NodesCollection);
+                    if (thirdGen == null)
+                    {
+                        secondGen.AddChild(new Node(analytic.ThirdStructure));
+                        thirdGen = Node.FindNode(analytic.ThirdStructure, NodesCollection);
+                    }
+
+                    #endregion
+
+                    #region 4thGen
+
+                    if (string.IsNullOrEmpty(analytic.FourStructure))
+                    {
+                        thirdGen.Analytics.Add(analytic);
+                        break;
+                    }
+
+                    Node fourGen = Node.FindNode(analytic.FourStructure, NodesCollection);
+                    if (fourGen == null)
+                    {
+                        thirdGen.AddChild(new Node(analytic.FourStructure));
+                        fourGen = Node.FindNode(analytic.FourStructure, NodesCollection);
+                    }
+                    fourGen.Analytics.Add(analytic);
+                    #endregion
+
+
+                }
+                #endregion
+
+
+            }
+            foreach(Node node1 in NodesCollection)
+            {
+                node1.CountAnalytics(node1);
             }
         }
 
@@ -576,7 +671,7 @@ namespace TimeSheetApp.ViewModel
         private ObservableCollection<AnalyticOrdered> GetAnalyticOrdereds(IEnumerable<Analytic> analytics)
         {
             ObservableCollection<AnalyticOrdered> exportVal = new ObservableCollection<AnalyticOrdered>();
-            foreach(Analytic analytic in analytics)
+            foreach (Analytic analytic in analytics)
             {
                 exportVal.Add(new AnalyticOrdered(analytic));
             }

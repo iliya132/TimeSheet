@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using TimeSheetApp.Model;
 using TimeSheetApp.Model.EntitiesBase;
@@ -79,7 +80,6 @@ namespace TimeSheetApp
         }
 
     }
-    [ValueConversion(typeof(bool), typeof(Visibility))]
     class InvertBooleanToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -104,4 +104,6 @@ namespace TimeSheetApp
         }
 
     }
+
+
 }

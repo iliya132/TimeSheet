@@ -164,6 +164,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AnalyticsTree.xaml.cs">
+      <DependentUpon>AnalyticsTree.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\HintTextBox.xaml.cs">
       <DependentUpon>HintTextBox.xaml</DependentUpon>
     </Compile>
@@ -199,10 +202,15 @@
     <Compile Include="Model\Excel.cs" />
     <Compile Include="Model\IEFDataProvider.cs" />
     <Compile Include="Model\LocalWorker.cs" />
+    <Compile Include="Model\Node.cs" />
     <Compile Include="Model\Selection.cs" />
     <Compile Include="Model\TimeSheetContext.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Page Include="AnalyticsTree.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\HintTextBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -2029,7 +2029,7 @@
 
     <Style TargetType="{x:Type Expander}">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{StaticResource ButtonFontColor}"/>
+        <Setter Property="Foreground" Value="{StaticResource OutsideFontColor}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Padding" Value="4"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -3204,49 +3204,149 @@
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
                     <ControlTemplate.Resources>
                         <Storyboard x:Key="HoverOn">
-                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="CheckedVisual" Storyboard.TargetProperty="(Shape.Fill)">
-                                <DiscreteObjectKeyFrame KeyTime="00:00:00.1000000" Value="{StaticResource treeviewArrowHover}"/>
-                            </ObjectAnimationUsingKeyFrames>
-                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="UncheckedVisual" Storyboard.TargetProperty="(Shape.Fill)">
-                                <DiscreteObjectKeyFrame KeyTime="00:00:00.1000000" Value="{StaticResource treeviewArrowHover}"/>
-                            </ObjectAnimationUsingKeyFrames>
+                            <DoubleAnimation Duration="00:00:00.1000000" Storyboard.TargetName="circleOver1" Storyboard.TargetProperty="Opacity" To="1"/>
+                            <DoubleAnimation Duration="00:00:00.1000000" Storyboard.TargetName="circleOver2" Storyboard.TargetProperty="Opacity" To="1"/>
+                            <DoubleAnimation Duration="00:00:00.1000000" Storyboard.TargetName="circleOver3" Storyboard.TargetProperty="Opacity" To="1"/>
+                            <DoubleAnimation Duration="00:00:00.1000000" Storyboard.TargetName="HoverBackground" Storyboard.TargetProperty="Opacity" To="1"/>
                         </Storyboard>
                         <Storyboard x:Key="HoverOff">
-                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="CheckedVisual" Storyboard.TargetProperty="(Shape.Fill)">
-                                <DiscreteObjectKeyFrame KeyTime="00:00:00.4000000" Value="{StaticResource treeviewArrowChecked}"/>
-                            </ObjectAnimationUsingKeyFrames>
-                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="UncheckedVisual" Storyboard.TargetProperty="(Shape.Fill)">
-                                <DiscreteObjectKeyFrame KeyTime="00:00:00.4000000" Value="{StaticResource treeviewArrowUnchecked}"/>
-                            </ObjectAnimationUsingKeyFrames>
+                            <DoubleAnimation Duration="00:00:00.4000000" Storyboard.TargetName="circleOver1" Storyboard.TargetProperty="Opacity" To="0"/>
+                            <DoubleAnimation Duration="00:00:00.4000000" Storyboard.TargetName="circleOver2" Storyboard.TargetProperty="Opacity" To="0"/>
+                            <DoubleAnimation Duration="00:00:00.4000000" Storyboard.TargetName="circleOver3" Storyboard.TargetProperty="Opacity" To="0"/>
+                            <DoubleAnimation Duration="00:00:00.4000000" Storyboard.TargetName="HoverBackground" Storyboard.TargetProperty="Opacity" To="0"/>
+                        </Storyboard>
+                        <Storyboard x:Key="PressedOn">
+                            <DoubleAnimation Duration="00:00:00.1000000" Storyboard.TargetName="circlePress1" Storyboard.TargetProperty="Opacity" To="1"/>
+                            <DoubleAnimation Duration="00:00:00.1000000" Storyboard.TargetName="circlePress2" Storyboard.TargetProperty="Opacity" To="1"/>
+                            <DoubleAnimation Duration="00:00:00.1000000" Storyboard.TargetName="circlePress3" Storyboard.TargetProperty="Opacity" To="1"/>
+                            <DoubleAnimation Duration="00:00:00.1000000" Storyboard.TargetName="HoverBackground1" Storyboard.TargetProperty="Opacity" To="1"/>
+                        </Storyboard>
+                        <Storyboard x:Key="PressedOff">
+                            <DoubleAnimation Duration="00:00:00.4000000" Storyboard.TargetName="circlePress1" Storyboard.TargetProperty="Opacity" To="0"/>
+                            <DoubleAnimation Duration="00:00:00.4000000" Storyboard.TargetName="circlePress2" Storyboard.TargetProperty="Opacity" To="0"/>
+                            <DoubleAnimation Duration="00:00:00.4000000" Storyboard.TargetName="circlePress3" Storyboard.TargetProperty="Opacity" To="0"/>
+                            <DoubleAnimation Duration="00:00:00.4000000" Storyboard.TargetName="HoverBackground1" Storyboard.TargetProperty="Opacity" To="0"/>
                         </Storyboard>
                         <Storyboard x:Key="CheckedOn">
-                            <DoubleAnimation Duration="00:00:00.1000000" Storyboard.TargetName="UncheckedVisual" Storyboard.TargetProperty="Opacity" To="0"/>
-                            <DoubleAnimation Duration="00:00:00.1000000" Storyboard.TargetName="CheckedVisual" Storyboard.TargetProperty="Opacity" To="1"/>
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00.1000000" Duration="00:00:00.0010000" Storyboard.TargetName="arrowDown" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)">
+                                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-1"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00.1000000" Duration="00:00:00.0010000" Storyboard.TargetName="HoverBackground2" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)">
+                                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-1"/>
+                            </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                         <Storyboard x:Key="CheckedOff">
-                            <DoubleAnimation Duration="00:00:00.4000000" Storyboard.TargetName="UncheckedVisual" Storyboard.TargetProperty="Opacity" To="1"/>
-                            <DoubleAnimation Duration="00:00:00.4000000" Storyboard.TargetName="CheckedVisual" Storyboard.TargetProperty="Opacity" To="0"/>
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00.4000000" Duration="00:00:00.0010000" Storyboard.TargetName="arrowDown" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)">
+                                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00.4000000" Duration="00:00:00.0010000" Storyboard.TargetName="HoverBackground2" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)">
+                                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="FocusedOn">
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="FocusBackground" Storyboard.TargetProperty="(UIElement.Opacity)">
+                                <SplineDoubleKeyFrame KeyTime="00:00:00.1000000" Value="0.84"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="FocusedOff">
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="FocusBackground" Storyboard.TargetProperty="(UIElement.Opacity)">
+                                <SplineDoubleKeyFrame KeyTime="00:00:00.4000000" Value="0"/>
+                            </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                     </ControlTemplate.Resources>
-                    <Grid HorizontalAlignment="Right" Margin="2,2,5,2">
-                        <Path x:Name="UncheckedVisual" Height="9" Width="6" HorizontalAlignment="Right" VerticalAlignment="Center" Fill="{StaticResource treeviewArrowUnchecked}" StrokeLineJoin="Miter" Data="M 0,0 L 0,9 L 5,4.5 Z"/>
-                        <Path x:Name="CheckedVisual" Height="6" Width="6" HorizontalAlignment="Right" VerticalAlignment="Center" Fill="{StaticResource treeviewArrowChecked}" StrokeLineJoin="Miter" Opacity="0" Data="M 6,0 L 6,6 L 0,6 Z"/>
+                    <Grid>
+                        <Rectangle x:Name="HoverBackground" Fill="{StaticResource hoverGradient}" Stroke="{StaticResource hoverStroke}" RadiusX="2" RadiusY="2" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                            <Rectangle.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+                        <Rectangle x:Name="HoverBackground1" Fill="{StaticResource hoverGradient}" Stroke="{StaticResource hoverStroke}" RadiusX="2" RadiusY="2" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                            <Rectangle.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+                        <Rectangle x:Name="HoverBackground2" Fill="{StaticResource hoverGradient}" Stroke="{StaticResource hoverStroke}" RadiusX="2" RadiusY="2" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                            <Rectangle.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+                        <Grid Margin="{TemplateBinding Padding}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="18"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Height="18" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                <Ellipse x:Name="circleOver1" Height="18" Width="18" Fill="{StaticResource ExpanderArrowHoverFill1}" Stroke="#00000000" Opacity="0"/>
+                                <Ellipse x:Name="circleOver2" Height="18" Width="18" Fill="{StaticResource ExpanderArrowHoverFill2}" Stroke="#00000000" Opacity="0"/>
+                                <Ellipse x:Name="circleOver3" Height="18" Width="18" Fill="{StaticResource ExpanderArrowHoverFill3}" Stroke="{StaticResource expanderArrowStroke}" Opacity="0"/>
+                                <Ellipse x:Name="circlePress1" Height="18" Width="18" Fill="{StaticResource ExpanderArrowPressedFill1}" Stroke="#00000000" Opacity="0"/>
+                                <Ellipse x:Name="circlePress2" Height="18" Width="18" Fill="{StaticResource ExpanderArrowPressedFill2}" Stroke="#00000000" Opacity="0"/>
+                                <Ellipse x:Name="circlePress3" Height="18" Width="18" Fill="{StaticResource ExpanderArrowPressedFill3}" Stroke="{StaticResource expanderArrowStroke}" Opacity="0"/>
+                                <Path x:Name="arrowDown" Stroke="{StaticResource ButtonFontColor}" StrokeThickness="2" Data="M 1,1.5 L 4.5,5 L 8,1.5" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                    <Path.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform/>
+                                            <SkewTransform/>
+                                            <RotateTransform/>
+                                            <TranslateTransform/>
+                                        </TransformGroup>
+                                    </Path.RenderTransform>
+                                </Path>
+                            </Grid>
+                            <ContentPresenter x:Name="header" Margin="4,0,0,0" Grid.Column="1" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="false"/>
+                        </Grid>
+                        <Rectangle x:Name="FocusBackground" Stroke="{StaticResource selectedStroke}" RadiusX="2" RadiusY="2" IsHitTestVisible="false" Opacity="0"/>
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
+                        <Trigger Property="IsFocused" Value="True">
                             <Trigger.ExitActions>
-                                <BeginStoryboard Storyboard="{StaticResource HoverOff}" />
+                                <BeginStoryboard Storyboard="{StaticResource FocusedOff}" x:Name="FocusedOff_BeginStoryboard"/>
                             </Trigger.ExitActions>
                             <Trigger.EnterActions>
-                                <BeginStoryboard Storyboard="{StaticResource HoverOn}" />
+                                <BeginStoryboard Storyboard="{StaticResource FocusedOn}" x:Name="FocusedOn_BeginStoryboard"/>
                             </Trigger.EnterActions>
                         </Trigger>
-                        <Trigger Property="IsChecked" Value="True">
+                        <Trigger Property="IsChecked" Value="true">
+
                             <Trigger.ExitActions>
-                                <BeginStoryboard Storyboard="{StaticResource CheckedOff}" />
+                                <BeginStoryboard x:Name="CheckedOff_BeginStoryboard" Storyboard="{StaticResource CheckedOff}"/>
                             </Trigger.ExitActions>
                             <Trigger.EnterActions>
-                                <BeginStoryboard Storyboard="{StaticResource CheckedOn}" />
+                                <BeginStoryboard x:Name="CheckedOn_BeginStoryboard" Storyboard="{StaticResource CheckedOn}"/>
+                            </Trigger.EnterActions>
+
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Trigger.ExitActions>
+                                <BeginStoryboard Storyboard="{StaticResource HoverOff}" x:Name="HoverOff_BeginStoryboard"/>
+                            </Trigger.ExitActions>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard Storyboard="{StaticResource HoverOn}"/>
+                            </Trigger.EnterActions>
+
+
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Trigger.ExitActions>
+                                <BeginStoryboard Storyboard="{StaticResource PressedOff}" x:Name="PressedOff_BeginStoryboard"/>
+                            </Trigger.ExitActions>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard Storyboard="{StaticResource PressedOn}" x:Name="PressedOn_BeginStoryboard"/>
                             </Trigger.EnterActions>
                         </Trigger>
                     </ControlTemplate.Triggers>

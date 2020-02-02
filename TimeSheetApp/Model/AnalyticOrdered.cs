@@ -34,7 +34,7 @@ namespace TimeSheetApp.Model
             if (analytic.UpravlenieId == 4) return;
 
             FourStructure = analytic.Otdel.Name;
-
+            Console.WriteLine($"{FIO}: {FirstStructure} {SecondStructure} {ThirdStructure} {FourStructure}");
         }
     }
 }

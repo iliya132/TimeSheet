@@ -15,6 +15,7 @@
         <local:CodeFullConverter x:Key="CodeFullConverter"/>
         <local:CodeDescriptionConverter x:Key="CodeDescriptionConverter"/>
         <local:DateTimeConverter x:Key="DateTimeConverter"/>
+        <local:InvertBooleanToVisibilityConverter x:Key="InvertBooleanToVisibilityConverter"/>
     </Window.Resources>
     <Grid>
         <Button Name="HelpBtn" HorizontalAlignment="Right" VerticalAlignment="Top" Width="25" Height="25" Click="HelpBtn_Click" Background="AliceBlue">
@@ -274,7 +275,63 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             <TextBlock Text="Сотрудники под моим руководством:" FontSize="16" VerticalAlignment="Center"/>
-                            <DataGrid Name="AnalyticTable" 
+                            <TreeView x:Name="treeView1" ItemsSource="{Binding NodesCollection}" Grid.Row="1" AlternationCount="1" OverridesDefaultStyle="True">
+                                <TreeView.Style>
+                                    <Style TargetType="{x:Type TreeView}">
+                                        <Setter Property="Background" Value="White"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                        <Setter Property="VerticalContentAlignment" Value="Top"/>
+                                        <Setter Property="BorderBrush" Value="#817F7F"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="Padding" Value="4"/>
+                                        <Setter Property="Cursor" Value="Arrow"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type TreeView}">
+                                                    <Grid UseLayoutRounding="True" d:DesignUseLayoutRounding="True">
+                                                        <Border x:Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2" UseLayoutRounding="True" d:DesignUseLayoutRounding="True">
+                                                            <ScrollViewer CanContentScroll="False" Focusable="False" HorizontalScrollBarVisibility="Disabled" Padding="4" UseLayoutRounding="True" VerticalScrollBarVisibility="Auto" d:DesignUseLayoutRounding="True">
+                                                                <ItemsPresenter UseLayoutRounding="True" d:DesignUseLayoutRounding="True"/>
+                                                            </ScrollViewer>
+                                                        </Border>
+                                                    </Grid>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </TreeView.Style>
+                                <TreeView.ItemTemplate>
+                                    <HierarchicalDataTemplate ItemsSource="{Binding Path=Nodes}">
+                                        <StackPanel>
+                                            <TextBlock  Width="1500" FontWeight="ExtraBold" UseLayoutRounding="False" Visibility="{Binding invertedContainsAnalytic}" Height="20">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding StructureName}"/>
+                                                        <TextBlock Text="{Binding Path=ChildCount, StringFormat=. Сотрудников: {0}}"/>
+                                                    </StackPanel>
+                                                </TextBlock>
+                                            <Expander Visibility="{Binding ContainsAnalytic}">
+                                                <Expander.Header>
+                                                    <StackPanel Orientation="Horizontal" Width="1500" Height="20">
+                                                        <TextBlock Text="{Binding StructureName}" FontWeight="ExtraBold"/>
+                                                        <TextBlock Text="{Binding Path=ChildCount, StringFormat=. Сотрудников: {0}}" FontWeight="ExtraBold" />
+                                                    </StackPanel>
+                                                </Expander.Header>
+                                                <DataGrid ItemsSource="{Binding Path=Analytics}" AutoGenerateColumns="False" HeadersVisibility="None" AlternationCount="1" GridLinesVisibility="None">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn Binding="{Binding FIO}" />
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </Expander>
+                                        </StackPanel>
+                                    </HierarchicalDataTemplate>
+
+                                </TreeView.ItemTemplate>
+                                
+
+                            </TreeView>
+                            <!--<DataGrid Name="AnalyticTable" 
 						              ItemsSource="{Binding SubordinatedOrdered}" Grid.Row="1" 
 						              AutoGenerateColumns="False"
 						              IsReadOnly="True"
@@ -292,8 +349,8 @@
                                     <DataGridTextColumn Header="Login" Binding="{Binding ThirdStructure}"/>
                                     <DataGridTextColumn Header="Login" Binding="{Binding FourStructure}"/>
                                 </DataGrid.Columns>
-                                <DataGrid.GroupStyle>
-                                <GroupStyle>
+                                --><!--<DataGrid.GroupStyle>
+                                <GroupStyle HidesIfEmpty="True">
                                     <GroupStyle.ContainerStyle>
                                         <Style TargetType="{x:Type GroupItem}">
                                             <Setter Property="Margin" Value="0,0,0,5"/>
@@ -317,8 +374,8 @@
                                         </Style>
                                     </GroupStyle.ContainerStyle>
                                 </GroupStyle>
-                                </DataGrid.GroupStyle>
-                            </DataGrid>
+                                </DataGrid.GroupStyle>--><!--
+                            </DataGrid>-->
                             
                         </Grid>
 
@@ -331,9 +388,9 @@
                                 <Label Content="Конечная дата:"/>
                                 <DatePicker Name="EndDatePicker" SelectedDate="{Binding EndReportDate}" />
                             </StackPanel>
-                            <Button Name="GetReport" Content="Выгрузить отчет" Height="50" Margin="5,5,5,10" 
+                            <!--<Button Name="GetReport" Content="Выгрузить отчет" Height="50" Margin="5,5,5,10" 
                                     Command="{Binding GetReport}" 
-                                    CommandParameter="{Binding ElementName=AnalyticTable, Path=SelectedItems}"/>
+                                    CommandParameter="{Binding ElementName=AnalyticTable, Path=SelectedItems}"/>-->
                         </StackPanel>
                     </Grid>
                 </Grid>
