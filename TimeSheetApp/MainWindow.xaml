@@ -261,7 +261,7 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Кабинет руководителя">
+            <TabItem Header="Отчетность">
                 <Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>

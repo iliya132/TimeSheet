@@ -230,7 +230,8 @@ namespace TimeSheetApp.ViewModel
         #region Формирование отчета
         private List<string> _reportsAvailable = new List<string>()
         {
-            "Отчет по активности аналитиков"
+            "Отчет по активности аналитиков",
+            "Отчет для расчета аллокации"
         };
 
         public List<string> ReportsAvailable
@@ -317,23 +318,10 @@ namespace TimeSheetApp.ViewModel
             StoreSelection = new RelayCommand(StoreMultiplyChoice);
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
-            NewRecord.RiskChoice_id = 2;
             //ReportAcess = EFDataProvider.IsAnalyticHasAccess(CurrentUser);
             //RaisePropertyChanged(nameof(ReportAcess));
-            TestNewEF();
         }
 
-        private void TestNewEF()
-        {
-            using (TimeSheetContext context = new TimeSheetContext())
-            {
-                context.OtdelSet.Add(new Model.EntitiesBase.Otdel()
-                {
-                    Name = "Тестовый отдел"
-                });
-                context.SaveChanges();
-            }
-        }
 
         private void updateSubjectHints()
         {
@@ -486,10 +474,15 @@ namespace TimeSheetApp.ViewModel
 
         private void GetReportMethod(IEnumerable<object> Analytics)
         {
-            SelectedAnalytics.Clear();
-            foreach (Analytic analytic in Analytics)
+            if (Analytics.Count() < 1)
             {
-                SelectedAnalytics.Add(analytic);
+                MessageBox.Show("Не выбрано ни одного аналитика", "Выберите аналитика", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            SelectedAnalytics.Clear();
+            foreach (AnalyticOrdered analytic in Analytics)
+            {
+                SelectedAnalytics.Add(analytic.analytic);
             }
             EFDataProvider.GetReport(SelectedReport, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
         }

@@ -9,7 +9,7 @@ namespace TimeSheetApp.Model
 {
     public class AnalyticOrdered
     {
-        Analytic analytic;
+        public Analytic analytic;
         public string FIO { get; set; }
         public string userName { get; set; }
         

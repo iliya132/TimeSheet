@@ -86,7 +86,7 @@
                 </i:Interaction.Triggers>
             </xctk:CheckComboBox>
             <ComboBox Name="FormatList" Grid.Row="11" ItemsSource="{Binding FormatList}" DisplayMemberPath="Name" SelectedItem="{Binding EditedRecord.Formats}"/>
-            <xctk:CheckComboBox Name="RiskList" Grid.Row="13" ItemsSource="{Binding RiskCol}" DisplayMemberPath="riskName"  SelectedItemsOverride="{Binding RiskChoiceCollection}">
+            <xctk:CheckComboBox Name="RiskList" Grid.Row="13" ItemsSource="{Binding RiskCol}" DisplayMemberPath="RiskName"  SelectedItemsOverride="{Binding RiskChoiceCollection}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="ItemSelectionChanged">
                         <mvvm:EventToCommand Command="{Binding StoreSelection}"/>
