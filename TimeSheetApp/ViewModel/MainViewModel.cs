@@ -127,7 +127,7 @@ namespace TimeSheetApp.ViewModel
         /// <summary>
         /// Общая длительность записей в коллекции HistoryRecords
         /// </summary>
-        public Visibility ReportAcess { get; set; }
+        //public Visibility ReportAcess { get; set; }
 
         #region Добавление нового процесса
         /// <summary>
@@ -318,8 +318,8 @@ namespace TimeSheetApp.ViewModel
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
             NewRecord.RiskChoice_id = 2;
-            ReportAcess = EFDataProvider.IsAnalyticHasAccess(CurrentUser);
-            RaisePropertyChanged(nameof(ReportAcess));
+            //ReportAcess = EFDataProvider.IsAnalyticHasAccess(CurrentUser);
+            //RaisePropertyChanged(nameof(ReportAcess));
             TestNewEF();
         }
 

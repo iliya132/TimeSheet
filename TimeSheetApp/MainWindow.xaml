@@ -261,7 +261,7 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Кабинет руководителя" Visibility="{Binding ReportAcess}">
+            <TabItem Header="Кабинет руководителя">
                 <Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -283,43 +283,13 @@
                                       DisplayMemberPath="FIO"
 						  >
                                 <DataGrid.Columns>
-                                    
-                                    <DataGridTextColumn Header="ФИО" Binding="{Binding FIO}"/>
 
-                                    <DataGridTextColumn Header="Login" Binding="{Binding userName}"/>
-                                    <DataGridTextColumn Header="Login" Binding="{Binding FirstStructure}"/>
-                                    <DataGridTextColumn Header="Login" Binding="{Binding SecondStructure}"/>
-                                    <DataGridTextColumn Header="Login" Binding="{Binding ThirdStructure}"/>
-                                    <DataGridTextColumn Header="Login" Binding="{Binding FourStructure}"/>
+                                    <DataGridTextColumn Header="ФИО" Binding="{Binding FIO}"/>
+                                    <DataGridTextColumn Header="UserName" Binding="{Binding userName}"/>
                                 </DataGrid.Columns>
-                                <DataGrid.GroupStyle>
-                                <GroupStyle>
-                                    <GroupStyle.ContainerStyle>
-                                        <Style TargetType="{x:Type GroupItem}">
-                                            <Setter Property="Margin" Value="0,0,0,5"/>
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="{x:Type GroupItem}">
-                                                        <Expander IsExpanded="True">
-                                                            <Expander.Header>
-                                                                <DockPanel>
-                                                                    <TextBlock Text="{Binding Path=Name}" Margin="5,0,0,0" Width="100"/>
-                                                                    <TextBlock Text="{Binding Path=ItemCount}"/>
-                                                                </DockPanel>
-                                                            </Expander.Header>
-                                                            <Expander.Content>
-                                                                <ItemsPresenter />
-                                                            </Expander.Content>
-                                                        </Expander>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Style>
-                                    </GroupStyle.ContainerStyle>
-                                </GroupStyle>
-                                </DataGrid.GroupStyle>
+                                
                             </DataGrid>
-                            
+
                         </Grid>
 
                         <StackPanel Orientation="Vertical" Grid.Column="1">
