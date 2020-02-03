@@ -1,9 +1,11 @@
 ﻿using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using static TimeSheetApp.Model.Reports.Report_02;
 
 namespace TimeSheetApp.Model
 {
@@ -95,6 +97,73 @@ namespace TimeSheetApp.Model
             excel.SaveAs(newExcelFile);
             excel.Dispose();
             #endregion
+            System.Diagnostics.Process.Start(fileName);
+        }
+        public static void ExportToExcel(List<RowData> rowsCollection)
+        {
+            excel = new ExcelPackage();
+            worksheet = excel.Workbook.Worksheets.Add("Sheet1");
+            int row = 1, col = 1;
+
+            worksheet.Cells[1, col++].Value = "Блок";
+            worksheet.Cells[1, col++].Value = "Подблок";
+            worksheet.Cells[1, col++].Value = "#";
+            worksheet.Cells[1, col++].Value = "Процесс";
+            worksheet.Cells[1, col++].Value = "Результат";
+            worksheet.Cells[1, col++].Value = "Дирекция";
+            worksheet.Cells[1, col++].Value = "Управление";
+            worksheet.Cells[1, col++].Value = "Отдел";
+            worksheet.Cells[1, col++].Value = "ФИО";
+            worksheet.Cells[1, col++].Value = "Потрачено времени";
+            worksheet.Cells[1, col++].Value = "Количество операций";
+            worksheet.Cells[1, col++].Value = "Отношение к другим процессам";
+            worksheet.Cells[1, col++].Value = "Отношение ко времени";
+            worksheet.Cells[1, col++].Value = "Отработано дней";
+
+            worksheet.Column(12).Style.Numberformat.Format = "0%";
+            worksheet.Column(13).Style.Numberformat.Format = "0%";
+
+            foreach (RowData item in rowsCollection)
+            {
+                col = 1;
+                row++;
+                worksheet.Cells[row, col++].Value = item.blockName;
+                worksheet.Cells[row, col++].Value = item.subBlock;
+                worksheet.Cells[row, col++].Value = item.codeFull;
+                worksheet.Cells[row, col++].Value = item.processName;
+                worksheet.Cells[row, col++].Value = item.result;
+                worksheet.Cells[row, col++].Value = item.direction;
+                worksheet.Cells[row, col++].Value = item.upravlenieName;
+                worksheet.Cells[row, col++].Value = item.otdelName;
+                worksheet.Cells[row, col++].Value = item.FIO;
+                worksheet.Cells[row, col++].Value = item.timeSpent;
+                worksheet.Cells[row, col++].Value = item.operationCount;
+                worksheet.Cells[row, col++].Value = item.operationPercentTotal;
+                worksheet.Cells[row, col++].Value = item.operationPercentOneDay;
+                worksheet.Cells[row, col++].Value = item.daysWorked;
+
+            }
+            col = 1;
+            worksheet.Column(col++).Width = 30;
+            worksheet.Column(col++).Width = 45;
+            worksheet.Column(col++).Width = 10;
+            worksheet.Column(col++).Width = 50;
+            worksheet.Column(col++).Width = 45;
+            worksheet.Column(col++).Width = 45;
+            worksheet.Column(col++).Width = 45;
+            worksheet.Column(col++).Width = 45;
+            worksheet.Column(col++).Width = 45;
+            worksheet.Column(col++).Width = 10;
+            worksheet.Column(col++).Width = 10;
+            worksheet.Column(col++).Width = 20;
+            worksheet.Column(col++).Width = 20;
+            worksheet.Column(col++).Width = 20;
+            worksheet.Column(col++).Width = 10;
+
+            string fileName = $"Reports\\Report_02_{Environment.UserName}{DateTime.Now.ToString($"ddMMyyyy_HHmmss")}.xlsx";
+            FileInfo newExcelFile = new FileInfo(fileName);
+            excel.SaveAs(newExcelFile);
+            excel.Dispose();
             System.Diagnostics.Process.Start(fileName);
         }
     }

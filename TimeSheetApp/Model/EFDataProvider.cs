@@ -6,6 +6,8 @@ using System.Data.Entity;
 using System.Data;
 using System.Windows;
 using TimeSheetApp.Model.EntitiesBase;
+using TimeSheetApp.Model.Reports;
+using System.Text;
 
 namespace TimeSheetApp.Model
 {
@@ -572,6 +574,10 @@ namespace TimeSheetApp.Model
                 case (0):
                     ExcelWorker.ExportDataTableToExcel(GetAnalyticsReport(analytics, start, end));
                     break;
+                case (1):
+                    Report_02 report = new Report_02(context, analytics);
+                    report.Generate(start, end);
+                    break;
             }
         }
 
@@ -787,12 +793,156 @@ namespace TimeSheetApp.Model
                     row["TimeStart"] = ReportEntity[i].TimeStart;
                     row["TimeEnd"] = ReportEntity[i].TimeEnd;
                     row["TimeSpent"] = ReportEntity[i].TimeSpent;
-                    row["BusinessBlockName"] = ReportEntity[i].BusinessBlockChoice_id;
-                    row["SupportsName"] = ReportEntity[i].SupportChoice_id;
+
+                    #region Добавление информации о мультивыборе
+
+                    StringBuilder choice = new StringBuilder();
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock1 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock1?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock2 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock2?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock3 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock3?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock4 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock4?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock5 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock5?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock6 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock6?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock7 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock7?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock8 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock8?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock9 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock9?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock10 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock10?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock11 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock11?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock12 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock12?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock13 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock13?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock14 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock14?.BusinessBlockName}; ");
+                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock15 != null)
+                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock15?.BusinessBlockName}; ");
+
+                    row["BusinessBlockName"] = choice.ToString();
+                    #endregion
+
+                    #region Добавление строки о мультивыборе саппорта
+                    choice.Clear();
+
+                    if (ReportEntity[i].SupportChoice.Support1 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support1?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support2 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support2?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support3 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support3?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support4 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support4?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support5 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support5?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support6 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support6?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support7 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support7?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support8 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support8?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support9 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support9?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support10 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support10?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support11 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support11?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support12 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support12?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support13 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support13?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support14 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support14?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support15 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support15?.Name}; ");
+                    if (ReportEntity[i].SupportChoice.Support16 != null)
+                        choice.Append($"{ReportEntity[i].SupportChoice.Support16?.Name}; ");
+
+                    row["SupportsName"] = choice.ToString();
+
+                    #endregion
+
                     row["ClientWaysName"] = ReportEntity[i].ClientWays.Name;
-                    row["EscalationsName"] = ReportEntity[i].EscalationChoice_id;
+
+                    #region добавление строки о мультивыбора эскалации
+
+                    choice.Clear();
+
+                    if (ReportEntity[i].EscalationChoice.Escalation1 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation1?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation2 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation2?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation3 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation3?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation4 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation4?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation5 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation5?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation6 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation6?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation7 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation7?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation8 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation8?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation9 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation9?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation10 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation10?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation11 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation11?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation12 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation12?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation13 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation13?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation14 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation14?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation15 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation15?.Name}; ");
+                    if (ReportEntity[i].EscalationChoice.Escalation16 != null)
+                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation16?.Name}; ");
+
+                    row["EscalationsName"] = choice.ToString();
+
+                    #endregion
+
                     row["FormatsName"] = ReportEntity[i].Formats.Name;
-                    row["RiskName"] = 0;
+
+                    #region добавление строки о мультивыборе риска
+
+                    choice.Clear();
+                    if(ReportEntity[i].RiskChoice.Risk1!=null)
+                        choice.Append($"{ReportEntity[i].RiskChoice.Risk1?.RiskName}; ");
+                    if (ReportEntity[i].RiskChoice.Risk2 != null)
+                        choice.Append($"{ReportEntity[i].RiskChoice.Risk2?.RiskName}; ");
+                    if (ReportEntity[i].RiskChoice.Risk3 != null)
+                        choice.Append($"{ReportEntity[i].RiskChoice.Risk3?.RiskName}; ");
+                    if (ReportEntity[i].RiskChoice.Risk4 != null)
+                        choice.Append($"{ReportEntity[i].RiskChoice.Risk4?.RiskName}; ");
+                    if (ReportEntity[i].RiskChoice.Risk5 != null)
+                        choice.Append($"{ReportEntity[i].RiskChoice.Risk5?.RiskName}; ");
+                    if (ReportEntity[i].RiskChoice.Risk6 != null)
+                        choice.Append($"{ReportEntity[i].RiskChoice.Risk6?.RiskName}; ");
+                    if (ReportEntity[i].RiskChoice.Risk7 != null)
+                        choice.Append($"{ReportEntity[i].RiskChoice.Risk7?.RiskName}; ");
+                    if (ReportEntity[i].RiskChoice.Risk8 != null)
+                        choice.Append($"{ReportEntity[i].RiskChoice.Risk8?.RiskName}; ");
+                    if (ReportEntity[i].RiskChoice.Risk9 != null)
+                        choice.Append($"{ReportEntity[i].RiskChoice.Risk9?.RiskName}; ");
+                    if (ReportEntity[i].RiskChoice.Risk10 != null)
+                        choice.Append($"{ReportEntity[i].RiskChoice.Risk10?.RiskName}; ");
+
+                    row["RiskName"] = choice.ToString();
+
+                    #endregion
                 }
             }
             #endregion
