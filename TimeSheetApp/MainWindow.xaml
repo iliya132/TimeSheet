@@ -261,7 +261,7 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Кабинет руководителя" Visibility="{Binding ReportAcess}">
+            <TabItem Header="Кабинет руководителя" >
                 <Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>

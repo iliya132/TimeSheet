@@ -122,7 +122,7 @@ namespace TimeSheetApp.ViewModel
         /// <summary>
         /// Общая длительность записей в коллекции HistoryRecords
         /// </summary>
-        public Visibility ReportAcess { get; set; }
+        //public Visibility ReportAcess { get; set; } //feature switched off
 
         #region Добавление нового процесса
         /// <summary>
@@ -314,7 +314,7 @@ namespace TimeSheetApp.ViewModel
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
             NewRecord.riskChoise_id = 2;
-            ReportAcess = EFDataProvider.isAnalyticHasAccess(CurrentUser);
+            //ReportAcess = EFDataProvider.isAnalyticHasAccess(CurrentUser); //feature switched off
             RaisePropertyChanged("ReportAcess");
         }
         private void updateSubjectHints()
