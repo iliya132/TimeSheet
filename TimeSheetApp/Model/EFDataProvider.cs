@@ -10,7 +10,7 @@ namespace TimeSheetApp.Model
 {
     class EFDataProvider : IEFDataProvider
     {
-        Model.TimeSheetDBEntities dataBase = new TimeSheetDBEntities();
+        TimeSheetDBEntities dataBase = new TimeSheetDBEntities();
         public EFDataProvider()
         {
 
@@ -412,6 +412,11 @@ namespace TimeSheetApp.Model
                 case (0):
                     ExcelWorker.ExportDataTableToExcel(GetAnalyticsReport(analytics, start, end));
                     break;
+                case (1):
+                    Reports.Report_02 report = new Reports.Report_02(this, dataBase);
+                    report.Generate(start, end);
+                    break;
+                    
             }
         }
 

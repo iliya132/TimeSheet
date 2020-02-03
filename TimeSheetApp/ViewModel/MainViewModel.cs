@@ -225,7 +225,8 @@ namespace TimeSheetApp.ViewModel
         #region Формирование отчета
         private List<string> _reportsAvailable = new List<string>()
         {
-            "Отчет по активности аналитиков"
+            "Отчет по активности аналитиков",
+            "Общий отчет о деятельности"
         };
 
         public List<string> ReportsAvailable
