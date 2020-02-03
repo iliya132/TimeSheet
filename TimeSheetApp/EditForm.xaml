@@ -57,7 +57,7 @@
             <Label Margin="5,0,0,0" Content="Эскалация:" Grid.Row="8"/>
             <Label Margin="5,0,0,0" Content="Формат:" Grid.Row="10"/>
             <Label Margin="5,0,0,0" Content="Риск:" Grid.Row="12"/>
-            <ComboBox Name="ProcessList" Grid.Row="1" ItemsSource="{Binding Processes}" DisplayMemberPath="procName" SelectedItem="{Binding EditedRecord.Process}"/>
+            <ComboBox Name="ProcessList" Grid.Row="1" ItemsSource="{Binding Processes}" DisplayMemberPath="ProcName" SelectedItem="{Binding EditedRecord.Process}"/>
             <xctk:CheckComboBox Name="BusinessList" Grid.Row="3" ItemsSource="{Binding BusinessBlock}" 
                                 DisplayMemberPath="BusinessBlockName" 
                                 SelectedItemsOverride="{Binding BusinessBlockChoiceCollection}">
@@ -97,7 +97,7 @@
                 <DatePicker Name="EditDatePicker" Width="150" SelectedDateChanged="EditDatePicker_SelectedDateChanged" Margin="0,10,0,10"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Label Content="Start" FontSize="16" VerticalAlignment="Center"/>
-                    <xctk:TimePicker Name="EditTimeStart" Value="{Binding EditedRecord.timeStart}" Margin="5,0,0,0" FontSize="16" TimeInterval="0:15:0">
+                    <xctk:TimePicker Name="EditTimeStart" Value="{Binding EditedRecord.TimeStart}" Margin="5,0,0,0" FontSize="16" TimeInterval="0:15:0">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="ValueChanged">
                                 <mvvm:EventToCommand Command="{Binding CheckTimeForIntersection}"/>
@@ -105,7 +105,7 @@
                         </i:Interaction.Triggers>
                     </xctk:TimePicker>
                     <Label Content="End" FontSize="16" Margin="20,0,0,0" VerticalAlignment="Center"/>
-                    <xctk:TimePicker Name="EditTimeEnd" Value="{Binding EditedRecord.timeEnd}" FontSize="16" Margin="5,0,0,0" TimeInterval="0:15:0">
+                    <xctk:TimePicker Name="EditTimeEnd" Value="{Binding EditedRecord.TimeEnd}" FontSize="16" Margin="5,0,0,0" TimeInterval="0:15:0">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="ValueChanged">
                                 <mvvm:EventToCommand Command="{Binding CheckTimeForIntersection}"/>

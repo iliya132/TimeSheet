@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using TimeSheetApp.Model.EntitiesBase;
 
 namespace TimeSheetApp.Model
 {
@@ -17,7 +18,7 @@ namespace TimeSheetApp.Model
         BusinessBlock[] GetBusinessBlocks();
         Supports[] GetSupports();
         ClientWays[] GetClientWays();
-        Escalations[] GetEscalation();
+        Escalation[] GetEscalation();
         Formats[] GetFormat();
         Risk[] GetRisks();
         ObservableCollection<Analytic> GetMyAnalyticsData(Analytic currentUser);
@@ -25,20 +26,19 @@ namespace TimeSheetApp.Model
         List<string> GetSubBlocksList();
         void AddActivity(TimeSheetTable activity);
         Analytic LoadAnalyticData();
-        Process LoadHistoryProcess(DateTime timeStart, Analytic user);
         void UpdateProcess(TimeSheetTable oldProcess, TimeSheetTable newProcess);
         void DeleteRecord(TimeSheetTable record);
         List<TimeSheetTable> LoadTimeSheetRecords(DateTime date, Analytic user);
         void GetReport(int ReportType, Analytic[] analytics, DateTime start, DateTime end);
         bool IsCollisionedWithOtherRecords(TimeSheetTable record);
-        int AddRiskChoice(riskChoise riskChoise);
-        int AddSupportChoiceSet(supportChoice _suppChoice);
+        int AddRiskChoice(RiskChoice RiskChoice);
+        int AddSupportChoiceSet(SupportChoice _suppChoice);
         int AddEscalationChoice(EscalationChoice escalationChoice);
         int AddBusinessBlockChoice(BusinessBlockChoice BBChoice);
-        Visibility isAnalyticHasAccess(Analytic currentUser);
-        Risk[] LoadRiskChoice(riskChoise choice);
-        Escalations[] LoadEscalationChoice(EscalationChoice escalationChoice);
-        Supports[] LoadSupportsChoice(supportChoice supportChoice);
+        Visibility IsAnalyticHasAccess(Analytic currentUser);
+        Risk[] LoadRiskChoice(RiskChoice choice);
+        Escalation[] LoadEscalationChoice(EscalationChoice escalationChoice);
+        Supports[] LoadSupportsChoice(SupportChoice SupportChoice);
         BusinessBlock[] LoadBusinessBlockChoice(BusinessBlockChoice businessBlockChoice);
     }
 }

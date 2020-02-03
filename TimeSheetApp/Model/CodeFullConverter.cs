@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using TimeSheetApp.Model;
+using TimeSheetApp.Model.EntitiesBase;
+
 namespace TimeSheetApp
 {
     class CodeFullConverter : IValueConverter
@@ -12,12 +14,12 @@ namespace TimeSheetApp
             if (value is Process)
             {
                 Process ConvertedProcess = value as Process;
-                return ($"{ConvertedProcess.Block_id}.{ConvertedProcess.SubBlockId}.{ConvertedProcess.id}");
+                return ($"{ConvertedProcess.Block_Id}.{ConvertedProcess.SubBlock_Id}.{ConvertedProcess.Id}");
             }
             else if (value is TimeSheetTable)
             {
                 TimeSheetTable ConvertedTimeSheetTable = value as TimeSheetTable;
-                return ($"{ConvertedTimeSheetTable.Process.Block_id}.{ConvertedTimeSheetTable.Process.SubBlockId}.{ConvertedTimeSheetTable.Process.id}");
+                return ($"{ConvertedTimeSheetTable.Process.Block_Id}.{ConvertedTimeSheetTable.Process.SubBlock_Id}.{ConvertedTimeSheetTable.Process.Id}");
             }
             else
             {
@@ -38,11 +40,11 @@ namespace TimeSheetApp
             if (value is Process)
             {
                 Process proc = value as Process;
-                return $"{proc.Block1.blockName}\r\n{proc.SubBlockNav.subblockName}\r\n{proc.procName}";
+                return $"{proc.Block.BlockName}\r\n{proc.SubBlock.SubblockName}\r\n{proc.ProcName}";
             } else if (value is TimeSheetTable)
             {
                 Process proc = (value as TimeSheetTable).Process;
-                return $"{proc.Block1.blockName}\r\n{proc.SubBlockNav.subblockName}\r\n{proc.procName}";
+                return $"{proc.Block.BlockName}\r\n{proc.SubBlock.SubblockName}\r\n{proc.ProcName}";
             }
             else
             {

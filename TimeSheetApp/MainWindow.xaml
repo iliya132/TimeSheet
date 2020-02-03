@@ -71,7 +71,7 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="Процесс" Width="297" DisplayMemberBinding="{Binding Path=procName}"/>
+                                    <GridViewColumn Header="Процесс" Width="297" DisplayMemberBinding="{Binding Path=ProcName}"/>
                                 </GridView>
                             </ListView.View>
                             <ListView.GroupStyle>
@@ -132,9 +132,9 @@
                                 </i:Interaction.Triggers>
                             </DatePicker>
                             <xctk:TimePicker Name="TimeIn" Width="70" Margin="5,0,0,0" HorizontalAlignment="Left" TextAlignment="Center" TimeInterval="0:15:0" Grid.Row="2"
-                                 Value="{Binding NewRecord.timeStart}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0"/>
+                                 Value="{Binding NewRecord.TimeStart}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0"/>
                             <xctk:TimePicker Name="Timeout" Width="70" Margin="5,0,0,0" HorizontalAlignment="Right" TextAlignment="Center" TimeInterval="0:15:0" Grid.Row="2"
-                                 Value="{Binding NewRecord.timeEnd}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0"/>
+                                 Value="{Binding NewRecord.TimeEnd}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0"/>
                             
                         </StackPanel>
 
@@ -170,7 +170,7 @@
                             <Label Content="Формат" FontWeight="Bold"/>
                             <ComboBox Name="formatCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding FormatList}" SelectedItem="{Binding NewRecord.Formats}" SelectedIndex="0"/>
                             <Label Content="Риск" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="riskCombo" Height="30" ItemsSource="{Binding RiskCol}" DisplayMemberPath="riskName" SelectedItemsOverride="{Binding NewRiskChoiceCollection}">
+                            <xctk:CheckComboBox Name="riskCombo" Height="30" ItemsSource="{Binding RiskCol}" DisplayMemberPath="RiskName" SelectedItemsOverride="{Binding NewRiskChoiceCollection}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="ItemSelectionChanged">
                                         <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding RiskChoiceCollection}"/>
@@ -194,7 +194,7 @@
                             <Usercontrols:HintTextBox x:Name="Subject" Margin="0,0,5,0" Height="30" Text="{Binding NewRecord.Subject, Mode=TwoWay}" ItemsSource="{Binding SubjectHints, Mode=OneWay}" IgnoreTextChange="{Binding IgnoreSubjectTextChange}"/>
                             <Label Content="Комментарий" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
                             <TextBox Name="Comment" Margin="0,0,5,0" Height="150" TextWrapping="Wrap" AcceptsReturn="True" 
-                         Text="{Binding NewRecord.comment}"/>
+                         Text="{Binding NewRecord.Comment}"/>
                         </StackPanel>
 
                     </Grid>
@@ -213,8 +213,8 @@
                                 <ListView.View>
                                     <GridView>
 
-                                    <GridViewColumn Header="Start" Width="50" DisplayMemberBinding="{Binding Path=timeStart, StringFormat={}{0:HH:mm}}"/>
-                                    <GridViewColumn Header="End" Width="50" DisplayMemberBinding="{Binding Path=timeEnd, StringFormat={}{0:HH:mm}}"/>
+                                    <GridViewColumn Header="Start" Width="50" DisplayMemberBinding="{Binding Path=TimeStart, StringFormat={}{0:HH:mm}}"/>
+                                    <GridViewColumn Header="End" Width="50" DisplayMemberBinding="{Binding Path=TimeEnd, StringFormat={}{0:HH:mm}}"/>
                                         <GridViewColumn Header="Процесс" Width="50" >
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
@@ -275,20 +275,51 @@
                             </Grid.RowDefinitions>
                             <TextBlock Text="Сотрудники под моим руководством:" FontSize="16" VerticalAlignment="Center"/>
                             <DataGrid Name="AnalyticTable" 
-						              ItemsSource="{Binding SubordinateEmployees}" Grid.Row="1" 
+						              ItemsSource="{Binding SubordinatedOrdered}" Grid.Row="1" 
 						              AutoGenerateColumns="False"
 						              IsReadOnly="True"
                                       AlternatingRowBackground="LightGray"
                                       AlternationCount="2"
+                                      DisplayMemberPath="FIO"
 						  >
                                 <DataGrid.Columns>
                                     
-                                    <DataGridTextColumn Header="Фамилия" Binding="{Binding LastName}"/>
-                                    <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}"/>
-                                    <DataGridTextColumn Header="Отчество" Binding="{Binding FatherName}"/>
+                                    <DataGridTextColumn Header="ФИО" Binding="{Binding FIO}"/>
+
                                     <DataGridTextColumn Header="Login" Binding="{Binding userName}"/>
+                                    <DataGridTextColumn Header="Login" Binding="{Binding FirstStructure}"/>
+                                    <DataGridTextColumn Header="Login" Binding="{Binding SecondStructure}"/>
+                                    <DataGridTextColumn Header="Login" Binding="{Binding ThirdStructure}"/>
+                                    <DataGridTextColumn Header="Login" Binding="{Binding FourStructure}"/>
                                 </DataGrid.Columns>
+                                <DataGrid.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.ContainerStyle>
+                                        <Style TargetType="{x:Type GroupItem}">
+                                            <Setter Property="Margin" Value="0,0,0,5"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="{x:Type GroupItem}">
+                                                        <Expander IsExpanded="True">
+                                                            <Expander.Header>
+                                                                <DockPanel>
+                                                                    <TextBlock Text="{Binding Path=Name}" Margin="5,0,0,0" Width="100"/>
+                                                                    <TextBlock Text="{Binding Path=ItemCount}"/>
+                                                                </DockPanel>
+                                                            </Expander.Header>
+                                                            <Expander.Content>
+                                                                <ItemsPresenter />
+                                                            </Expander.Content>
+                                                        </Expander>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </GroupStyle.ContainerStyle>
+                                </GroupStyle>
+                                </DataGrid.GroupStyle>
                             </DataGrid>
+                            
                         </Grid>
 
                         <StackPanel Orientation="Vertical" Grid.Column="1">

@@ -18,18 +18,22 @@ namespace TimeSheetApp
             InitializeComponent();
             #region Группировка добавленных активностей по времени начала
             CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(TimeSpanListView.ItemsSource);
-            view.SortDescriptions.Add(new SortDescription("timeStart", ListSortDirection.Ascending));
+            view.SortDescriptions.Add(new SortDescription("TimeStart", ListSortDirection.Ascending));
             #endregion
 
             #region группировка аналитиков в подчинении
             CollectionView AnalyticsView = (CollectionView)CollectionViewSource.GetDefaultView(AnalyticTable.ItemsSource);
-            AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("OtdelTableId"));
+            AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("FirstStructure"));
+            AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("SecondStructure"));
+            AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("ThirdStructure"));
+            AnalyticsView.GroupDescriptions.Add(new PropertyGroupDescription("FourStructure"));
             #endregion
 
             CollectionView viewProcesses = (CollectionView)CollectionViewSource.GetDefaultView(ProcessList.ItemsSource);
             TimeIn.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 0, 0);
             Timeout.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 20, 0);
             DateBox.SelectedDate = DateTime.Now;
+
         }
         private void HandleError(Exception exceptionObject)
         {
