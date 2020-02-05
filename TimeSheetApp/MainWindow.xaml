@@ -23,7 +23,7 @@
         </Button>
         <TabControl>
             <TabItem Header="Учет времени">
-            <Grid>
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
@@ -47,7 +47,7 @@
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </TextBox>
-                            
+
                         </StackPanel>
                         <ListView Name = "ProcessList" ItemsSource="{Binding ProcessFiltered}" SelectedItem="{Binding NewRecord.Process}" Margin="0,0,10,0" Grid.Row="1" SelectedIndex="0">
                             <i:Interaction.Triggers>
@@ -102,9 +102,9 @@
                             </ListView.GroupStyle>
                         </ListView>
                         <StackPanel Orientation="Vertical" Grid.Row="2">
-                        <Label Content="Описание:" FontSize="16" FontWeight="Bold" />
-                        <TextBox Margin="5,5,10,5" Text="{Binding ElementName=ProcessList, Path=SelectedItem.Comment}"  Height="auto" TextWrapping="Wrap" IsReadOnly="True" OverridesDefaultStyle="True" Background="{x:Null}"/>
-                            
+                            <Label Content="Описание:" FontSize="16" FontWeight="Bold" />
+                            <TextBox Margin="5,5,10,5" Text="{Binding ElementName=ProcessList, Path=SelectedItem.Comment}"  Height="auto" TextWrapping="Wrap" IsReadOnly="True" OverridesDefaultStyle="True" Background="{x:Null}"/>
+
                         </StackPanel>
                     </Grid>
                     <Grid Grid.Column="1">
@@ -123,7 +123,7 @@
                             <Image Name="StartIcon" Source="Resource/AddClock.png" HorizontalAlignment="Left"  Margin="60,2,0,2" Width="25" MouseDown="TimeIcon_MouseDown"/>
                             <Image Name="EndIcon" Source="Resource/DeleteClock.png" HorizontalAlignment="Right"  Margin="50,2,0,2" Width="25" MouseDown="TimeIcon_MouseDown"/>
                         </StackPanel>
-                        
+
                         <StackPanel Grid.Row="1" Orientation="Horizontal">
                             <DatePicker Name="DateBox" Grid.Row="0" HorizontalAlignment="Right" Width="100" SelectedDateChanged="DateBox_SelectedDateChanged" SelectedDate="{Binding CurrentDate}">
                                 <i:Interaction.Triggers>
@@ -136,7 +136,7 @@
                                  Value="{Binding NewRecord.TimeStart}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0"/>
                             <xctk:TimePicker Name="Timeout" Width="70" Margin="5,0,0,0" HorizontalAlignment="Right" TextAlignment="Center" TimeInterval="0:15:0" Grid.Row="2"
                                  Value="{Binding NewRecord.TimeEnd}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0"/>
-                            
+
                         </StackPanel>
 
 
@@ -205,58 +205,58 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <ListView Name="TimeSpanListView"  ItemsSource="{Binding HistoryRecords}" Margin="10,0,0,0" Grid.Row="0">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseDoubleClick">
-                                        <mvvm:EventToCommand Command="{Binding Main.EditProcess, Source={StaticResource Locator}}"
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <mvvm:EventToCommand Command="{Binding Main.EditProcess, Source={StaticResource Locator}}"
                                                 CommandParameter="{Binding ElementName=TimeSpanListView, Path=SelectedItem}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                                <ListView.View>
-                                    <GridView>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <ListView.View>
+                                <GridView>
 
                                     <GridViewColumn Header="Start" Width="50" DisplayMemberBinding="{Binding Path=TimeStart, StringFormat={}{0:HH:mm}}"/>
                                     <GridViewColumn Header="End" Width="50" DisplayMemberBinding="{Binding Path=TimeEnd, StringFormat={}{0:HH:mm}}"/>
-                                        <GridViewColumn Header="Процесс" Width="50" >
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <Grid>
-                                                        <TextBlock Text="{Binding Converter={StaticResource CodeFullConverter}}" ToolTip="{Binding Converter={StaticResource CodeDescriptionConverter}}"/>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Header="Тема" Width="100" DisplayMemberBinding="{Binding Path=Subject}"/>
-                                        <GridViewColumn Width="40" Header="Ред.">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <Grid>
-                                                        <Button Width="25" 
+                                    <GridViewColumn Header="Процесс" Width="50" >
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <TextBlock Text="{Binding Converter={StaticResource CodeFullConverter}}" ToolTip="{Binding Converter={StaticResource CodeDescriptionConverter}}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Тема" Width="100" DisplayMemberBinding="{Binding Path=Subject}"/>
+                                    <GridViewColumn Width="40" Header="Ред.">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Button Width="25" 
                                                 Command="{Binding Main.EditProcess, Source={StaticResource Locator}}"
                                                 CommandParameter="{Binding}">
-                                                            <Image Source="Resource/EditIcon.png" Width="15" MinWidth="15"/>
-                                                        </Button>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Width="40" Header="Удал.">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <Grid>
-                                                        <Button Width="25"
+                                                        <Image Source="Resource/EditIcon.png" Width="15" MinWidth="15"/>
+                                                    </Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="40" Header="Удал.">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Button Width="25"
                                                 Command="{Binding Main.DeleteProcess, Source={StaticResource Locator}}"
                                                 CommandParameter="{Binding}">
-                                                            <Image Source="Resource/DeleteIcon.png" Width="20" MinWidth="15"/>
-                                                        </Button>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
-                            <StackPanel Orientation="Horizontal" Margin="20,5,0,0" Grid.Row="1">
-                                <Image Source="Resource/timerIcon.png" Width="25" VerticalAlignment="Center"/>
+                                                        <Image Source="Resource/DeleteIcon.png" Width="20" MinWidth="15"/>
+                                                    </Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                        <StackPanel Orientation="Horizontal" Margin="20,5,0,0" Grid.Row="1">
+                            <Image Source="Resource/timerIcon.png" Width="25" VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding TotalDurationInMinutes, StringFormat=Общая длительность {0:hh\\:mm}}"  FontSize="18" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
@@ -305,78 +305,32 @@
                                 <TreeView.ItemTemplate>
                                     <HierarchicalDataTemplate ItemsSource="{Binding Path=Nodes}">
                                         <StackPanel>
-                                            <TextBlock  Width="1500" FontWeight="ExtraBold" UseLayoutRounding="False" Visibility="{Binding invertedContainsAnalytic}" Height="20">
+                                            <TextBlock  Width="1500" FontWeight="ExtraBold" UseLayoutRounding="False"  Height="20"><!--Visibility="{Binding invertedContainsAnalytic}"-->
                                                     <StackPanel Orientation="Horizontal">
+                                                        <CheckBox IsChecked="{Binding IsSelected}" />
                                                         <TextBlock Text="{Binding StructureName}"/>
                                                         <TextBlock Text="{Binding Path=ChildCount, StringFormat=. Сотрудников: {0}}"/>
                                                     </StackPanel>
+
                                                 </TextBlock>
-                                            <Expander Visibility="{Binding ContainsAnalytic}">
-                                                <Expander.Header>
-                                                    <StackPanel Orientation="Horizontal" Width="1500" Height="20">
-                                                        <TextBlock Text="{Binding StructureName}" FontWeight="ExtraBold"/>
-                                                        <TextBlock Text="{Binding Path=ChildCount, StringFormat=. Сотрудников: {0}}" FontWeight="ExtraBold" />
-                                                    </StackPanel>
-                                                </Expander.Header>
+                                            <StackPanel Orientation="Vertical" Visibility="{Binding ContainsAnalytic}">
                                                 <DataGrid ItemsSource="{Binding Path=Analytics}" AutoGenerateColumns="False" HeadersVisibility="None" AlternationCount="1" GridLinesVisibility="None">
                                                     <DataGrid.Columns>
+                                                        <DataGridTemplateColumn>
+                                                            <DataGridTemplateColumn.CellTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox IsChecked="{Binding Selected}"/>
+                                                                </DataTemplate>
+                                                            </DataGridTemplateColumn.CellTemplate>
+                                                        </DataGridTemplateColumn>
                                                         <DataGridTextColumn Binding="{Binding FIO}" />
                                                     </DataGrid.Columns>
                                                 </DataGrid>
-                                            </Expander>
+                                            </StackPanel>
                                         </StackPanel>
                                     </HierarchicalDataTemplate>
-
                                 </TreeView.ItemTemplate>
-                                
-
                             </TreeView>
-                            <!--<DataGrid Name="AnalyticTable" 
-						              ItemsSource="{Binding SubordinatedOrdered}" Grid.Row="1" 
-						              AutoGenerateColumns="False"
-						              IsReadOnly="True"
-                                      AlternatingRowBackground="LightGray"
-                                      AlternationCount="2"
-                                      DisplayMemberPath="FIO"
-						  >
-                                <DataGrid.Columns>
-                                    
-                                    <DataGridTextColumn Header="ФИО" Binding="{Binding FIO}"/>
-
-                                    <DataGridTextColumn Header="Login" Binding="{Binding userName}"/>
-                                    <DataGridTextColumn Header="Login" Binding="{Binding FirstStructure}"/>
-                                    <DataGridTextColumn Header="Login" Binding="{Binding SecondStructure}"/>
-                                    <DataGridTextColumn Header="Login" Binding="{Binding ThirdStructure}"/>
-                                    <DataGridTextColumn Header="Login" Binding="{Binding FourStructure}"/>
-                                </DataGrid.Columns>
-                                --><!--<DataGrid.GroupStyle>
-                                <GroupStyle HidesIfEmpty="True">
-                                    <GroupStyle.ContainerStyle>
-                                        <Style TargetType="{x:Type GroupItem}">
-                                            <Setter Property="Margin" Value="0,0,0,5"/>
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="{x:Type GroupItem}">
-                                                        <Expander IsExpanded="True">
-                                                            <Expander.Header>
-                                                                <DockPanel>
-                                                                    <TextBlock Text="{Binding Path=Name}" Margin="5,0,0,0" Width="100"/>
-                                                                    <TextBlock Text="{Binding Path=ItemCount}"/>
-                                                                </DockPanel>
-                                                            </Expander.Header>
-                                                            <Expander.Content>
-                                                                <ItemsPresenter />
-                                                            </Expander.Content>
-                                                        </Expander>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Style>
-                                    </GroupStyle.ContainerStyle>
-                                </GroupStyle>
-                                </DataGrid.GroupStyle>--><!--
-                            </DataGrid>-->
-                            
                         </Grid>
 
                         <StackPanel Orientation="Vertical" Grid.Column="1">
@@ -388,16 +342,32 @@
                                 <Label Content="Конечная дата:"/>
                                 <DatePicker Name="EndDatePicker" SelectedDate="{Binding EndReportDate}" />
                             </StackPanel>
-                            <!--<Button Name="GetReport" Content="Выгрузить отчет" Height="50" Margin="5,5,5,10" 
-                                    Command="{Binding GetReport}" 
-                                    CommandParameter="{Binding ElementName=AnalyticTable, Path=SelectedItems}"/>-->
+                            <Button Name="GetReport" Content="Выгрузить отчет" Height="50" Margin="5,5,5,10" 
+                                    Command="{Binding GetReport}"/>
+                            <TextBlock Text="Выбранные сотрудники:"/>
+                            <!--<DataGrid Name="SelectedAnalyticsTable" ItemsSource="{Binding SelectedAnalytics}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="10">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding LastName}" Header="Фамилия" MinWidth="150"/>
+                                    <DataGridTextColumn Binding="{Binding FirstName}" Header="Имя" MinWidth="150"/>
+                                    <DataGridTextColumn Binding="{Binding FatherName}" Header="Отчество" MinWidth="150"/>
+                                </DataGrid.Columns>
+                            </DataGrid>-->
+                            <ListView Name="SelectedAnalyticsTable" ItemsSource="{Binding SelectedAnalytics}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Фамилия" Width="150" DisplayMemberBinding="{Binding LastName}"/>
+                                        <GridViewColumn Header="Имя" Width="150" DisplayMemberBinding="{Binding FirstName}"/>
+                                        <GridViewColumn Header="Отчество" Width="150" DisplayMemberBinding="{Binding FatherName}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
                         </StackPanel>
                     </Grid>
                 </Grid>
             </TabItem>
 
         </TabControl>
-        
-       
+
+
     </Grid>
 </Window>

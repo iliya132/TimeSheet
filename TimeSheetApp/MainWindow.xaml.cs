@@ -138,5 +138,10 @@ namespace TimeSheetApp
         {
             
         }
+
+        private void SelectStruct_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

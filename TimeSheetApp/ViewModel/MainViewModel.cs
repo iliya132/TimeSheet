@@ -243,8 +243,8 @@ namespace TimeSheetApp.ViewModel
             set { _reportsAvailable = value; }
         }
 
-        private List<Analytic> _selectedAnalytics = new List<Analytic>();
-        public List<Analytic> SelectedAnalytics { get => _selectedAnalytics; set => _selectedAnalytics = value; }
+        private ObservableCollection<Analytic> _selectedAnalytics = new ObservableCollection<Analytic>();
+        public ObservableCollection<Analytic> SelectedAnalytics { get => _selectedAnalytics; set => _selectedAnalytics = value; }
         public int SelectedReport { get; set; }
         private DateTime _startReportDate = DateTime.Now.AddDays(-7);
         public DateTime StartReportDate
@@ -294,12 +294,13 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand<TimeSheetTable> DeleteProcess { get; }
         public RelayCommand ReloadTimeSheet { get; }
         public RelayCommand<string> FilterProcesses { get; }
-        public RelayCommand ExportReport { get; }
         public RelayCommand<Process> LoadSelectionForSelectedProcess { get; }
         public RelayCommand ReloadHistoryRecords { get; }
         public RelayCommand CheckTimeForIntersection { get; }
-        public RelayCommand<IEnumerable<object>> GetReport { get; }
+        public RelayCommand GetReport { get; }
         public RelayCommand StoreSelection { get; }
+        public RelayCommand ReportSelectionStore { get; }
+
 
         #endregion
 
@@ -315,17 +316,28 @@ namespace TimeSheetApp.ViewModel
             CheckTimeForIntersection = new RelayCommand(CheckTimeForIntesectionMethod);
             LoadSelectionForSelectedProcess = new RelayCommand<Process>(LoadSelection);
             FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
-            ExportReport = new RelayCommand(GetReportMethod);
-            GetReport = new RelayCommand<IEnumerable<object>>(GetReportMethod);
+            GetReport = new RelayCommand(GetReportMethod);
             ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
             StoreSelection = new RelayCommand(StoreMultiplyChoice);
+            ReportSelectionStore = new RelayCommand(ReportSelectionUpdate);
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
             NewRecord.RiskChoice_id = 2;
             ReportAcess = EFDataProvider.IsAnalyticHasAccess(CurrentUser);
             RaisePropertyChanged(nameof(ReportAcess));
-            TestNewEF();
             GenerateNodes();
+        }
+
+        private void ReportSelectionUpdate()
+        {
+            SelectedAnalytics.Clear();
+            foreach(AnalyticOrdered analytic in SubordinatedOrdered)
+            {
+                if (analytic.Selected)
+                {
+                    SelectedAnalytics.Add(analytic.Analytic);
+                }
+            }
         }
 
         private void TestNewEF()
@@ -666,17 +678,27 @@ namespace TimeSheetApp.ViewModel
             SubordinateEmployees = EFDataProvider.GetMyAnalyticsData(CurrentUser);
             SubordinatedOrdered = GetAnalyticOrdereds(SubordinateEmployees);
             UpdateTimeSpan();
-            defBlock = BusinessBlock[0];
         }
         private ObservableCollection<AnalyticOrdered> GetAnalyticOrdereds(IEnumerable<Analytic> analytics)
         {
             ObservableCollection<AnalyticOrdered> exportVal = new ObservableCollection<AnalyticOrdered>();
             foreach (Analytic analytic in analytics)
             {
-                exportVal.Add(new AnalyticOrdered(analytic));
+                AnalyticOrdered ordered = new AnalyticOrdered(analytic);
+                ordered.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(Ordered_PropertyChanged);
+                exportVal.Add(ordered);
             }
             return exportVal;
         }
+
+        private void Ordered_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Equals("Selected"))
+            {
+                ReportSelectionUpdate();
+            }
+        }
+
         private void UpdateTimeSpan()
         {
             HistoryRecords.Clear();
