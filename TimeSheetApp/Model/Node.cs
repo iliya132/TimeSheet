@@ -22,6 +22,16 @@ namespace TimeSheetApp.Model
                 return ContainsAnalytic == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
             }
         }
+        private bool isSelected = false;
+        public bool IsSelected
+        {
+            get { return isSelected; }
+            set
+            {
+                selectChild(value, this);
+                
+            }
+        }
         public string StructureName { get; set; }
         private ObservableCollection<Node> _childNodes = new ObservableCollection<Node>();
         private int _childCount = 0;
@@ -122,6 +132,20 @@ namespace TimeSheetApp.Model
                 {
                     PrintNodes(childNode);
                 }
+            }
+        }
+        private void selectChild(bool val, Node node)
+        {
+            node.isSelected = val;
+            node.OnPropertyChanged("IsSelected");
+            foreach (Node childNode in node.Nodes)
+            {
+                selectChild(val, childNode);
+
+            }
+            foreach (AnalyticOrdered analytic in node.Analytics)
+            {
+                analytic.Selected = val;
             }
         }
 
