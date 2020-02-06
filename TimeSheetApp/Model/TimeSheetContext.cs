@@ -8,7 +8,7 @@ using TimeSheetApp.Model.EntitiesBase;
 
 namespace TimeSheetApp.Model
 {
-    class TimeSheetContext :DbContext
+    public class TimeSheetContext :DbContext
     {
         public TimeSheetContext() : base("TimeSheetDBEntities")
         { }

@@ -3,9 +3,12 @@ using GalaSoft.MvvmLight.Command;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using TimeSheetApp.Model;
+using TimeSheetApp.Model.EntitiesBase;
+
 namespace TimeSheetApp.ViewModel
 {
     public class MainViewModel : ViewModelBase
@@ -56,8 +59,8 @@ namespace TimeSheetApp.ViewModel
         /// <summary>
         /// Эскалации, доступные для выбора
         /// </summary>
-        private Escalations[] _escalations;
-        public Escalations[] Escalations { get => _escalations; set => _escalations = value; }
+        private Escalation[] _escalations;
+        public Escalation[] Escalations { get => _escalations; set => _escalations = value; }
         #endregion
 
         #region Исторические записи
@@ -72,16 +75,19 @@ namespace TimeSheetApp.ViewModel
         /// <summary>
         /// Список сотрудников в подчинении у текущего пользователя
         /// </summary>
-        private ObservableCollection<Analytic> _subordinateEmployees;
+        private ObservableCollection<Analytic> _subordinateEmployees = new ObservableCollection<Analytic>();
         public ObservableCollection<Analytic> SubordinateEmployees
         {
             get { return _subordinateEmployees; }
             set { _subordinateEmployees = value; }
         }
-        /// <summary>
-        /// Выбранные сотрудники
-        /// </summary>
-        private List<Analytic> SelectedEmployees = new List<Analytic>();
+        private ObservableCollection<AnalyticOrdered> subordinatedOrdered = new ObservableCollection<AnalyticOrdered>();
+
+        public ObservableCollection<AnalyticOrdered> SubordinatedOrdered
+        {
+            get { return subordinatedOrdered; }
+            set { subordinatedOrdered = value; }
+        }
 
         #endregion
 
@@ -91,8 +97,8 @@ namespace TimeSheetApp.ViewModel
         #region editForm multiChoice
         private ObservableCollection<Risk> riskChoiceCollection = new ObservableCollection<Risk>();
         public ObservableCollection<Risk> RiskChoiceCollection { get => riskChoiceCollection; set => riskChoiceCollection = value; }
-        private ObservableCollection<Escalations> _escalationsChoiceCollection = new ObservableCollection<Escalations>();
-        public ObservableCollection<Escalations> EscalationsChoiceCollection { get => _escalationsChoiceCollection; set => _escalationsChoiceCollection = value; }
+        private ObservableCollection<Escalation> _escalationsChoiceCollection = new ObservableCollection<Escalation>();
+        public ObservableCollection<Escalation> EscalationsChoiceCollection { get => _escalationsChoiceCollection; set => _escalationsChoiceCollection = value; }
         private ObservableCollection<BusinessBlock> _businessBlockChoiceCollection = new ObservableCollection<BusinessBlock>();
         public ObservableCollection<BusinessBlock> BusinessBlockChoiceCollection { get => _businessBlockChoiceCollection; set => _businessBlockChoiceCollection = value; }
         private ObservableCollection<Supports> _supportsChoiceCollection = new ObservableCollection<Supports>();
@@ -102,8 +108,8 @@ namespace TimeSheetApp.ViewModel
         #region MainForm multiChoiceCollections
         private ObservableCollection<Risk> _newRiskChoiceCollection = new ObservableCollection<Risk>();
         public ObservableCollection<Risk> NewRiskChoiceCollection { get => _newRiskChoiceCollection; set => _newRiskChoiceCollection = value; }
-        private ObservableCollection<Escalations> _newEscalationsChoiceCollection = new ObservableCollection<Escalations>();
-        public ObservableCollection<Escalations> NewEscalationsChoiceCollection { get => _newEscalationsChoiceCollection; set => _newEscalationsChoiceCollection = value; }
+        private ObservableCollection<Escalation> _newEscalationsChoiceCollection = new ObservableCollection<Escalation>();
+        public ObservableCollection<Escalation> NewEscalationsChoiceCollection { get => _newEscalationsChoiceCollection; set => _newEscalationsChoiceCollection = value; }
         private ObservableCollection<BusinessBlock> _newBusinessBlockChoiceCollection = new ObservableCollection<BusinessBlock>();
         public ObservableCollection<BusinessBlock> NewBusinessBlockChoiceCollection { get => _newBusinessBlockChoiceCollection; set => _newBusinessBlockChoiceCollection = value; }
         private ObservableCollection<Supports> _newSupportsChoiceCollection = new ObservableCollection<Supports>();
@@ -122,7 +128,7 @@ namespace TimeSheetApp.ViewModel
         /// <summary>
         /// Общая длительность записей в коллекции HistoryRecords
         /// </summary>
-        //public Visibility ReportAcess { get; set; } //feature switched off
+        //public Visibility ReportAcess { get; set; }
 
         #region Добавление нового процесса
         /// <summary>
@@ -151,13 +157,13 @@ namespace TimeSheetApp.ViewModel
                 _currentBusinessBlock = value;
             }
         }
-        private supportChoice _currentSupports = new supportChoice();
-        public supportChoice CurrentSupports
+        private SupportChoice _currentSupports = new SupportChoice();
+        public SupportChoice CurrentSupports
         {
             get { return _currentSupports; }
             set
             {
-                NewRecord.supportChoice = value;
+                NewRecord.SupportChoice = value;
                 _currentSupports = value;
             }
         }
@@ -197,7 +203,7 @@ namespace TimeSheetApp.ViewModel
             get { return _currentRisk; }
             set
             {
-                NewRecord.riskChoise_id = value.id;
+                NewRecord.RiskChoice_id = value.Id;
                 _currentRisk = value;
             }
         }
@@ -226,7 +232,7 @@ namespace TimeSheetApp.ViewModel
         private List<string> _reportsAvailable = new List<string>()
         {
             "Отчет по активности аналитиков",
-            "Общий отчет о деятельности"
+            "Ресурсный план"
         };
 
         public List<string> ReportsAvailable
@@ -254,9 +260,9 @@ namespace TimeSheetApp.ViewModel
 
         #region Мультивыбор
 
-        riskChoise editRiskChoice = new riskChoise();
+        RiskChoice editRiskChoice = new RiskChoice();
         BusinessBlockChoice editBusinessBlockChoice = new BusinessBlockChoice();
-        supportChoice editSupportChoice = new supportChoice();
+        SupportChoice editSupportChoice = new SupportChoice();
         EscalationChoice editEscalationChoice = new EscalationChoice();
         public BusinessBlock defBlock;
         #endregion
@@ -268,14 +274,14 @@ namespace TimeSheetApp.ViewModel
                 TimeSpan totalSpan = new TimeSpan();
                 foreach (TimeSheetTable record in HistoryRecords)
                 {
-                    totalSpan += record.timeEnd - record.timeStart;
+                    totalSpan += record.TimeEnd - record.TimeStart;
                 }
                 return totalSpan;
             }
         }
         DateTime _currentDate = DateTime.Now;
         public DateTime CurrentDate { get => _currentDate; set => _currentDate = value; }
-        private Analytic _currentUser;
+        private Analytic _currentUser = new Analytic();
         public Analytic CurrentUser { get => _currentUser; set => _currentUser = value; }
         private bool isEditState = false;
         #endregion
@@ -286,7 +292,6 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand<TimeSheetTable> DeleteProcess { get; }
         public RelayCommand ReloadTimeSheet { get; }
         public RelayCommand<string> FilterProcesses { get; }
-        public RelayCommand ExportReport { get; }
         public RelayCommand<Process> LoadSelectionForSelectedProcess { get; }
         public RelayCommand ReloadHistoryRecords { get; }
         public RelayCommand CheckTimeForIntersection { get; }
@@ -294,10 +299,16 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand StoreSelection { get; }
 
         #endregion
-
+        private void writeLog(string msg)
+        {
+            using (StreamWriter sw = new StreamWriter($"{Environment.UserName}_exception.txt", true)){
+                sw.WriteLine(msg);
+            }
+        }
         public MainViewModel(IEFDataProvider dataProvider)
         {
             EFDataProvider = dataProvider;
+
             FillDataCollections();
             updateSubjectHints();
             AddProcess = new RelayCommand<TimeSheetTable>(AddProcessMethod);
@@ -307,16 +318,16 @@ namespace TimeSheetApp.ViewModel
             CheckTimeForIntersection = new RelayCommand(CheckTimeForIntesectionMethod);
             LoadSelectionForSelectedProcess = new RelayCommand<Process>(LoadSelection);
             FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
-            ExportReport = new RelayCommand(GetReportMethod);
             GetReport = new RelayCommand<IEnumerable<object>>(GetReportMethod);
             ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
             StoreSelection = new RelayCommand(StoreMultiplyChoice);
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
-            NewRecord.riskChoise_id = 2;
-            //ReportAcess = EFDataProvider.isAnalyticHasAccess(CurrentUser); //feature switched off
-            RaisePropertyChanged("ReportAcess");
+            //ReportAcess = EFDataProvider.IsAnalyticHasAccess(CurrentUser);
+            //RaisePropertyChanged(nameof(ReportAcess));
         }
+
+
         private void updateSubjectHints()
         {
             subjectsFromDB = EFDataProvider.GetSubjectHints(NewRecord.Process);
@@ -335,11 +346,11 @@ namespace TimeSheetApp.ViewModel
         private void StoreMultiplyChoice()
         {
             editBusinessBlockChoice = new BusinessBlockChoice();
-            editSupportChoice = new supportChoice();
-            editRiskChoice = new riskChoise();
+            editSupportChoice = new SupportChoice();
+            editRiskChoice = new RiskChoice();
             editEscalationChoice = new EscalationChoice();
             ObservableCollection<BusinessBlock> currentBBCol;
-            ObservableCollection<Escalations> currentEscCol;
+            ObservableCollection<Escalation> currentEscCol;
             ObservableCollection<Supports> currentSupCol;
             ObservableCollection<Risk> currentRiskCol;
             if (isEditState)
@@ -362,7 +373,7 @@ namespace TimeSheetApp.ViewModel
                 {
                     switch (i)
                     {
-                        case (0): editBusinessBlockChoice.BusinessBlockid = currentBBCol[i].Id; break;
+                        case (0): editBusinessBlockChoice.BusinessBlock_id = currentBBCol[i].Id; break;
                         case (1): editBusinessBlockChoice.BusinessBlock_id1 = currentBBCol[i].Id; break;
                         case (2): editBusinessBlockChoice.BusinessBlock_id2 = currentBBCol[i].Id; break;
                         case (3): editBusinessBlockChoice.BusinessBlock_id3 = currentBBCol[i].Id; break;
@@ -410,16 +421,16 @@ namespace TimeSheetApp.ViewModel
                 {
                     switch (i)
                     {
-                        case (0): editRiskChoice.Risk_id = currentRiskCol[i].id; break;
-                        case (1): editRiskChoice.Risk_id1 = currentRiskCol[i].id; break;
-                        case (2): editRiskChoice.Risk_id2 = currentRiskCol[i].id; break;
-                        case (3): editRiskChoice.Risk_id3 = currentRiskCol[i].id; break;
-                        case (4): editRiskChoice.Risk_id4 = currentRiskCol[i].id; break;
-                        case (5): editRiskChoice.Risk_id5 = currentRiskCol[i].id; break;
-                        case (6): editRiskChoice.Risk_id6 = currentRiskCol[i].id; break;
-                        case (7): editRiskChoice.Risk_id7 = currentRiskCol[i].id; break;
-                        case (8): editRiskChoice.Risk_id8 = currentRiskCol[i].id; break;
-                        case (9): editRiskChoice.Risk_id9 = currentRiskCol[i].id; break;
+                        case (0): editRiskChoice.Risk_id = currentRiskCol[i].Id; break;
+                        case (1): editRiskChoice.Risk_id1 = currentRiskCol[i].Id; break;
+                        case (2): editRiskChoice.Risk_id2 = currentRiskCol[i].Id; break;
+                        case (3): editRiskChoice.Risk_id3 = currentRiskCol[i].Id; break;
+                        case (4): editRiskChoice.Risk_id4 = currentRiskCol[i].Id; break;
+                        case (5): editRiskChoice.Risk_id5 = currentRiskCol[i].Id; break;
+                        case (6): editRiskChoice.Risk_id6 = currentRiskCol[i].Id; break;
+                        case (7): editRiskChoice.Risk_id7 = currentRiskCol[i].Id; break;
+                        case (8): editRiskChoice.Risk_id8 = currentRiskCol[i].Id; break;
+                        case (9): editRiskChoice.Risk_id9 = currentRiskCol[i].Id; break;
 
                     }
                 }
@@ -451,15 +462,15 @@ namespace TimeSheetApp.ViewModel
 
             if (!isEditState)
             {
-                NewRecord.riskChoise = editRiskChoice;
-                NewRecord.supportChoice = editSupportChoice;
+                NewRecord.RiskChoice = editRiskChoice;
+                NewRecord.SupportChoice = editSupportChoice;
                 NewRecord.EscalationChoice = editEscalationChoice;
                 NewRecord.BusinessBlockChoice = editBusinessBlockChoice;
             }
             else
             {
-                EditedRecord.riskChoise = editRiskChoice;
-                EditedRecord.supportChoice = editSupportChoice;
+                EditedRecord.RiskChoice = editRiskChoice;
+                EditedRecord.SupportChoice = editSupportChoice;
                 EditedRecord.EscalationChoice = editEscalationChoice;
                 EditedRecord.BusinessBlockChoice = editBusinessBlockChoice;
             }
@@ -468,17 +479,26 @@ namespace TimeSheetApp.ViewModel
 
         private void GetReportMethod(IEnumerable<object> Analytics)
         {
-            SelectedAnalytics.Clear();
-            foreach (Analytic analytic in Analytics)
+            if (Analytics.Count() < 1)
             {
-                SelectedAnalytics.Add(analytic);
+                MessageBox.Show("Не выбрано ни одного аналитика", "Выберите аналитика", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            SelectedAnalytics.Clear();
+            foreach (AnalyticOrdered analytic in Analytics)
+            {
+                SelectedAnalytics.Add(analytic.analytic);
             }
             EFDataProvider.GetReport(SelectedReport, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
         }
 
         private void CheckTimeForIntesectionMethod()
         {
-            if (!(EditedRecord.timeStart >= initalTimeStart && EditedRecord.timeStart < initalTimeEnd) && EFDataProvider.IsCollisionedWithOtherRecords(EditedRecord))
+            if (!(EditedRecord.TimeStart >= initalTimeStart &&
+                EditedRecord.TimeStart < initalTimeEnd) &&
+                EFDataProvider.IsCollisionedWithOtherRecords(EditedRecord) ||
+                (EditedRecord.TimeStart == EditedRecord.TimeEnd ||
+                EditedRecord.TimeStart > EditedRecord.TimeEnd))
             {
                 IsTimeCorrect = false;
             }
@@ -486,7 +506,7 @@ namespace TimeSheetApp.ViewModel
             {
                 IsTimeCorrect = true;
             }
-            RaisePropertyChanged("IsTimeCorrect");
+            RaisePropertyChanged(nameof(IsTimeCorrect));
         }
 
         private void LoadSelection(Process selectedProcess)
@@ -497,7 +517,7 @@ namespace TimeSheetApp.ViewModel
             NewRiskChoiceCollection.Clear();
             if (selectedProcess != null)
             {
-                Selection loadedSelection = LocalWorker.GetSelection(selectedProcess.id);
+                Selection loadedSelection = LocalWorker.GetSelection(selectedProcess.Id);
 
                 if (loadedSelection != null)
                 {
@@ -509,7 +529,7 @@ namespace TimeSheetApp.ViewModel
                     {
                         NewSupportsChoiceCollection.Add(support);
                     }
-                    foreach (Escalations escalation in EFDataProvider.GetChoice(loadedSelection.EscalationSelected, 2))
+                    foreach (Escalation escalation in EFDataProvider.GetChoice(loadedSelection.EscalationSelected, 2))
                     {
                         NewEscalationsChoiceCollection.Add(escalation);
                     }
@@ -525,7 +545,7 @@ namespace TimeSheetApp.ViewModel
                     {
                         NewRecord.Formats = FormatList[0];
                     }
-                    RaisePropertyChanged("NewRecord");
+                    RaisePropertyChanged(nameof(NewRecord));
                 }
             }
             updateSubjectHints();
@@ -551,8 +571,17 @@ namespace TimeSheetApp.ViewModel
             RiskCol = EFDataProvider.GetRisks();
             FilterProcessesMethod(string.Empty);
             SubordinateEmployees = EFDataProvider.GetMyAnalyticsData(CurrentUser);
+            SubordinatedOrdered = GetAnalyticOrdereds(SubordinateEmployees);
             UpdateTimeSpan();
-            defBlock = BusinessBlock[0];
+        }
+        private ObservableCollection<AnalyticOrdered> GetAnalyticOrdereds(IEnumerable<Analytic> analytics)
+        {
+            ObservableCollection<AnalyticOrdered> exportVal = new ObservableCollection<AnalyticOrdered>();
+            foreach(Analytic analytic in analytics)
+            {
+                exportVal.Add(new AnalyticOrdered(analytic));
+            }
+            return exportVal;
         }
         private void UpdateTimeSpan()
         {
@@ -561,17 +590,10 @@ namespace TimeSheetApp.ViewModel
             {
                 HistoryRecords.Add(record);
             }
-            RaisePropertyChanged("TotalDurationInMinutes");
+            RaisePropertyChanged(nameof(TotalDurationInMinutes));
         }
-        private void GetReportMethod()
-        {
 
-        }
-        private void checkForUpdateMethod(object obj)
-        {
-            if (EFDataProvider.ForcedToQuit())
-                Environment.Exit(0);
-        }
+
         private void FilterProcessesMethod(string filterText)
         {
             ProcessFiltered?.Clear();
@@ -581,7 +603,7 @@ namespace TimeSheetApp.ViewModel
             {
                 foreach (Process proc in Processes)
                 {
-                    sortRule.Add(proc, LocalWorker.ChoosenCounter(proc.id));
+                    sortRule.Add(proc, LocalWorker.ChoosenCounter(proc.Id));
                 }
                 foreach (KeyValuePair<Process, int> keyValue in sortRule.OrderByDescending(i => i.Value))
                 {
@@ -591,10 +613,10 @@ namespace TimeSheetApp.ViewModel
             }
             foreach (Process process in Processes)
             {
-                string codeFull = $"{process.Block_id}.{process.SubBlockId}.{process.id}";
-                if (process.procName.ToLower().IndexOf(filterText.ToLower()) > -1 || codeFull.IndexOf(filterText) > -1)
+                string codeFull = $"{process.Block_Id}.{process.SubBlock_Id}.{process.Id}";
+                if (process.ProcName.ToLower().IndexOf(filterText.ToLower()) > -1 || codeFull.IndexOf(filterText) > -1)
                 {
-                    sortRule.Add(process, LocalWorker.ChoosenCounter(process.id));
+                    sortRule.Add(process, LocalWorker.ChoosenCounter(process.Id));
                 }
             }
             foreach (KeyValuePair<Process, int> keyValue in sortRule.OrderByDescending(i => i.Value))
@@ -614,12 +636,12 @@ namespace TimeSheetApp.ViewModel
                 MessageBox.Show("Добавляемая запись пересекается с другой активностью. Выберите другое время.", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
-            else if (newItem.timeStart == newItem.timeEnd)
+            else if (newItem.TimeStart == newItem.TimeEnd)
             {
                 MessageBox.Show("Время начала равно времени окончания. Укажите корректное время", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
-            else if (newItem.timeStart > newItem.timeEnd)
+            else if (newItem.TimeStart > newItem.TimeEnd)
             {
                 MessageBox.Show("Время начала больше времени окончания. Укажите корректное время", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
@@ -629,9 +651,9 @@ namespace TimeSheetApp.ViewModel
 
 
             #region Добавление в БД
-            int riskID = EFDataProvider.AddRiskChoice(newItem.riskChoise);
+            int riskID = EFDataProvider.AddRiskChoice(newItem.RiskChoice);
             int BBID = EFDataProvider.AddBusinessBlockChoice(newItem.BusinessBlockChoice);
-            int suppID = EFDataProvider.AddSupportChoiceSet(newItem.supportChoice);
+            int suppID = EFDataProvider.AddSupportChoiceSet(newItem.SupportChoice);
             int escalID = EFDataProvider.AddEscalationChoice(newItem.EscalationChoice);
             TimeSheetTable clonedActivity = new TimeSheetTable()
             {
@@ -640,14 +662,14 @@ namespace TimeSheetApp.ViewModel
                 ClientWaysId = newItem.ClientWays.Id,
                 EscalationChoice_id = escalID,
                 FormatsId = newItem.Formats.Id,
-                Process_id = newItem.Process.id,
-                id = newItem.id,
-                riskChoise_id = riskID,
+                Process_id = newItem.Process.Id,
+                Id = newItem.Id,
+                RiskChoice_id = riskID,
                 Subject = newItem.Subject,
-                comment = newItem.comment,
-                supportChoice_id = suppID,
-                timeStart = newItem.timeStart,
-                timeEnd = newItem.timeEnd,
+                Comment = newItem.Comment,
+                SupportChoice_id = suppID,
+                TimeStart = newItem.TimeStart,
+                TimeEnd = newItem.TimeEnd,
                 TimeSpent = newItem.TimeSpent
             };
             EFDataProvider.AddActivity(clonedActivity);
@@ -655,23 +677,23 @@ namespace TimeSheetApp.ViewModel
 
             #region Обновление представления
             UpdateTimeSpan();
-            RaisePropertyChanged("TotalDurationInMinutes");
+            RaisePropertyChanged(nameof(TotalDurationInMinutes));
             updateSubjectHints();
             RaisePropertyChanged("subjectHints");
-            newItem.timeStart = newItem.timeEnd;
-            newItem.timeEnd = newItem.timeEnd.AddMinutes(15);
+            newItem.TimeStart = newItem.TimeEnd;
+            newItem.TimeEnd = newItem.TimeEnd.AddMinutes(15);
             IgnoreSubjectTextChange = false;
             newItem.Subject = string.Empty;
 
             IgnoreSubjectTextChange = true;
 
-            newItem.comment = string.Empty;
-            RaisePropertyChanged("NewRecord");
+            newItem.Comment = string.Empty;
+            RaisePropertyChanged(nameof(NewRecord));
             #endregion
 
             #region Запоминаем выбор
             LocalWorker.StoreSelection(new Selection(
-                newItem.Process.id,
+                newItem.Process.Id,
                 BBID,
                 suppID,
                 newItem.ClientWays.Id,
@@ -701,20 +723,21 @@ namespace TimeSheetApp.ViewModel
                 Analytic = Record.Analytic,
                 AnalyticId = Record.AnalyticId,
                 Subject = Record.Subject,
-                comment = Record.comment,
+                Comment = Record.Comment,
                 Process = Record.Process,
                 BusinessBlockChoice = Record.BusinessBlockChoice,
-                supportChoice = Record.supportChoice,
-                timeStart = Record.timeStart,
-                timeEnd = Record.timeEnd,
+                SupportChoice = Record.SupportChoice,
+                TimeStart = Record.TimeStart,
+                TimeEnd = Record.TimeEnd,
                 TimeSpent = Record.TimeSpent,
                 ClientWays = Record.ClientWays,
                 EscalationChoice = Record.EscalationChoice,
                 Formats = Record.Formats,
-                riskChoise = Record.riskChoise
+                RiskChoice = Record.RiskChoice,
+                Id = Record.Id
             };
-            initalTimeStart = Record.timeStart;
-            initalTimeEnd = Record.timeEnd;
+            initalTimeStart = Record.TimeStart;
+            initalTimeEnd = Record.TimeEnd;
             isEditState = true;
 
             #region LoadSelection
@@ -727,15 +750,15 @@ namespace TimeSheetApp.ViewModel
             {
                 BusinessBlockChoiceCollection.Add(Bblock);
             }
-            foreach (Risk risk in EFDataProvider.LoadRiskChoice(Record.riskChoise))
+            foreach (Risk risk in EFDataProvider.LoadRiskChoice(Record.RiskChoice))
             {
                 RiskChoiceCollection.Add(risk);
             }
-            foreach (Supports suport in EFDataProvider.LoadSupportsChoice(Record.supportChoice))
+            foreach (Supports suport in EFDataProvider.LoadSupportsChoice(Record.SupportChoice))
             {
                 SupportsChoiceCollection.Add(suport);
             }
-            foreach (Escalations escalation in EFDataProvider.LoadEscalationChoice(Record.EscalationChoice))
+            foreach (Escalation escalation in EFDataProvider.LoadEscalationChoice(Record.EscalationChoice))
             {
                 EscalationsChoiceCollection.Add(escalation);
             }
@@ -745,13 +768,13 @@ namespace TimeSheetApp.ViewModel
             if (form.ShowDialog() == true)
             {
                 CheckTimeForIntesectionMethod();
-                int riskID = EFDataProvider.AddRiskChoice(EditedRecord.riskChoise);
+                int riskID = EFDataProvider.AddRiskChoice(EditedRecord.RiskChoice);
                 int BBID = EFDataProvider.AddBusinessBlockChoice(EditedRecord.BusinessBlockChoice);
-                int suppID = EFDataProvider.AddSupportChoiceSet(EditedRecord.supportChoice);
+                int suppID = EFDataProvider.AddSupportChoiceSet(EditedRecord.SupportChoice);
                 int escalID = EFDataProvider.AddEscalationChoice(EditedRecord.EscalationChoice);
-                EditedRecord.riskChoise_id = riskID;
+                EditedRecord.RiskChoice_id = riskID;
                 EditedRecord.BusinessBlockChoice_id = BBID;
-                EditedRecord.supportChoice_id = suppID;
+                EditedRecord.SupportChoice_id = suppID;
                 EditedRecord.EscalationChoice_id = escalID;
                 EFDataProvider.UpdateProcess(Record, EditedRecord);
 

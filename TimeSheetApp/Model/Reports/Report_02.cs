@@ -2,47 +2,47 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TimeSheetApp.Model.EntitiesBase;
 using TimeSheetApp.Model.Interfaces;
 
 namespace TimeSheetApp.Model.Reports
 {
     public class Report_02 : IReport
     {
-        private readonly IEFDataProvider dataProvider;
-        private readonly TimeSheetDBEntities dataBase;
+        private readonly TimeSheetContext dataBase;
         private List<TimeSheetTable> _timeSheetTable;
         private List<Process> _process;
         private List<Analytic> _analytics;
 
-        public Report_02(IEFDataProvider dataProvider, TimeSheetDBEntities dataBase)
+        public Report_02(TimeSheetContext dataBase, IEnumerable<Analytic> Analytics)
         {
-            this.dataProvider = dataProvider;
             this.dataBase = dataBase;
-
+            _analytics = Analytics.ToList();
         }
 
         public void Generate(DateTime start, DateTime end)
         {
-            _timeSheetTable = dataBase.TimeSheetTable.Where(i =>
-            i.timeStart >= start &&
-            i.timeEnd >= start &&
-            i.timeStart <= end &&
-            i.timeEnd <= end).ToList();
+            _timeSheetTable = dataBase.TimeSheetTableSet.Where(i =>
+            i.TimeStart >= start &&
+            i.TimeEnd >= start &&
+            i.TimeStart <= end &&
+            i.TimeEnd <= end &&
+            i.Process_id != 62 &&
+            i.Process_id != 63).ToList();
 
-            _process = dataBase.Process.ToList();
+            _process = dataBase.ProcessSet.ToList();
 
-            _analytics = dataBase.Analytic.ToList();
 
             List<RowData> rowsResult = new List<RowData>();
             foreach (Analytic analytic in _analytics)
             {
                 int timeTotal = 0;
 
-                var daysWorked = _timeSheetTable.Where(i => i.Analytic.Id==analytic.Id &&
-                    i.timeStart >= start && i.timeStart <= end &&
-                    i.timeEnd >= start && i.timeEnd <= end && 
-                    i.Process_id != 62 && 
-                    i.Process_id != 63).GroupBy(i => i.timeStart.Date).Count();
+                var daysWorked = _timeSheetTable.Where(i => i.Analytic.Id == analytic.Id &&
+                    i.TimeStart >= start && i.TimeStart <= end &&
+                    i.TimeEnd >= start && i.TimeEnd <= end &&
+                    i.Process_id != 62 &&
+                    i.Process_id != 63).GroupBy(i => i.TimeStart.Date).Count();
 
                 int ShouldWorkMinutes = daysWorked * 8 * 60;
 
@@ -50,12 +50,12 @@ namespace TimeSheetApp.Model.Reports
                 {
                     RowData row = new RowData();
                     row.analyticId = analytic.Id;
-                    row.processType = process.ProcessType1.ProcessTypeName;
-                    row.blockName = process.Block1.blockName;
-                    row.subBlock = process.SubBlockNav.subblockName;
-                    row.codeFull = $"{process.Block_id}.{process.SubBlockId}.{process.id}";
-                    row.processName = process.procName;
-                    row.result = process.Result1.resultName;
+                    row.processType = process.ProcessType.ProcessTypeName;
+                    row.blockName = process.Block.BlockName;
+                    row.subBlock = process.SubBlock.SubblockName;
+                    row.codeFull = $"{process.Block_Id}.{process.SubBlock_Id}.{process.Id}";
+                    row.processName = process.ProcName;
+                    row.result = process.Result1.ResultName;
                     row.direction = analytic.Directions.Name;
                     row.upravlenieName = analytic.Upravlenie.Name;
                     row.otdelName = analytic.Otdel.Name;
@@ -63,7 +63,7 @@ namespace TimeSheetApp.Model.Reports
                     row.daysWorked = daysWorked;
                     int timeSpent = 0;
 
-                    IEnumerable<TimeSheetTable> sheetTables = _timeSheetTable.Where(record => record.Analytic.Id == analytic.Id && record.Process.id == process.id);
+                    IEnumerable<TimeSheetTable> sheetTables = _timeSheetTable.Where(record => record.Analytic.Id == analytic.Id && record.Process.Id == process.Id);
 
                     row.operationCount = sheetTables.Count();
 

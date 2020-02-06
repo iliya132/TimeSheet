@@ -132,9 +132,9 @@
                                 </i:Interaction.Triggers>
                             </DatePicker>
                             <xctk:TimePicker Name="TimeIn" Width="70" Margin="5,0,0,0" HorizontalAlignment="Left" TextAlignment="Center" TimeInterval="0:15:0" Grid.Row="2"
-                                 Value="{Binding NewRecord.TimeStart}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0"/>
+                                 Value="{Binding NewRecord.TimeStart}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0" CultureInfo="ru-RU" CurrentDateTimePart="Hour24" Kind="Local" MouseWheelActiveTrigger="Focused" FormatString="HH:mm" ButtonSpinnerLocation="Left" Format="Custom"/>
                             <xctk:TimePicker Name="Timeout" Width="70" Margin="5,0,0,0" HorizontalAlignment="Right" TextAlignment="Center" TimeInterval="0:15:0" Grid.Row="2"
-                                 Value="{Binding NewRecord.TimeEnd}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0"/>
+                                 Value="{Binding NewRecord.TimeEnd}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0" CultureInfo="ru-RU" CurrentDateTimePart="Hour24" Kind="Local" MouseWheelActiveTrigger="Focused" Format="Custom" FormatString="HH:mm" ButtonSpinnerLocation="Left"/>
                             
                         </StackPanel>
 
@@ -150,7 +150,7 @@
                                 </i:Interaction.Triggers>
                             </xctk:CheckComboBox>
                             <Label Content="Support" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Height="30" Name="supportCombo" DisplayMemberPath="Name" ItemsSource="{Binding SupportsArr}" SelectedItemsOverride="{Binding NewSupportsChoiceCollection}">
+                            <xctk:CheckComboBox Height="30" Name="supportCombo" DisplayMemberPath="Name" ItemsSource="{Binding SupportsArr}" SelectedItemsOverride="{Binding NewSupportsChoiceCollection}" IsSelectAllActive="True">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="ItemSelectionChanged">
                                         <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding SupportsChoiceCollection}"/>
@@ -160,7 +160,7 @@
                             <Label Content="Клиентские пути" FontWeight="Bold"/>
                             <ComboBox Name="clientWaysCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding ClientWays}" SelectedItem="{Binding NewRecord.ClientWays}" SelectedIndex="0"/>
                             <Label Content="Эскалация" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="escalationCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding Escalations}" SelectedItemsOverride="{Binding NewEscalationsChoiceCollection}">
+                            <xctk:CheckComboBox Name="escalationCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding Escalations}" SelectedItemsOverride="{Binding NewEscalationsChoiceCollection}" IsSelectAllActive="True">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="ItemSelectionChanged">
                                         <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding EscalationsChoiceCollection}"/>
@@ -170,7 +170,7 @@
                             <Label Content="Формат" FontWeight="Bold"/>
                             <ComboBox Name="formatCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding FormatList}" SelectedItem="{Binding NewRecord.Formats}" SelectedIndex="0"/>
                             <Label Content="Риск" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="riskCombo" Height="30" ItemsSource="{Binding RiskCol}" DisplayMemberPath="RiskName" SelectedItemsOverride="{Binding NewRiskChoiceCollection}">
+                            <xctk:CheckComboBox Name="riskCombo" Height="30" ItemsSource="{Binding RiskCol}" DisplayMemberPath="RiskName" SelectedItemsOverride="{Binding NewRiskChoiceCollection}" IsSelectAllActive="True">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="ItemSelectionChanged">
                                         <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding RiskChoiceCollection}"/>
@@ -261,7 +261,7 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Кабинет руководителя" >
+            <TabItem Header="Отчетность">
                 <Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -273,7 +273,7 @@
                                 <RowDefinition Height="40"/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="Сотрудники под моим руководством:" FontSize="16" VerticalAlignment="Center"/>
+                            <TextBlock Text="Сотрудники:" FontSize="16" VerticalAlignment="Center"/>
                             <DataGrid Name="AnalyticTable" 
 						              ItemsSource="{Binding SubordinatedOrdered}" Grid.Row="1" 
 						              AutoGenerateColumns="False"
@@ -283,47 +283,17 @@
                                       DisplayMemberPath="FIO"
 						  >
                                 <DataGrid.Columns>
-                                    
                                     <DataGridTextColumn Header="ФИО" Binding="{Binding FIO}"/>
-
-                                    <DataGridTextColumn Header="Login" Binding="{Binding userName}"/>
-                                    <DataGridTextColumn Header="Login" Binding="{Binding FirstStructure}"/>
-                                    <DataGridTextColumn Header="Login" Binding="{Binding SecondStructure}"/>
-                                    <DataGridTextColumn Header="Login" Binding="{Binding ThirdStructure}"/>
-                                    <DataGridTextColumn Header="Login" Binding="{Binding FourStructure}"/>
+                                    <DataGridTextColumn Header="UserName" Binding="{Binding userName}"/>
                                 </DataGrid.Columns>
-                                <DataGrid.GroupStyle>
-                                <GroupStyle>
-                                    <GroupStyle.ContainerStyle>
-                                        <Style TargetType="{x:Type GroupItem}">
-                                            <Setter Property="Margin" Value="0,0,0,5"/>
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="{x:Type GroupItem}">
-                                                        <Expander IsExpanded="True">
-                                                            <Expander.Header>
-                                                                <DockPanel>
-                                                                    <TextBlock Text="{Binding Path=Name}" Margin="5,0,0,0" Width="100"/>
-                                                                    <TextBlock Text="{Binding Path=ItemCount}"/>
-                                                                </DockPanel>
-                                                            </Expander.Header>
-                                                            <Expander.Content>
-                                                                <ItemsPresenter />
-                                                            </Expander.Content>
-                                                        </Expander>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Style>
-                                    </GroupStyle.ContainerStyle>
-                                </GroupStyle>
-                                </DataGrid.GroupStyle>
+                                
                             </DataGrid>
-                            
+
                         </Grid>
 
                         <StackPanel Orientation="Vertical" Grid.Column="1">
                             <TextBlock Text="Настройки отчета:" Margin="5,10,5,10" FontSize="16"/>
+                            <TextBlock Text="Выберите отчет:" Margin="5,10,0,0" FontSize="12"/>
                             <ComboBox Name="ReportBox" Margin="5,0,5,15" ItemsSource="{Binding ReportsAvailable}" SelectedIndex="{Binding SelectedReport}"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Label Content="Начальная дата:"/>

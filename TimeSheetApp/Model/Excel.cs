@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Reflection;
-using System.Windows;
 using static TimeSheetApp.Model.Reports.Report_02;
 
 namespace TimeSheetApp.Model
@@ -22,7 +20,7 @@ namespace TimeSheetApp.Model
             excel = new ExcelPackage();
             worksheet = excel.Workbook.Worksheets.Add("Sheet1");
             worksheet.Cells[2, 1].LoadFromDataTable(data, false);
-            worksheet.Cells[1, 1].Value = "ФИО";
+            worksheet.Cells[1, 1].Value = "Фамилия";
             worksheet.Cells[1, 2].Value = "Имя";
             worksheet.Cells[1, 3].Value = "Отчество";
             worksheet.Cells[1, 4].Value = "Блок";
@@ -101,7 +99,6 @@ namespace TimeSheetApp.Model
             #endregion
             System.Diagnostics.Process.Start(fileName);
         }
-
         public static void ExportToExcel(List<RowData> rowsCollection)
         {
             excel = new ExcelPackage();
@@ -117,14 +114,11 @@ namespace TimeSheetApp.Model
             worksheet.Cells[1, col++].Value = "Управление";
             worksheet.Cells[1, col++].Value = "Отдел";
             worksheet.Cells[1, col++].Value = "ФИО";
-            worksheet.Cells[1, col++].Value = "Потрачено времени";
+            worksheet.Cells[1, col++].Value = "Потрачено времени (мин)";
             worksheet.Cells[1, col++].Value = "Количество операций";
             worksheet.Cells[1, col++].Value = "Отношение к другим процессам";
-            worksheet.Cells[1, col++].Value = "Отношение ко времени";
+            worksheet.Cells[1, col++].Value = "Отношение к общему рабочему времени";
             worksheet.Cells[1, col++].Value = "Отработано дней";
-
-            worksheet.Column(12).Style.Numberformat.Format = "0%";
-            worksheet.Column(13).Style.Numberformat.Format = "0%";
 
             foreach (RowData item in rowsCollection)
             {
@@ -165,6 +159,10 @@ namespace TimeSheetApp.Model
 
             string fileName = $"Reports\\Report_02_{Environment.UserName}{DateTime.Now.ToString($"ddMMyyyy_HHmmss")}.xlsx";
             FileInfo newExcelFile = new FileInfo(fileName);
+            if (!Directory.Exists("Reports\\"))
+            {
+                Directory.CreateDirectory("Reports\\");
+            }
             excel.SaveAs(newExcelFile);
             excel.Dispose();
             System.Diagnostics.Process.Start(fileName);
