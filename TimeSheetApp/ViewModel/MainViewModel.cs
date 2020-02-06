@@ -3,6 +3,7 @@ using GalaSoft.MvvmLight.Command;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using TimeSheetApp.Model;
@@ -74,13 +75,13 @@ namespace TimeSheetApp.ViewModel
         /// <summary>
         /// Список сотрудников в подчинении у текущего пользователя
         /// </summary>
-        private ObservableCollection<Analytic> _subordinateEmployees;
+        private ObservableCollection<Analytic> _subordinateEmployees = new ObservableCollection<Analytic>();
         public ObservableCollection<Analytic> SubordinateEmployees
         {
             get { return _subordinateEmployees; }
             set { _subordinateEmployees = value; }
         }
-        private ObservableCollection<AnalyticOrdered> subordinatedOrdered;
+        private ObservableCollection<AnalyticOrdered> subordinatedOrdered = new ObservableCollection<AnalyticOrdered>();
 
         public ObservableCollection<AnalyticOrdered> SubordinatedOrdered
         {
@@ -231,7 +232,7 @@ namespace TimeSheetApp.ViewModel
         private List<string> _reportsAvailable = new List<string>()
         {
             "Отчет по активности аналитиков",
-            "Отчет для расчета аллокации"
+            "Ресурсный план"
         };
 
         public List<string> ReportsAvailable
@@ -280,7 +281,7 @@ namespace TimeSheetApp.ViewModel
         }
         DateTime _currentDate = DateTime.Now;
         public DateTime CurrentDate { get => _currentDate; set => _currentDate = value; }
-        private Analytic _currentUser;
+        private Analytic _currentUser = new Analytic();
         public Analytic CurrentUser { get => _currentUser; set => _currentUser = value; }
         private bool isEditState = false;
         #endregion
@@ -291,7 +292,6 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand<TimeSheetTable> DeleteProcess { get; }
         public RelayCommand ReloadTimeSheet { get; }
         public RelayCommand<string> FilterProcesses { get; }
-        public RelayCommand ExportReport { get; }
         public RelayCommand<Process> LoadSelectionForSelectedProcess { get; }
         public RelayCommand ReloadHistoryRecords { get; }
         public RelayCommand CheckTimeForIntersection { get; }
@@ -299,10 +299,16 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand StoreSelection { get; }
 
         #endregion
-
+        private void writeLog(string msg)
+        {
+            using (StreamWriter sw = new StreamWriter($"{Environment.UserName}_exception.txt", true)){
+                sw.WriteLine(msg);
+            }
+        }
         public MainViewModel(IEFDataProvider dataProvider)
         {
             EFDataProvider = dataProvider;
+
             FillDataCollections();
             updateSubjectHints();
             AddProcess = new RelayCommand<TimeSheetTable>(AddProcessMethod);
@@ -312,7 +318,6 @@ namespace TimeSheetApp.ViewModel
             CheckTimeForIntersection = new RelayCommand(CheckTimeForIntesectionMethod);
             LoadSelectionForSelectedProcess = new RelayCommand<Process>(LoadSelection);
             FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
-            ExportReport = new RelayCommand(GetReportMethod);
             GetReport = new RelayCommand<IEnumerable<object>>(GetReportMethod);
             ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
             StoreSelection = new RelayCommand(StoreMultiplyChoice);
@@ -489,7 +494,11 @@ namespace TimeSheetApp.ViewModel
 
         private void CheckTimeForIntesectionMethod()
         {
-            if (!(EditedRecord.TimeStart >= initalTimeStart && EditedRecord.TimeStart < initalTimeEnd) && EFDataProvider.IsCollisionedWithOtherRecords(EditedRecord))
+            if (!(EditedRecord.TimeStart >= initalTimeStart &&
+                EditedRecord.TimeStart < initalTimeEnd) &&
+                EFDataProvider.IsCollisionedWithOtherRecords(EditedRecord) ||
+                (EditedRecord.TimeStart == EditedRecord.TimeEnd ||
+                EditedRecord.TimeStart > EditedRecord.TimeEnd))
             {
                 IsTimeCorrect = false;
             }
@@ -564,7 +573,6 @@ namespace TimeSheetApp.ViewModel
             SubordinateEmployees = EFDataProvider.GetMyAnalyticsData(CurrentUser);
             SubordinatedOrdered = GetAnalyticOrdereds(SubordinateEmployees);
             UpdateTimeSpan();
-            defBlock = BusinessBlock[0];
         }
         private ObservableCollection<AnalyticOrdered> GetAnalyticOrdereds(IEnumerable<Analytic> analytics)
         {
@@ -584,10 +592,7 @@ namespace TimeSheetApp.ViewModel
             }
             RaisePropertyChanged(nameof(TotalDurationInMinutes));
         }
-        private void GetReportMethod()
-        {
 
-        }
 
         private void FilterProcessesMethod(string filterText)
         {
@@ -728,7 +733,8 @@ namespace TimeSheetApp.ViewModel
                 ClientWays = Record.ClientWays,
                 EscalationChoice = Record.EscalationChoice,
                 Formats = Record.Formats,
-                RiskChoice = Record.RiskChoice
+                RiskChoice = Record.RiskChoice,
+                Id = Record.Id
             };
             initalTimeStart = Record.TimeStart;
             initalTimeEnd = Record.TimeEnd;

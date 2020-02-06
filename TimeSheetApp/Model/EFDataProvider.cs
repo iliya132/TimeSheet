@@ -535,7 +535,7 @@ namespace TimeSheetApp.Model
         /// <returns></returns>
         public ObservableCollection<Analytic> GetMyAnalyticsData(Analytic currentUser)
         {
-            ObservableCollection<Analytic> analytics;
+            ObservableCollection<Analytic> analytics = new ObservableCollection<Analytic>();
             switch (currentUser.RoleTableId)
             {
                 case (1):
@@ -626,6 +626,7 @@ namespace TimeSheetApp.Model
             else return Visibility.Hidden;
         }
 
+
         /// <summary>
         /// Получает информацию о текущем аналитике, и если запись в БД не существует - создаёт новую
         /// </summary>
@@ -633,15 +634,15 @@ namespace TimeSheetApp.Model
         public Analytic LoadAnalyticData()
         {
             string user = Environment.UserName;
-            Analytic analytic;
-            Console.WriteLine($"Count:= {context.AnalyticSet.Count()}");
-            if (context.AnalyticSet.Any(i => i.UserName == user))
+            Analytic analytic = new Analytic();
+
+            if (context.AnalyticSet.Any(i => i.UserName.ToLower().Equals(user.ToLower())))
             {
-                analytic = context.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(Environment.UserName.ToLower()));
+                analytic = context.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(user.ToLower()));
             }
             else
             {
-                Analytic analytic1 = new Analytic()
+                analytic = new Analytic()
                 {
                     UserName = user,
                     DepartmentId = 1,
@@ -654,7 +655,7 @@ namespace TimeSheetApp.Model
                     RoleTableId = 1,
                     UpravlenieId = 1
                 };
-                context.AnalyticSet.Add(analytic1);
+                context.AnalyticSet.Add(analytic);
                 context.SaveChanges();
                 analytic = context.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(Environment.UserName.ToLower()));
             }
@@ -708,13 +709,13 @@ namespace TimeSheetApp.Model
         /// Проверяет пересекается ли переданная запись с другими во времени
         /// </summary>
         /// <param name="record"></param>
-        /// <returns></returns>
+        /// <returns>true если пересекается, false если нет</returns>
         public bool IsCollisionedWithOtherRecords(TimeSheetTable record)
         {
             bool state = false;
             foreach (TimeSheetTable historyRecord in context.TimeSheetTableSet.Where(i => i.AnalyticId == record.AnalyticId))
             {
-                if (isInInterval(record.TimeStart, record.TimeEnd, historyRecord.TimeStart, historyRecord.TimeEnd))
+                if (historyRecord.Id != record.Id && isInInterval(record.TimeStart, record.TimeEnd, historyRecord.TimeStart, historyRecord.TimeEnd))
                 {
                     state = true;
                 }

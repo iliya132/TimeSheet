@@ -26,7 +26,9 @@ namespace TimeSheetApp.Model.Reports
             i.TimeStart >= start &&
             i.TimeEnd >= start &&
             i.TimeStart <= end &&
-            i.TimeEnd <= end).ToList();
+            i.TimeEnd <= end &&
+            i.Process_id != 62 &&
+            i.Process_id != 63).ToList();
 
             _process = dataBase.ProcessSet.ToList();
 
