@@ -710,7 +710,13 @@ namespace TimeSheetApp.ViewModel
         }
         private void GetReportMethod()
         {
+            if (SelectedAnalytics.Count() < 1)
+            {
+                MessageBox.Show("Не выбрано ни одного аналитика", "Выберите аналитика", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
+            EFDataProvider.GetReport(SelectedReport, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
         }
 
         private void FilterProcessesMethod(string filterText)
