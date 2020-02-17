@@ -89,6 +89,10 @@ namespace TimeSheetApp.ViewModel
             set { subordinatedOrdered = value; }
         }
 
+        private ObservableCollection<Node> nodes = new ObservableCollection<Node>();
+        public ObservableCollection<Node> NodesCollection { get => nodes; set => nodes = value; }
+
+        private List<string> categories = new List<string>();
         #endregion
 
         #endregion
@@ -241,8 +245,8 @@ namespace TimeSheetApp.ViewModel
             set { _reportsAvailable = value; }
         }
 
-        private List<Analytic> _selectedAnalytics = new List<Analytic>();
-        public List<Analytic> SelectedAnalytics { get => _selectedAnalytics; set => _selectedAnalytics = value; }
+        private ObservableCollection<Analytic> _selectedAnalytics = new ObservableCollection<Analytic>();
+        public ObservableCollection<Analytic> SelectedAnalytics { get => _selectedAnalytics; set => _selectedAnalytics = value; }
         public int SelectedReport { get; set; }
         private DateTime _startReportDate = DateTime.Now.AddDays(-7);
         public DateTime StartReportDate
@@ -295,8 +299,10 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand<Process> LoadSelectionForSelectedProcess { get; }
         public RelayCommand ReloadHistoryRecords { get; }
         public RelayCommand CheckTimeForIntersection { get; }
-        public RelayCommand<IEnumerable<object>> GetReport { get; }
+        public RelayCommand GetReport { get; }
         public RelayCommand StoreSelection { get; }
+        public RelayCommand ReportSelectionStore { get; }
+
 
         #endregion
         private void writeLog(string msg)
@@ -318,15 +324,94 @@ namespace TimeSheetApp.ViewModel
             CheckTimeForIntersection = new RelayCommand(CheckTimeForIntesectionMethod);
             LoadSelectionForSelectedProcess = new RelayCommand<Process>(LoadSelection);
             FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
-            GetReport = new RelayCommand<IEnumerable<object>>(GetReportMethod);
+            GetReport = new RelayCommand<>(GetReportMethod);
             ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
             StoreSelection = new RelayCommand(StoreMultiplyChoice);
+            ReportSelectionStore = new RelayCommand(ReportSelectionUpdate);
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
-            //ReportAcess = EFDataProvider.IsAnalyticHasAccess(CurrentUser);
-            //RaisePropertyChanged(nameof(ReportAcess));
+            GenerateNodes();
         }
 
+        private void ReportSelectionUpdate()
+        {
+            SelectedAnalytics.Clear();
+            foreach (AnalyticOrdered analytic in SubordinatedOrdered)
+            {
+                if (analytic.Selected)
+                {
+                    SelectedAnalytics.Add(analytic.Analytic);
+                }
+            }
+
+        }
+
+        private void TestNewEF()
+        {
+            using (TimeSheetContext context = new TimeSheetContext())
+            {
+                context.OtdelSet.Add(new Model.EntitiesBase.Otdel()
+                {
+                    Name = "Тестовый отдел"
+                });
+                context.SaveChanges();
+            }
+        }
+
+                    Node secondGen = Node.FindNode(analytic.SecondStructure, NodesCollection);
+                    if (secondGen == null)
+                    {
+                        firstGen.AddChild(new Node(analytic.SecondStructure));
+                        secondGen = Node.FindNode(analytic.SecondStructure, NodesCollection);
+                    }
+
+                    #endregion
+
+                    #region 3ndGen
+
+                    if (string.IsNullOrEmpty(analytic.ThirdStructure))
+                    {
+                        secondGen.Analytics.Add(analytic);
+                        break;
+                    }
+
+                    Node thirdGen = Node.FindNode(analytic.ThirdStructure, NodesCollection);
+                    if (thirdGen == null)
+                    {
+                        secondGen.AddChild(new Node(analytic.ThirdStructure));
+                        thirdGen = Node.FindNode(analytic.ThirdStructure, NodesCollection);
+                    }
+
+                    #endregion
+
+                    #region 4thGen
+
+                    if (string.IsNullOrEmpty(analytic.FourStructure))
+                    {
+                        thirdGen.Analytics.Add(analytic);
+                        break;
+                    }
+
+                    Node fourGen = Node.FindNode(analytic.FourStructure, NodesCollection);
+                    if (fourGen == null)
+                    {
+                        thirdGen.AddChild(new Node(analytic.FourStructure));
+                        fourGen = Node.FindNode(analytic.FourStructure, NodesCollection);
+                    }
+                    fourGen.Analytics.Add(analytic);
+                    #endregion
+
+
+                }
+                #endregion
+
+
+            }
+            foreach(Node node1 in NodesCollection)
+            {
+                node1.CountAnalytics(node1);
+            }
+        }
 
         private void updateSubjectHints()
         {
@@ -577,12 +662,23 @@ namespace TimeSheetApp.ViewModel
         private ObservableCollection<AnalyticOrdered> GetAnalyticOrdereds(IEnumerable<Analytic> analytics)
         {
             ObservableCollection<AnalyticOrdered> exportVal = new ObservableCollection<AnalyticOrdered>();
-            foreach(Analytic analytic in analytics)
+            foreach (Analytic analytic in analytics)
             {
-                exportVal.Add(new AnalyticOrdered(analytic));
+                AnalyticOrdered ordered = new AnalyticOrdered(analytic);
+                ordered.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(Ordered_PropertyChanged);
+                exportVal.Add(ordered);
             }
             return exportVal;
         }
+
+        private void Ordered_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Equals("Selected"))
+            {
+                ReportSelectionUpdate();
+            }
+        }
+
         private void UpdateTimeSpan()
         {
             HistoryRecords.Clear();
@@ -592,7 +688,10 @@ namespace TimeSheetApp.ViewModel
             }
             RaisePropertyChanged(nameof(TotalDurationInMinutes));
         }
+        private void GetReportMethod()
+        {
 
+        }
 
         private void FilterProcessesMethod(string filterText)
         {
