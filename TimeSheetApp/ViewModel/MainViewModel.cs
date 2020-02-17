@@ -324,7 +324,7 @@ namespace TimeSheetApp.ViewModel
             CheckTimeForIntersection = new RelayCommand(CheckTimeForIntesectionMethod);
             LoadSelectionForSelectedProcess = new RelayCommand<Process>(LoadSelection);
             FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
-            GetReport = new RelayCommand<>(GetReportMethod);
+            GetReport = new RelayCommand(GetReportMethod);
             ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
             StoreSelection = new RelayCommand(StoreMultiplyChoice);
             ReportSelectionStore = new RelayCommand(ReportSelectionUpdate);
@@ -346,17 +346,41 @@ namespace TimeSheetApp.ViewModel
 
         }
 
-        private void TestNewEF()
+        private void GenerateNodes()
         {
-            using (TimeSheetContext context = new TimeSheetContext())
+
+            foreach (AnalyticOrdered analytic in SubordinatedOrdered)
             {
-                context.OtdelSet.Add(new Model.EntitiesBase.Otdel()
+                #region initialize
+
+                if (NodesCollection.Count < 1)
+                    NodesCollection.Add(new Node(analytic.FirstStructure));
+
+                #endregion
+
+                #region Generate Ierarhial
+                foreach (Node node in NodesCollection)
                 {
-                    Name = "Тестовый отдел"
-                });
-                context.SaveChanges();
-            }
-        }
+
+                    #region 1stGen
+
+                    if (string.IsNullOrEmpty(analytic.FirstStructure)) break;
+                    Node firstGen = Node.FindNode(analytic.FirstStructure, NodesCollection);
+                    if (firstGen == null)
+                    {
+                        firstGen = new Node(analytic.FirstStructure);
+                        NodesCollection.Add(firstGen);
+                    }
+
+                    #endregion
+
+                    #region 2ndGen
+
+                    if (string.IsNullOrEmpty(analytic.SecondStructure))
+                    {
+                        firstGen.Analytics.Add(analytic);
+                        break;
+                    }
 
                     Node secondGen = Node.FindNode(analytic.SecondStructure, NodesCollection);
                     if (secondGen == null)
@@ -407,7 +431,7 @@ namespace TimeSheetApp.ViewModel
 
 
             }
-            foreach(Node node1 in NodesCollection)
+            foreach (Node node1 in NodesCollection)
             {
                 node1.CountAnalytics(node1);
             }
@@ -570,9 +594,9 @@ namespace TimeSheetApp.ViewModel
                 return;
             }
             SelectedAnalytics.Clear();
-            foreach (AnalyticOrdered analytic in Analytics)
+            foreach (Analytic analytic in SelectedAnalytics)
             {
-                SelectedAnalytics.Add(analytic.analytic);
+                SelectedAnalytics.Add(analytic);
             }
             EFDataProvider.GetReport(SelectedReport, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
         }

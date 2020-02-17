@@ -203,7 +203,8 @@
     <Compile Include="Model\IEFDataProvider.cs" />
     <Compile Include="Model\Interfaces\IReport.cs" />
     <Compile Include="Model\LocalWorker.cs" />
-	<Compile Include="Model\Node.cs" />
+    <Compile Include="Model\Node.cs" />
+    <Compile Include="Model\Reports\Report_02.cs" />
     <Compile Include="Model\Selection.cs" />
     <Compile Include="Model\TimeSheetContext.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
