@@ -273,27 +273,76 @@
                                 <RowDefinition Height="40"/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="Сотрудники:" FontSize="16" VerticalAlignment="Center"/>
-                            <DataGrid Name="AnalyticTable" 
-						              ItemsSource="{Binding SubordinatedOrdered}" Grid.Row="1" 
-						              AutoGenerateColumns="False"
-						              IsReadOnly="True"
-                                      AlternatingRowBackground="LightGray"
-                                      AlternationCount="2"
-                                      DisplayMemberPath="FIO"
-						  >
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="ФИО" Binding="{Binding FIO}"/>
-                                    <DataGridTextColumn Header="UserName" Binding="{Binding userName}"/>
-                                </DataGrid.Columns>
-                                
-                            </DataGrid>
+                            <TextBlock Text="Сотрудники под моим руководством:" FontSize="16" VerticalAlignment="Center"/>
+                            <TreeView x:Name="treeView1" ItemsSource="{Binding NodesCollection}" Grid.Row="1" AlternationCount="1" OverridesDefaultStyle="True">
+                                <TreeView.Style>
+                                    <Style TargetType="{x:Type TreeView}">
+                                        <Setter Property="Background" Value="White"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                        <Setter Property="VerticalContentAlignment" Value="Top"/>
+                                        <Setter Property="BorderBrush" Value="#817F7F"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="Padding" Value="4"/>
+                                        <Setter Property="Cursor" Value="Arrow"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="{x:Type TreeView}">
+                                                    <Grid UseLayoutRounding="True" d:DesignUseLayoutRounding="True">
+                                                        <Border x:Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2" UseLayoutRounding="True" d:DesignUseLayoutRounding="True">
+                                                            <ScrollViewer CanContentScroll="False" Focusable="False" HorizontalScrollBarVisibility="Disabled" Padding="4" UseLayoutRounding="True" VerticalScrollBarVisibility="Auto" d:DesignUseLayoutRounding="True">
+                                                                <ItemsPresenter UseLayoutRounding="True" d:DesignUseLayoutRounding="True"/>
+                                                            </ScrollViewer>
+                                                        </Border>
+                                                    </Grid>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </TreeView.Style>
+                                <TreeView.ItemTemplate>
+                                    <HierarchicalDataTemplate ItemsSource="{Binding Path=Nodes}">
+                                        <StackPanel>
+                                            <TextBlock  Width="1500" FontWeight="ExtraBold" UseLayoutRounding="False"  Height="20"><!--Visibility="{Binding invertedContainsAnalytic}"-->
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <CheckBox IsChecked="{Binding IsSelected}" />
+                                                        <TextBlock Text="{Binding StructureName}"/>
+                                                        <TextBlock Text="{Binding Path=ChildCount, StringFormat=. Сотрудников: {0}}"/>
+                                                    </StackPanel>
 
+                                                </TextBlock>
+                                            <StackPanel Orientation="Vertical" Visibility="{Binding ContainsAnalytic}">
+                                                <DataGrid ItemsSource="{Binding Path=Analytics}" AutoGenerateColumns="False" HeadersVisibility="None" AlternationCount="1" GridLinesVisibility="None">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTemplateColumn>
+                                                            <DataGridTemplateColumn.CellTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox IsChecked="{Binding Selected}">
+                                                                        <i:Interaction.Triggers>
+                                                                            <i:EventTrigger EventName="Checked">
+                                                                                <mvvm:EventToCommand Command="{Binding Main.SelectAnalytic, Source={StaticResource Locator}}" CommandParameter="{Binding}"/>
+                                                                            </i:EventTrigger>
+                                                                            <i:EventTrigger EventName="Unchecked">
+                                                                                <mvvm:EventToCommand Command="{Binding Main.UnselectAnalytic, Source={StaticResource Locator}}" CommandParameter="{Binding}"/>
+                                                                            </i:EventTrigger>
+                                                                        </i:Interaction.Triggers>
+                                                                    </CheckBox>
+                                                                </DataTemplate>
+                                                            </DataGridTemplateColumn.CellTemplate>
+                                                        </DataGridTemplateColumn>
+                                                        <DataGridTextColumn Binding="{Binding FIO}" />
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </HierarchicalDataTemplate>
+                                </TreeView.ItemTemplate>
+                            </TreeView>
                         </Grid>
 
                         <StackPanel Orientation="Vertical" Grid.Column="1">
                             <TextBlock Text="Настройки отчета:" Margin="5,10,5,10" FontSize="16"/>
-                            <TextBlock Text="Выберите отчет:" Margin="5,10,0,0" FontSize="12"/>
                             <ComboBox Name="ReportBox" Margin="5,0,5,15" ItemsSource="{Binding ReportsAvailable}" SelectedIndex="{Binding SelectedReport}"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Label Content="Начальная дата:"/>
@@ -302,8 +351,17 @@
                                 <DatePicker Name="EndDatePicker" SelectedDate="{Binding EndReportDate}" />
                             </StackPanel>
                             <Button Name="GetReport" Content="Выгрузить отчет" Height="50" Margin="5,5,5,10" 
-                                    Command="{Binding GetReport}" 
-                                    CommandParameter="{Binding ElementName=AnalyticTable, Path=SelectedItems}"/>
+                                    Command="{Binding GetReport}"/>
+                            <TextBlock Text="Выбранные сотрудники:"/>
+                            <ListView Name="SelectedAnalyticsTable" ItemsSource="{Binding SelectedAnalytics}" IsEnabled="False" >
+                                <ListView.View>
+                                    <GridView AllowsColumnReorder="False">
+                                        <GridViewColumn Header="Фамилия" Width="150" DisplayMemberBinding="{Binding LastName}"/>
+                                        <GridViewColumn Header="Имя" Width="150" DisplayMemberBinding="{Binding FirstName}"/>
+                                        <GridViewColumn Header="Отчество" Width="150" DisplayMemberBinding="{Binding FatherName}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
                         </StackPanel>
                     </Grid>
                 </Grid>

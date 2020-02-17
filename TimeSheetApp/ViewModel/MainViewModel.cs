@@ -301,6 +301,8 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand CheckTimeForIntersection { get; }
         public RelayCommand GetReport { get; }
         public RelayCommand StoreSelection { get; }
+        public RelayCommand<AnalyticOrdered> SelectAnalytic { get; }
+        public RelayCommand<AnalyticOrdered> UnselectAnalytic { get; }
         public RelayCommand ReportSelectionStore { get; }
 
 
@@ -328,9 +330,22 @@ namespace TimeSheetApp.ViewModel
             ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
             StoreSelection = new RelayCommand(StoreMultiplyChoice);
             ReportSelectionStore = new RelayCommand(ReportSelectionUpdate);
+            SelectAnalytic = new RelayCommand<AnalyticOrdered>(SelectAnalyticMethod);
+            UnselectAnalytic = new RelayCommand<AnalyticOrdered>(UnselectAnalyticMethod);
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
             GenerateNodes();
+        }
+
+        private void SelectAnalyticMethod(AnalyticOrdered analytic)
+        {
+            analytic.Selected = true;
+            ReportSelectionUpdate();
+        }
+        private void UnselectAnalyticMethod(AnalyticOrdered analytic)
+        {
+            analytic.Selected = false;
+            ReportSelectionUpdate();
         }
 
         private void ReportSelectionUpdate()
@@ -345,6 +360,8 @@ namespace TimeSheetApp.ViewModel
             }
 
         }
+
+
 
         private void GenerateNodes()
         {
@@ -586,18 +603,14 @@ namespace TimeSheetApp.ViewModel
 
         }
 
-        private void GetReportMethod(IEnumerable<object> Analytics)
+        private void GetReportMethod()
         {
-            if (Analytics.Count() < 1)
+            if (SelectedAnalytics.Count() < 1)
             {
                 MessageBox.Show("Не выбрано ни одного аналитика", "Выберите аналитика", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            SelectedAnalytics.Clear();
-            foreach (Analytic analytic in SelectedAnalytics)
-            {
-                SelectedAnalytics.Add(analytic);
-            }
+            
             EFDataProvider.GetReport(SelectedReport, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
         }
 
@@ -659,6 +672,7 @@ namespace TimeSheetApp.ViewModel
             }
             updateSubjectHints();
         }
+
         private void DeleteHistoryRecord(TimeSheetTable record)
         {
             EFDataProvider.DeleteRecord(record);
@@ -683,6 +697,7 @@ namespace TimeSheetApp.ViewModel
             SubordinatedOrdered = GetAnalyticOrdereds(SubordinateEmployees);
             UpdateTimeSpan();
         }
+
         private ObservableCollection<AnalyticOrdered> GetAnalyticOrdereds(IEnumerable<Analytic> analytics)
         {
             ObservableCollection<AnalyticOrdered> exportVal = new ObservableCollection<AnalyticOrdered>();
@@ -711,10 +726,6 @@ namespace TimeSheetApp.ViewModel
                 HistoryRecords.Add(record);
             }
             RaisePropertyChanged(nameof(TotalDurationInMinutes));
-        }
-        private void GetReportMethod()
-        {
-
         }
 
         private void FilterProcessesMethod(string filterText)
