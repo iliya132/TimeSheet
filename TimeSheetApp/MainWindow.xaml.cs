@@ -6,6 +6,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using TimeSheetApp.Services;
 using Xceed.Wpf.Toolkit;
 
 namespace TimeSheetApp
@@ -29,6 +30,7 @@ namespace TimeSheetApp
                 TimeIn.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 0, 0);
                 Timeout.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 20, 0);
                 DateBox.SelectedDate = DateTime.Now;
+                
             }
             catch (Exception e)
             {
@@ -145,6 +147,11 @@ namespace TimeSheetApp
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            UpdateService.CheckForUpdate();
         }
     }
 }

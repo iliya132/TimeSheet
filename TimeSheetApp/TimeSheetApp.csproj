@@ -207,6 +207,7 @@
     <Compile Include="Model\Reports\Report_02.cs" />
     <Compile Include="Model\Selection.cs" />
     <Compile Include="Model\TimeSheetContext.cs" />
+    <Compile Include="Services\UpdateService.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="AnalyticsTree.xaml">
