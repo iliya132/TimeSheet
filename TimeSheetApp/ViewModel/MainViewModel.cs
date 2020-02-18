@@ -460,6 +460,7 @@ namespace TimeSheetApp.ViewModel
 
             SubjectHints.Clear();
             int itemsCount = subjectsFromDB.Count;
+            
             for (int i = 0; i < 10 && i < itemsCount; i++)
             {
                 if (subjectsFromDB.Count > 0)

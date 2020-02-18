@@ -6,6 +6,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using TimeSheetApp.Services;
 using Xceed.Wpf.Toolkit;
 
 namespace TimeSheetApp
@@ -29,6 +30,7 @@ namespace TimeSheetApp
                 TimeIn.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 0, 0);
                 Timeout.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 20, 0);
                 DateBox.SelectedDate = DateTime.Now;
+                
             }
             catch (Exception e)
             {
@@ -124,27 +126,33 @@ namespace TimeSheetApp
         {
             if (sender == StartIcon)
             {
-                TimeIn.Value = DateTime.Now;
+                TimeIn.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute,0);
             }
             else if (sender == EndIcon)
             {
-                Timeout.Value = DateTime.Now;
+                Timeout.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, 0);
             }
         }
 
         private void HelpBtn_Click(object sender, RoutedEventArgs e)
         {
+
             if (!Directory.Exists($"{Environment.ExpandEnvironmentVariables("%appdata%")}\\TimeSheet"))
             {
                 Directory.CreateDirectory($"{Environment.ExpandEnvironmentVariables("%appdata%")}\\TimeSheet");
             }
-            File.Copy("\\\\moscow\\hdfs\\WORK\\Архив необычных операций\\ОРППА\\Timesheet\\Program Files\\Help\\TimeSheetHelp.chm", $"{Environment.ExpandEnvironmentVariables("%appdata%")}\\TimeSheet\\TimeSheetHelp.chm",true);
+            File.Copy("\\\\moscow\\hdfs\\WORK\\Архив необычных операций\\ОРППА\\Timesheet\\Data\\Help\\TimeSheetHelp.chm", $"{Environment.ExpandEnvironmentVariables("%appdata%")}\\TimeSheet\\TimeSheetHelp.chm",true);
             System.Diagnostics.Process.Start($"{Environment.ExpandEnvironmentVariables("%appdata%")}\\TimeSheet\\TimeSheetHelp.chm");
         }
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            UpdateService.CheckForUpdate();
         }
     }
 }

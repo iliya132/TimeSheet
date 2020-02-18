@@ -23,24 +23,48 @@ namespace TimeSheetApp.Model
         public Stack<string> GetSubjectHints(Process process)
         {
             Stack<string> subjects = new Stack<string>();
+            Dictionary<string, int> subjectCounted = new Dictionary<string, int>();
 
             int proc_id;
 
             if (process != null)
             {
                 proc_id = process.Id;
-                foreach (string item in context.TimeSheetTableSet.Where(i => i.Analytic.UserName.ToLower().Equals(Environment.UserName.ToLower()) &&
-                    i.Subject.Length > 0 && i.Process_id == proc_id).Select(i => i.Subject).Distinct().ToArray())
+
+                foreach(string item in context.TimeSheetTableSet.Where(i=>i.Analytic.UserName.ToLower().Equals(Environment.UserName.ToLower()) &&
+                i.Subject.Length > 0 && i.Process_id == proc_id).Select(i => i.Subject).ToArray())
                 {
-                    subjects.Push(item);
+                    if (subjectCounted.ContainsKey(item))
+                    {
+                        subjectCounted[item]++;
+                    }
+                    else
+                    {
+                        subjectCounted.Add(item, 1);
+                    }
+                }
+                foreach(KeyValuePair<string, int> item in (from i in subjectCounted orderby i.Value ascending select i))
+                {
+                    subjects.Push(item.Key);
                 }
             }
             else
             {
                 foreach (string item in context.TimeSheetTableSet.Where(i => i.Analytic.UserName.ToLower().Equals(Environment.UserName.ToLower()) &&
-                    i.Subject.Length > 0).Select(i => i.Subject).Distinct().ToArray())
+                 i.Subject.Length > 0).Select(i => i.Subject).ToArray())
                 {
-                    subjects.Push(item);
+                    if (subjectCounted.ContainsKey(item))
+                    {
+                        subjectCounted[item]++;
+                    }
+                    else
+                    {
+                        subjectCounted.Add(item, 1);
+                    }
+                }
+                foreach (KeyValuePair<string, int> item in (from i in subjectCounted orderby i.Value ascending select i))
+                {
+                    subjects.Push(item.Key);
                 }
             }
             return subjects;

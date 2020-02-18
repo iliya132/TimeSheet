@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.421
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeSheetApp", "TimeSheetApp\TimeSheetApp.csproj", "{8B8C1A4F-1EB7-446B-8DC1-494AF1610BEC}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "TimeSheetInstaller", "TimeSheetInstaller\TimeSheetInstaller.vdproj", "{9242F2F7-9028-470F-9AD1-42CDD2E44006}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "..\Updater\Updater\Updater.csproj", "{E8BF44CB-F6A5-42BC-997E-0D9BD2F0D9F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,7 +18,12 @@ Global
 		{8B8C1A4F-1EB7-446B-8DC1-494AF1610BEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8B8C1A4F-1EB7-446B-8DC1-494AF1610BEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B8C1A4F-1EB7-446B-8DC1-494AF1610BEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B8C1A4F-1EB7-446B-8DC1-494AF1610BEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9242F2F7-9028-470F-9AD1-42CDD2E44006}.Debug|Any CPU.ActiveCfg = Debug
+		{9242F2F7-9028-470F-9AD1-42CDD2E44006}.Release|Any CPU.ActiveCfg = Release
+		{E8BF44CB-F6A5-42BC-997E-0D9BD2F0D9F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8BF44CB-F6A5-42BC-997E-0D9BD2F0D9F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8BF44CB-F6A5-42BC-997E-0D9BD2F0D9F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8BF44CB-F6A5-42BC-997E-0D9BD2F0D9F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
