@@ -288,6 +288,15 @@ namespace TimeSheetApp.ViewModel
         private Analytic _currentUser = new Analytic();
         public Analytic CurrentUser { get => _currentUser; set => _currentUser = value; }
         private bool isEditState = false;
+
+        private ObservableCollection<CalendarItem> _calendarItem = new ObservableCollection<CalendarItem>();
+
+        public ObservableCollection<CalendarItem> CalendarItem
+        {
+            get { return _calendarItem; }
+            set { _calendarItem = value; }
+        }
+
         #endregion
 
         #region Commands
@@ -335,6 +344,7 @@ namespace TimeSheetApp.ViewModel
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
             GenerateNodes();
+            CalendarItem = GetDominoCalendar();
         }
 
         private void SelectAnalyticMethod(AnalyticOrdered analytic)
@@ -917,6 +927,12 @@ namespace TimeSheetApp.ViewModel
             }
             isEditState = false;
 
+        }
+
+        private ObservableCollection<CalendarItem> GetDominoCalendar()
+        {
+            DominoWorker worker = new DominoWorker();
+            return new ObservableCollection<CalendarItem>(worker.GetCalendarRecords());
         }
     }
 }

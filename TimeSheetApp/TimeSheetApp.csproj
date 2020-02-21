@@ -206,7 +206,9 @@
       <DependentUpon>EditForm.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\AnalyticOrdered.cs" />
+    <Compile Include="Model\CalendarItem.cs" />
     <Compile Include="Model\CodeFullConverter.cs" />
+    <Compile Include="Model\DominoWorker.cs" />
     <Compile Include="Model\EFDataProvider.cs" />
     <Compile Include="Model\EntitiesBase\Analytic.cs" />
     <Compile Include="Model\EntitiesBase\Block.cs" />
@@ -239,6 +241,9 @@
     <Compile Include="Model\Reports\Report_02.cs" />
     <Compile Include="Model\Selection.cs" />
     <Compile Include="Model\TimeSheetContext.cs" />
+    <Compile Include="SelectCalendarItems.xaml.cs">
+      <DependentUpon>SelectCalendarItems.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Services\UpdateService.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
@@ -266,6 +271,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SelectCalendarItems.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Theme.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -294,7 +303,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Resource\TimeSheetHelp.chm" />
     <None Include="TimeSheetApp_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -359,6 +367,20 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="Domino">
+      <Guid>{29131520-2EED-1069-BF5D-00DD011186B7}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>2</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\calendar.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

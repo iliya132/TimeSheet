@@ -258,10 +258,26 @@
                                 </GridView>
                             </ListView.View>
                         </ListView>
+                        
                         <StackPanel Orientation="Horizontal" Margin="20,5,0,0" Grid.Row="1">
+                            
                             <Image Source="Resource/timerIcon.png" Width="25" VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding TotalDurationInMinutes, StringFormat=Общая длительность {0:hh\\:mm}}"  FontSize="18" VerticalAlignment="Center"/>
+                            
                         </StackPanel>
+                        <Button
+                            Click="Button_Click"
+                            Margin="50,0,0,0"
+                            Width="100"
+                            Height="50"
+                            Grid.Row="1"
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource YellowButton}">
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="+" VerticalAlignment="Center" FontSize="24"/>
+                                <Image Source="Resource/calendar.png" Width="40" Height="40"/>
+                            </StackPanel>
+                        </Button>
                     </Grid>
                 </Grid>
             </TabItem>
@@ -370,7 +386,6 @@
                     </Grid>
                 </Grid>
             </TabItem>
-
         </TabControl>
 
 

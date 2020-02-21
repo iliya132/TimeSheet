@@ -154,5 +154,11 @@ namespace TimeSheetApp
         {
             UpdateService.CheckForUpdate();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            SelectCalendarItems sc = new SelectCalendarItems();
+            sc.ShowDialog();
+        }
     }
 }

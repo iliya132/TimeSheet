@@ -1284,6 +1284,59 @@
         </Setter>
     </Style>
 
+    <Style x:Key="YellowButton" TargetType="Button">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" >
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1" >
+                    <GradientStop Color="#FFCDC632" Offset="0.85"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Name="border" 
+                BorderThickness="0"
+                Padding="4,2" 
+                BorderBrush="LightGray" 
+                CornerRadius="2" 
+                Background="{TemplateBinding Background}">
+                        <Grid >
+                            <ContentPresenter HorizontalAlignment="Center" 
+                               VerticalAlignment="Center" Name="contentShadow" >
+                            </ContentPresenter>
+                            <ContentPresenter HorizontalAlignment="Center" 
+                            VerticalAlignment="Center" Name="content"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="#FFD4CB07" />
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="Cursor" Value="Hand" />
+                            <Setter Property="Background" Value="#FFCFCA71"/>
+                        </Trigger>
+                        <Trigger Property="IsDefaulted" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="#FFD3CB31" />
+                        </Trigger>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="#FFD3CB31" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="border" Property="Opacity" Value="0.7" />
+                            <Setter Property="Foreground" Value="Black" />
+                        </Trigger>
+
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
     <Style x:Key="BlueButton" TargetType="Button">
         <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="Margin" Value="2"/>
