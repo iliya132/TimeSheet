@@ -212,6 +212,15 @@ namespace TimeSheetApp.ViewModel
             }
         }
 
+        private CalendarItem _currentCalendarItem = new CalendarItem();
+        public CalendarItem CurrentCalendarItem { get => _currentCalendarItem; set => _currentCalendarItem = value; }
+        private int _calendarItemsCount;
+
+        public int CalendarItemsCount
+        {
+            get { return _calendarItemsCount; }
+            set { _calendarItemsCount = value; }
+        }
 
 
         #endregion
@@ -289,12 +298,12 @@ namespace TimeSheetApp.ViewModel
         public Analytic CurrentUser { get => _currentUser; set => _currentUser = value; }
         private bool isEditState = false;
 
-        private ObservableCollection<CalendarItem> _calendarItem = new ObservableCollection<CalendarItem>();
+        private ObservableCollection<CalendarItem> _calendarItems = new ObservableCollection<CalendarItem>();
 
-        public ObservableCollection<CalendarItem> CalendarItem
+        public ObservableCollection<CalendarItem> CalendarItems
         {
-            get { return _calendarItem; }
-            set { _calendarItem = value; }
+            get { return _calendarItems; }
+            set { _calendarItems = value; }
         }
 
         #endregion
@@ -313,12 +322,16 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand<AnalyticOrdered> SelectAnalytic { get; }
         public RelayCommand<AnalyticOrdered> UnselectAnalytic { get; }
         public RelayCommand ReportSelectionStore { get; }
+        public RelayCommand SelectCalendarItem { get; }
+        public RelayCommand UpdateCalendarItems { get; }
 
 
         #endregion
+
         private void writeLog(string msg)
         {
-            using (StreamWriter sw = new StreamWriter($"{Environment.UserName}_exception.txt", true)){
+            using (StreamWriter sw = new StreamWriter($"{Environment.UserName}_exception.txt", true))
+            {
                 sw.WriteLine(msg);
             }
         }
@@ -341,10 +354,25 @@ namespace TimeSheetApp.ViewModel
             ReportSelectionStore = new RelayCommand(ReportSelectionUpdate);
             SelectAnalytic = new RelayCommand<AnalyticOrdered>(SelectAnalyticMethod);
             UnselectAnalytic = new RelayCommand<AnalyticOrdered>(UnselectAnalyticMethod);
+            SelectCalendarItem = new RelayCommand(SelectCalendarItemMethod);
+            UpdateCalendarItems = new RelayCommand(UpdateCalendarItemsMethod);
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
             GenerateNodes();
-            CalendarItem = GetDominoCalendar();
+            UpdateCalendarItemsMethod();
+        }
+
+        private void UpdateCalendarItemsMethod()
+        {
+            CalendarItems = GetDominoCalendar();
+        }
+
+        private void SelectCalendarItemMethod()
+        {
+            NewRecord.Subject = CurrentCalendarItem.Subject;
+            NewRecord.TimeStart = CurrentCalendarItem.StartTime;
+            NewRecord.TimeEnd = CurrentCalendarItem.EndTime;
+            RaisePropertyChanged(nameof(NewRecord));
         }
 
         private void SelectAnalyticMethod(AnalyticOrdered analytic)
@@ -470,7 +498,7 @@ namespace TimeSheetApp.ViewModel
 
             SubjectHints.Clear();
             int itemsCount = subjectsFromDB.Count;
-            
+
             for (int i = 0; i < 10 && i < itemsCount; i++)
             {
                 if (subjectsFromDB.Count > 0)
@@ -621,7 +649,7 @@ namespace TimeSheetApp.ViewModel
                 MessageBox.Show("Не выбрано ни одного аналитика", "Выберите аналитика", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            
+
             EFDataProvider.GetReport(SelectedReport, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
         }
 
@@ -932,7 +960,9 @@ namespace TimeSheetApp.ViewModel
         private ObservableCollection<CalendarItem> GetDominoCalendar()
         {
             DominoWorker worker = new DominoWorker();
-            return new ObservableCollection<CalendarItem>(worker.GetCalendarRecords());
+            ObservableCollection<CalendarItem> items = new ObservableCollection<CalendarItem>(worker.GetCalendarRecords());
+            CalendarItemsCount = items.Count;
+            return items;
         }
     }
 }

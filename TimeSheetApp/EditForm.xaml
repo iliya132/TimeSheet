@@ -8,31 +8,36 @@
         xmlns:mvvm="http://www.galasoft.ch/mvvmlight"
         xmlns:local="clr-namespace:TimeSheetApp"
         mc:Ignorable="d"
-        Title="EditActivity" Height="550" Width="800"
+        Title="Редактировать запись" Height="550" Width="800"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
         Loaded="Window_Loaded"
         >
     <Window.Resources>
         <local:InvertBooleanToVisibilityConverter x:Key="InvertBoolean"/>
     </Window.Resources>
-    <Grid>
+    <Grid Margin="10,10,10,10">
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10*"/>
             <ColumnDefinition Width="6*"/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0">
+        <Grid Grid.Column="0"
+              Margin="10,10,10,10"
+              >
+            
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
-                <RowDefinition Height="40"/>
+                <RowDefinition Height="90"/>
                 <RowDefinition Height="40"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Label Content="Тема:" FontWeight="Bold" FontSize="18"/>
-            <TextBox Name="SubjectBox" Grid.Row="1" FontSize="16" Text="{Binding EditedRecord.Subject}"/>
+            <TextBox Name="SubjectBox" Grid.Row="1" FontSize="16" Text="{Binding EditedRecord.Subject}" TextWrapping="WrapWithOverflow"/>
             <Label Content="Комментарий:" Grid.Row="2" FontWeight="Bold" FontSize="18"/>
-            <TextBox Name="BodyBox" Grid.Row="3" FontSize="16" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding EditedRecord.comment}"/>
+            <TextBox Name="BodyBox" Grid.Row="3" FontSize="16" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding EditedRecord.Comment}"/>
+            <Border BorderThickness="1" BorderBrush="Gray" Grid.RowSpan="4" Margin="-10,-10,-10,-10"/>
         </Grid>
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="1" Margin="10,10,10,10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
@@ -48,16 +53,29 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="6*"/>
+                <RowDefinition Height="5*"/>
             </Grid.RowDefinitions>
-            <Label Margin="5,0,0,0" Content="Процесс:" Grid.Row="0"/>
-            <Label Margin="5,0,0,0" Content="Бизнес подразделение:" Grid.Row="2"/>
-            <Label Margin="5,0,0,0" Content="Support:" Grid.Row="4"/>
-            <Label Margin="5,0,0,0" Content="Клиентские пути:" Grid.Row="6"/>
-            <Label Margin="5,0,0,0" Content="Эскалация:" Grid.Row="8"/>
-            <Label Margin="5,0,0,0" Content="Формат:" Grid.Row="10"/>
-            <Label Margin="5,0,0,0" Content="Риск:" Grid.Row="12"/>
-            <ComboBox Name="ProcessList" Grid.Row="1" ItemsSource="{Binding Processes}" DisplayMemberPath="ProcName" SelectedItem="{Binding EditedRecord.Process}"/>
+            <Label Margin="3,7,0,0" Content="Процесс:" Grid.Row="0" FontWeight="Bold"/>
+            <Label Margin="3,7,0,0" Content="Бизнес подразделение:" Grid.Row="2" FontWeight="Bold"/>
+            <Label Margin="3,7,0,0" Content="Support:" Grid.Row="4" FontWeight="Bold"/>
+            <Label Margin="3,7,0,0" Content="Клиентские пути:" Grid.Row="6" FontWeight="Bold"/>
+            <Label Margin="3,7,0,0" Content="Эскалация:" Grid.Row="8" FontWeight="Bold"/>
+            <Label Margin="3,7,0,0" Content="Формат:" Grid.Row="10" FontWeight="Bold"/>
+            <Label Margin="3,7,0,0" Content="Риск:" Grid.Row="12" FontWeight="Bold"/>
+            <ComboBox Name="ProcessList" Grid.Row="1" ItemsSource="{Binding Processes}" SelectedItem="{Binding EditedRecord.Process}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock>
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0}: {1}">
+                                    <Binding Path="CodeFull"/>
+                                    <Binding Path="ProcName"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
             <xctk:CheckComboBox Name="BusinessList" Grid.Row="3" ItemsSource="{Binding BusinessBlock}" 
                                 DisplayMemberPath="BusinessBlockName" 
                                 SelectedItemsOverride="{Binding BusinessBlockChoiceCollection}">
@@ -77,8 +95,15 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </xctk:CheckComboBox>
-            <ComboBox Name="ClientWaysList" Grid.Row="7" ItemsSource="{Binding ClientWays}" DisplayMemberPath="Name" SelectedItem="{Binding EditedRecord.ClientWays}"/>
-            <xctk:CheckComboBox Name="EscalationList" Grid.Row="9" ItemsSource="{Binding Escalations}" DisplayMemberPath="Name" SelectedItemsOverride="{Binding EscalationsChoiceCollection}">
+            <ComboBox Name="ClientWaysList" Grid.Row="7" ItemsSource="{Binding ClientWays}" SelectedItem="{Binding EditedRecord.ClientWays}">
+
+            </ComboBox>
+            <xctk:CheckComboBox Name="EscalationList" Grid.Row="9" 
+                                ItemsSource="{Binding Escalations}" 
+                                DisplayMemberPath="Name" 
+                                SelectedItemsOverride="{Binding EscalationsChoiceCollection}" 
+                                
+                                >
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="ItemSelectionChanged">
                         <mvvm:EventToCommand Command="{Binding StoreSelection}"/>
@@ -93,35 +118,61 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </xctk:CheckComboBox>
-            <StackPanel Orientation="Vertical" Grid.Row="14" VerticalAlignment="Center">
-                <DatePicker Name="EditDatePicker" Width="150" SelectedDateChanged="EditDatePicker_SelectedDateChanged" Margin="0,10,0,10"/>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Label Content="Start" FontSize="16" VerticalAlignment="Center"/>
-                    <xctk:TimePicker Name="EditTimeStart" Value="{Binding EditedRecord.TimeStart}" Margin="5,0,0,0" FontSize="16" TimeInterval="0:15:0">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="ValueChanged">
-                                <mvvm:EventToCommand Command="{Binding CheckTimeForIntersection}"/>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </xctk:TimePicker>
-                    <Label Content="End" FontSize="16" Margin="20,0,0,0" VerticalAlignment="Center"/>
-                    <xctk:TimePicker Name="EditTimeEnd" Value="{Binding EditedRecord.TimeEnd}" FontSize="16" Margin="5,0,0,0" TimeInterval="0:15:0">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="ValueChanged">
-                                <mvvm:EventToCommand Command="{Binding CheckTimeForIntersection}"/>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </xctk:TimePicker>
+            <StackPanel Grid.Row="14" Margin="0,10,0,10">
 
-                </StackPanel>
-                <TextBlock Text="Указанное время пересекается с другой записью" Visibility="{Binding IsTimeCorrect, Converter={StaticResource InvertBoolean}}" HorizontalAlignment="Center" Foreground="red"/>
-                <TextBlock Text="или введено неверно" Visibility="{Binding IsTimeCorrect, Converter={StaticResource InvertBoolean}}" HorizontalAlignment="Center" Foreground="red"/>
-                <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0">
-                    <Button Name="OKBtn" Content="ОК" Width="100" Height="30" IsDefault="True" Click="OKBtn_Click" IsEnabled="{Binding IsTimeCorrect}"/>
-                    <Button Name="CancelBtn" Content="Отмена" Width="100" Margin="30,0,0,0" IsCancel="True"/>
-                </StackPanel>
+                <Grid Grid.Row="14">
+                    <StackPanel>
+                        <DatePicker Name="EditDatePicker" Width="110" Height="32" FontSize="16" SelectedDateChanged="EditDatePicker_SelectedDateChanged" HorizontalAlignment="Right"  VerticalAlignment="Top"/>
+                    <Button Name="OKBtn" Content="ОК" Width="100" Height="30" IsDefault="True" Click="OKBtn_Click" IsEnabled="{Binding IsTimeCorrect}" HorizontalAlignment="Right" 
+                            Margin="5,5,0,5"/>
+                        <Button Name="CancelBtn" Content="Отмена" Width="100" Height="30" IsCancel="True" HorizontalAlignment="Right"
+                                Margin="5,0,0,5"/>
+                        
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical" Grid.Row="14">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Start" FontSize="16" FontWeight="Bold" Width="40" HorizontalAlignment="Left"
+                                    Margin="5,5,0,5"/>
+                            <xctk:TimePicker Name="EditTimeStart" Value="{Binding EditedRecord.TimeStart}" 
+                                             Margin="5,0,0,0" FontSize="16" 
+                                             TimeInterval="0:15:0" HorizontalAlignment="Left"
+                                             Width="110">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="ValueChanged">
+                                    <mvvm:EventToCommand Command="{Binding CheckTimeForIntersection}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </xctk:TimePicker>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="End" FontSize="16" Margin="5,5,0,5" FontWeight="Bold" HorizontalAlignment="Left" Width="40"/>
+                            <xctk:TimePicker Name="EditTimeEnd" Value="{Binding EditedRecord.TimeEnd}" 
+                                             FontSize="16" 
+                                             Margin="5,0,0,0" 
+                                             TimeInterval="0:15:0" 
+                                             HorizontalAlignment="Left"
+                                             Width="110">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="ValueChanged">
+                                            <mvvm:EventToCommand Command="{Binding CheckTimeForIntersection}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </xctk:TimePicker>
+                        </StackPanel>
+                        <TextBlock Text="Указанное время занято или указано не верно" Width="140"
+                               HorizontalAlignment="Left"
+                                   TextWrapping="WrapWithOverflow"
+                                   Foreground="Red" Visibility="{Binding IsTimeCorrect, Converter={StaticResource InvertBoolean}}"
+                               />
+
+
+                    </StackPanel>
+                </Grid>
+                
+                
             </StackPanel>
-
+            <Border BorderThickness="1" BorderBrush="Gray" Grid.RowSpan="15" Margin="-10,-10,-10,-10"/>
         </Grid>
+
     </Grid>
 </Window>

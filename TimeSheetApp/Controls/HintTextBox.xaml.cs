@@ -13,6 +13,9 @@ namespace TimeSheetApp.Controls
     /// </summary>
     public partial class HintTextBox : UserControl, INotifyPropertyChanged
     {
+        public delegate void TextHandler();
+        public TextBox textField;
+        public event TextHandler TextChangedEvent;
         public static readonly DependencyProperty ItemsSourceProperty = DependencyProperty.Register("ItemsSource", typeof(IEnumerable<string>), typeof(HintTextBox));
         
         public bool IgnoreTextChange
@@ -69,6 +72,7 @@ namespace TimeSheetApp.Controls
         public HintTextBox()
         {
             InitializeComponent();
+            textField = UserInputTextBox;
             UserInputTextBox.TextChanged += TextInputChanged;
             UserInputTextBox.PreviewKeyDown += KeyDownMethod;
             InputCacheComboBox.PreviewKeyDown += KeyDownComboBoxMethod;
@@ -80,6 +84,7 @@ namespace TimeSheetApp.Controls
             CloseTimer = new Timer(CloseDropDown, null, Timeout.Infinite, Timeout.Infinite);
             InputCacheComboBox.ItemsSource = suggestList;
         }
+
 
         private void ComboboxMouseLeave(object sender, MouseEventArgs e)
         {
@@ -156,6 +161,7 @@ namespace TimeSheetApp.Controls
         }
         private void TextInputChanged(object sender, TextChangedEventArgs e)
         {
+
             if (!IgnoreTextChange && userUpdate)
             {
                 suggestList.Clear();
@@ -170,6 +176,7 @@ namespace TimeSheetApp.Controls
                 }
             }
             Text = UserInputTextBox.Text;
+            TextChangedEvent?.Invoke();
 
         }
         private void FilterItems(string filterStr)

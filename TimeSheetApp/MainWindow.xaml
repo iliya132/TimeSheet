@@ -66,7 +66,7 @@
                             <ListView.View>
                                 <GridView AllowsColumnReorder="False">
 
-                                    <GridViewColumn Header="Код" >
+                                    <GridViewColumn Header="Код">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
@@ -114,17 +114,21 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
-                            <RowDefinition Height="10*"/>
-                            <RowDefinition Height="6*"/>
+                            <RowDefinition Height="9*"/>
+                            <RowDefinition Height="7*"/>
                         </Grid.RowDefinitions>
 
 
 
 
                         <StackPanel Grid.Row="0" Orientation="Horizontal">
-                            <Image Source="Resource/calendarIcon.png" HorizontalAlignment="Left"  Margin="25,2,0,2" Width="25"/>
-                            <Image Name="StartIcon" Source="Resource/AddClock.png" HorizontalAlignment="Left"  Margin="60,2,0,2" Width="25" MouseDown="TimeIcon_MouseDown"/>
-                            <Image Name="EndIcon" Source="Resource/DeleteClock.png" HorizontalAlignment="Right"  Margin="50,2,0,2" Width="25" MouseDown="TimeIcon_MouseDown"/>
+                                <Image Source="Resource/calendarIcon.png" HorizontalAlignment="Left"  Margin="25,2,0,2" Width="50"/>
+                            <Button Style="{StaticResource SelectableImage}" Name="StartIcon" HorizontalAlignment="Left"  Margin="40,2,0,2" Width="50" Click="TimeIcon_MouseDown">
+                                <Image  Source="Resource/AddClock.png" />
+                            </Button>
+                            <Button Style="{StaticResource SelectableImage}" HorizontalAlignment="Right"  Margin="25,2,0,2" Width="50" Name="EndIcon" Click="TimeIcon_MouseDown">
+                                <Image Source="Resource/DeleteClock.png" Width="auto" Margin="0"/>
+                            </Button>
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Orientation="Horizontal">
@@ -135,11 +139,64 @@
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </DatePicker>
-                            <xctk:TimePicker Name="TimeIn" Width="70" Margin="5,0,0,0" HorizontalAlignment="Left" TextAlignment="Center" TimeInterval="0:15:0" Grid.Row="2"
-                                 Value="{Binding NewRecord.TimeStart}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0" CultureInfo="ru-RU" CurrentDateTimePart="Hour24" Kind="Local" MouseWheelActiveTrigger="Focused" FormatString="HH:mm" ButtonSpinnerLocation="Left" Format="Custom"/>
-                            <xctk:TimePicker Name="Timeout" Width="70" Margin="5,0,0,0" HorizontalAlignment="Right" TextAlignment="Center" TimeInterval="0:15:0" Grid.Row="2"
-                                 Value="{Binding NewRecord.TimeEnd}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0" CultureInfo="ru-RU" CurrentDateTimePart="Hour24" Kind="Local" MouseWheelActiveTrigger="Focused" Format="Custom" FormatString="HH:mm" ButtonSpinnerLocation="Left"/>
+                            <xctk:TimePicker Name="TimeIn" 
+                                             Width="70" 
+                                             Margin="5,0,0,0" 
+                                             HorizontalAlignment="Left" 
+                                             TextAlignment="Center" 
+                                             TimeInterval="0:15:0" 
+                                             Grid.Row="2"
+                                 Value="{Binding NewRecord.TimeStart}" 
+                                             ValueChanged="TimeSelectionChanged" 
+                                             DefaultValue="01/18/2020 09:00:00" 
+                                             MaxDropDownHeight="600" 
+                                             StartTime="7:0:0" 
+                                             CultureInfo="ru-RU" 
+                                             CurrentDateTimePart="Hour24" 
+                                             Kind="Local" 
+                                             MouseWheelActiveTrigger="Focused" 
+                                             FormatString="HH:mm" 
+                                             ButtonSpinnerLocation="Left" 
+                                             Format="Custom"/>
+                            <xctk:TimePicker Name="Timeout" Width="70" 
+                                             Margin="5,0,0,0" 
+                                             HorizontalAlignment="Right" 
+                                             TextAlignment="Center" 
+                                             TimeInterval="0:15:0" 
+                                             Grid.Row="2"
+                                Value="{Binding NewRecord.TimeEnd}" 
+                                             ValueChanged="TimeSelectionChanged" 
+                                             DefaultValue="01/18/2020 09:00:00" 
+                                             MaxDropDownHeight="600" 
+                                             StartTime="7:0:0" 
+                                             CultureInfo="ru-RU" 
+                                             CurrentDateTimePart="Hour24" 
+                                             Kind="Local" 
+                                             MouseWheelActiveTrigger="Focused" 
+                                             Format="Custom" 
+                                             FormatString="HH:mm" 
+                                             ButtonSpinnerLocation="Left"/>
+                            <Button
+                            Click="SelectCalendarItem_BtnClick"
+                            Margin="5,0,0,0"
 
+                            Grid.Row="1"
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource SelectableImage}">
+                                <Grid >
+                                    <Image Source="Resource/calendar.png" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding CalendarItemsCount, StringFormat={}{0}}" 
+                                               VerticalAlignment="Center" 
+                                               Foreground="DarkRed" 
+                                               FontSize="18" 
+                                               HorizontalAlignment="Center"/>
+                                </Grid>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <mvvm:EventToCommand Command="{Binding UpdateCalendarItemsMethod}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
                         </StackPanel>
 
 
@@ -195,18 +252,27 @@
                         </StackPanel>
                         <StackPanel Orientation="Vertical" Grid.Row="4" >
                             <Label Content="Тема" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
-                            <Usercontrols:HintTextBox x:Name="Subject" Margin="0,0,5,0" Height="30" Text="{Binding NewRecord.Subject, Mode=TwoWay}" ItemsSource="{Binding SubjectHints, Mode=OneWay}" IgnoreTextChange="{Binding IgnoreSubjectTextChange}"/>
+                            <Usercontrols:HintTextBox 
+                                x:Name="Subject" 
+                                Margin="0,0,5,0" 
+                                Height="60" 
+                                Text="{Binding NewRecord.Subject, Mode=TwoWay}" 
+                                ItemsSource="{Binding SubjectHints, Mode=OneWay}" 
+                                IgnoreTextChange="{Binding IgnoreSubjectTextChange}"
+                                TextChangedEvent="Subject_TextChangedEvent"/>
                             <Label Content="Комментарий" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
                             <TextBox Name="Comment" Margin="0,0,5,0" Height="150" TextWrapping="Wrap" AcceptsReturn="True" 
                          Text="{Binding NewRecord.Comment}"/>
                         </StackPanel>
 
                     </Grid>
+                    
                     <Grid Grid.Column="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="10*"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
+                        
                         <ListView Name="TimeSpanListView"  ItemsSource="{Binding HistoryRecords}" Margin="10,0,0,0" Grid.Row="0">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseDoubleClick">
@@ -214,6 +280,14 @@
                                                 CommandParameter="{Binding ElementName=TimeSpanListView, Path=SelectedItem}"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
+                            <ListView.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Выбрать время до" Click="SelectTimeBeforeClick"/>
+                                    <MenuItem Header="Выбрать время после" Click="SelectTimeAfterClick"/>
+
+
+                                </ContextMenu>
+                            </ListView.ContextMenu>
                             <ListView.View>
                                 <GridView>
 
@@ -265,19 +339,7 @@
                             <TextBlock Text="{Binding TotalDurationInMinutes, StringFormat=Общая длительность {0:hh\\:mm}}"  FontSize="18" VerticalAlignment="Center"/>
                             
                         </StackPanel>
-                        <Button
-                            Click="Button_Click"
-                            Margin="50,0,0,0"
-                            Width="100"
-                            Height="50"
-                            Grid.Row="1"
-                            HorizontalAlignment="Right"
-                            Style="{StaticResource YellowButton}">
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="+" VerticalAlignment="Center" FontSize="24"/>
-                                <Image Source="Resource/calendar.png" Width="40" Height="40"/>
-                            </StackPanel>
-                        </Button>
+
                     </Grid>
                 </Grid>
             </TabItem>
@@ -374,6 +436,7 @@
                                     Command="{Binding GetReport}"/>
                             <TextBlock Text="Выбранные сотрудники:"/>
                             <ListView Name="SelectedAnalyticsTable" ItemsSource="{Binding SelectedAnalytics}" IsEnabled="False" >
+      
                                 <ListView.View>
                                     <GridView AllowsColumnReorder="False">
                                         <GridViewColumn Header="Фамилия" Width="150" DisplayMemberBinding="{Binding LastName}"/>
@@ -390,4 +453,6 @@
 
 
     </Grid>
+    
 </Window>
+

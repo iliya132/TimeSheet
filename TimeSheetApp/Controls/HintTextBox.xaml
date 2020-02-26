@@ -9,6 +9,6 @@
              Name="userControl">
     <Grid>
         <ComboBox Name="InputCacheComboBox" Panel.ZIndex="1" Height="25" VerticalAlignment="Bottom"/>
-        <TextBox Name="UserInputTextBox" Panel.ZIndex="2"/>
+        <TextBox Name="UserInputTextBox" Panel.ZIndex="2" TextWrapping="WrapWithOverflow"/>
     </Grid>
 </UserControl>

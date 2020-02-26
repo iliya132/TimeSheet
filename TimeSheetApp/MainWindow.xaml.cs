@@ -3,9 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Media;
+using TimeSheetApp.Model.EntitiesBase;
 using TimeSheetApp.Services;
 using Xceed.Wpf.Toolkit;
 
@@ -16,6 +21,8 @@ namespace TimeSheetApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        //Что бы программа не реагировала на изменение значений при инициализации (highlightControl метод)
+        private bool isInitialized = false;
         public MainWindow()
         {
             AppDomain.CurrentDomain.UnhandledException += (sender, e) => HandleError((Exception)e.ExceptionObject);
@@ -30,7 +37,15 @@ namespace TimeSheetApp
                 TimeIn.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 0, 0);
                 Timeout.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 20, 0);
                 DateBox.SelectedDate = DateTime.Now;
-                
+
+                isInitialized = true;
+
+                //Если это первый запуск после обновления - запустится help с информацией об обновлении
+                if (File.Exists("updated.txt"))
+                {
+                    File.Delete("updated.txt");
+                    HelpBtn_Click(null, null);
+                }
             }
             catch (Exception e)
             {
@@ -66,7 +81,7 @@ namespace TimeSheetApp
                 WriteLog($"NoExtraData");
             }
             System.Windows.MessageBox.Show($"{exceptionObject.Message}, {exceptionObject.InnerException},", "ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-        
+
         }
 
         /// <summary>
@@ -98,6 +113,11 @@ namespace TimeSheetApp
                 }
             }
 
+            if (!(sender as TimePicker).IsFocused && isInitialized)
+            {
+                highlightControl(sender as Control);
+            }
+
         }
         /// <summary>
         /// При изменении даты устанавливает дату и в полях выбора времени
@@ -122,11 +142,11 @@ namespace TimeSheetApp
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void TimeIcon_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void TimeIcon_MouseDown(object sender, RoutedEventArgs e)
         {
             if (sender == StartIcon)
             {
-                TimeIn.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute,0);
+                TimeIn.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, 0);
             }
             else if (sender == EndIcon)
             {
@@ -141,13 +161,13 @@ namespace TimeSheetApp
             {
                 Directory.CreateDirectory($"{Environment.ExpandEnvironmentVariables("%appdata%")}\\TimeSheet");
             }
-            File.Copy("\\\\moscow\\hdfs\\WORK\\Архив необычных операций\\ОРППА\\Timesheet\\Data\\Help\\TimeSheetHelp.chm", $"{Environment.ExpandEnvironmentVariables("%appdata%")}\\TimeSheet\\TimeSheetHelp.chm",true);
+            File.Copy("\\\\moscow\\hdfs\\WORK\\Архив необычных операций\\ОРППА\\Timesheet\\Data\\Help\\TimeSheetHelp.chm", $"{Environment.ExpandEnvironmentVariables("%appdata%")}\\TimeSheet\\TimeSheetHelp.chm", true);
             System.Diagnostics.Process.Start($"{Environment.ExpandEnvironmentVariables("%appdata%")}\\TimeSheet\\TimeSheetHelp.chm");
         }
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -155,10 +175,85 @@ namespace TimeSheetApp
             UpdateService.CheckForUpdate();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void SelectCalendarItem_BtnClick(object sender, RoutedEventArgs e)
         {
             SelectCalendarItems sc = new SelectCalendarItems();
+            sc.Owner = this;
             sc.ShowDialog();
+        }
+
+        private void Subject_TextChangedEvent()
+        {
+            if (!Subject.textField.IsFocused)
+            {
+                highlightControl(Subject.textField);
+            }
+        }
+
+        private async void highlightControl(Control control)
+        {
+            await Task.Run(() =>
+            {
+                for (byte i = 125; i > 0; i--)
+                {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        control.Background = new SolidColorBrush(Color.FromRgb(255, 255, (byte)(i * 2)));
+                    });
+
+                    Thread.Sleep(1);
+                }
+
+                for (byte i = 0; i < 125; i++)
+                {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        control.Background = new SolidColorBrush(Color.FromRgb(255, 255, (byte)(i * 2)));
+                    });
+
+                    Thread.Sleep(1);
+                }
+
+                this.Dispatcher.Invoke(() =>
+                {
+                    control.Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+                });
+            });
+        }
+
+        private void SelectTimeAfterClick(object sender, RoutedEventArgs e)
+        {
+            DateTime startTime, endTime;
+            startTime = (TimeSpanListView.SelectedItem as TimeSheetTable).TimeEnd;
+            if (TimeSpanListView.SelectedIndex == TimeSpanListView.Items.Count - 1)
+            {
+                endTime = startTime.AddMinutes(15);
+            }
+            else
+            {
+                endTime = (TimeSpanListView.Items[TimeSpanListView.SelectedIndex + 1] as TimeSheetTable).TimeStart;
+            }
+
+            TimeIn.Value = startTime;
+            Timeout.Value = endTime;
+
+        }
+
+        private void SelectTimeBeforeClick(object sender, RoutedEventArgs e)
+        {
+            DateTime startTime, endTime;
+            endTime = (TimeSpanListView.SelectedItem as TimeSheetTable).TimeStart;
+            if (TimeSpanListView.SelectedIndex == 0)
+            {
+                startTime = endTime.AddMinutes(-15);
+            }
+            else
+            {
+                startTime = (TimeSpanListView.Items[TimeSpanListView.SelectedIndex - 1] as TimeSheetTable).TimeEnd;
+            }
+
+            TimeIn.Value = startTime;
+            Timeout.Value = endTime;
         }
     }
 }

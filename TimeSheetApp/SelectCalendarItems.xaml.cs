@@ -24,5 +24,10 @@ namespace TimeSheetApp
         {
             InitializeComponent();
         }
+
+        private void ListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Close();
+        }
     }
 }

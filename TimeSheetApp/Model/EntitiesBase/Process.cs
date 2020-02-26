@@ -32,5 +32,12 @@ namespace TimeSheetApp.Model.EntitiesBase
         public virtual ProcessType ProcessType { get; set; }
         [ForeignKey("Result_Id")]
         public virtual Result Result1 { get; set; }
+        public string CodeFull { 
+            get
+            {
+                return $"{Block_Id}.{SubBlock_Id}.{Id}";
+            } 
+        }
+        
     }
 }
