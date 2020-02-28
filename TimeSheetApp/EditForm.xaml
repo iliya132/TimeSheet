@@ -95,9 +95,7 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </xctk:CheckComboBox>
-            <ComboBox Name="ClientWaysList" Grid.Row="7" ItemsSource="{Binding ClientWays}" SelectedItem="{Binding EditedRecord.ClientWays}">
-
-            </ComboBox>
+            <ComboBox Name="ClientWaysList" Grid.Row="7" ItemsSource="{Binding ClientWays}" DisplayMemberPath="Name" SelectedItem="{Binding EditedRecord.ClientWays}"/>
             <xctk:CheckComboBox Name="EscalationList" Grid.Row="9" 
                                 ItemsSource="{Binding Escalations}" 
                                 DisplayMemberPath="Name" 

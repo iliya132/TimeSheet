@@ -15,16 +15,21 @@ namespace TimeSheetApp.Model
         NotesView notesView;
         NotesDbDirectory notesDir;
 
-        public List<CalendarItem> GetCalendarRecords()
+        public DominoWorker()
+        {
+            Init();
+        }
+
+        public List<CalendarItem> GetCalendarRecords(DateTime date)
         {
             List<CalendarItem> exportVal = new List<CalendarItem>();
 
-            Init();
+            if (notesDB == null) return exportVal;
             notesView = notesDB.GetView("($Calendar)");
             
             notesDoc = notesView.GetFirstDocument();
 
-            DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+            DateTime today = new DateTime(date.Year, date.Month, date.Day);
 
             while (notesDoc != null) {
                 if (notesDoc.GetFirstItem("StartDate").Values[0] == today) {
@@ -47,7 +52,6 @@ namespace TimeSheetApp.Model
                     notesDoc = notesView.GetNextDocument(notesDoc);
             }
 
-
             return exportVal;
         }
         private void Init()
@@ -55,7 +59,8 @@ namespace TimeSheetApp.Model
             try
             {
                 notesSession = new NotesSession();
-                notesSession.Initialize();
+                notesSession.Initialize(string.Empty);
+                
                 notesDir = notesSession.GetDbDirectory("Local");
                 notesDB = notesDir.OpenMailDatabase();
                 if (!notesDB.IsOpen)

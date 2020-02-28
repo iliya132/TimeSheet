@@ -8,6 +8,7 @@ using System.Windows;
 using TimeSheetApp.Model.EntitiesBase;
 using TimeSheetApp.Model.Reports;
 using System.Text;
+using TimeSheetApp.Model.Interfaces;
 
 namespace TimeSheetApp.Model
 {
@@ -593,13 +594,18 @@ namespace TimeSheetApp.Model
         /// <param name="end"></param>
         public void GetReport(int ReportType, Analytic[] analytics, DateTime start, DateTime end)
         {
+            IReport report;
             switch (ReportType)
             {
                 case (0):
                     ExcelWorker.ExportDataTableToExcel(GetAnalyticsReport(analytics, start, end));
                     break;
                 case (1):
-                    Report_02 report = new Report_02(context, analytics);
+                    report = new Report_02(context, analytics);
+                    report.Generate(start, end);
+                    break;
+                case (2):
+                    report = new Report_03(analytics, context);
                     report.Generate(start, end);
                     break;
             }

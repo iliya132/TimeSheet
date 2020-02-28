@@ -179,23 +179,21 @@
                             <Button
                             Click="SelectCalendarItem_BtnClick"
                             Margin="5,0,0,0"
-
+                            IsEnabled="{Binding IsCalendarReady}"
                             Grid.Row="1"
                             HorizontalAlignment="Right"
                             Style="{StaticResource SelectableImage}">
                                 <Grid >
-                                    <Image Source="Resource/calendar.png" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{Binding CalendarItemsCount, StringFormat={}{0}}" 
+                                    <Image Source="Resource/calendar.png" HorizontalAlignment="Center" Panel.ZIndex="1"/>
+                                    <Image Source="Resource/loading.png" HorizontalAlignment="Center" Panel.ZIndex="0" Width="20" Height="20" 
+                                           Visibility="{Binding LoadingVisibility}"/>
+                                    <TextBlock Text="{Binding CalendarItemsCount, StringFormat={}{0}}"
+                                               Visibility="{Binding LoadingVisibilityInverted}"
                                                VerticalAlignment="Center" 
                                                Foreground="DarkRed" 
                                                FontSize="18" 
                                                HorizontalAlignment="Center"/>
                                 </Grid>
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="Click">
-                                        <mvvm:EventToCommand Command="{Binding UpdateCalendarItemsMethod}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
                             </Button>
                         </StackPanel>
 
@@ -435,10 +433,9 @@
                             <Button Name="GetReport" Content="Выгрузить отчет" Height="50" Margin="5,5,5,10" 
                                     Command="{Binding GetReport}"/>
                             <TextBlock Text="Выбранные сотрудники:"/>
-                            <ListView Name="SelectedAnalyticsTable" ItemsSource="{Binding SelectedAnalytics}" IsEnabled="False" >
-      
+                            <ListView Name="SelectedAnalyticsTable" ItemsSource="{Binding SelectedAnalytics}" Height="400" SelectionMode="Single">
                                 <ListView.View>
-                                    <GridView AllowsColumnReorder="False">
+                                    <GridView >
                                         <GridViewColumn Header="Фамилия" Width="150" DisplayMemberBinding="{Binding LastName}"/>
                                         <GridViewColumn Header="Имя" Width="150" DisplayMemberBinding="{Binding FirstName}"/>
                                         <GridViewColumn Header="Отчество" Width="150" DisplayMemberBinding="{Binding FatherName}"/>

@@ -239,6 +239,7 @@
     <Compile Include="Model\LocalWorker.cs" />
     <Compile Include="Model\Node.cs" />
     <Compile Include="Model\Reports\Report_02.cs" />
+    <Compile Include="Model\Reports\Report_03.cs" />
     <Compile Include="Model\Selection.cs" />
     <Compile Include="Model\TimeSheetContext.cs" />
     <Compile Include="SelectCalendarItems.xaml.cs">
@@ -348,7 +349,9 @@
     <Resource Include="MainIco.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resource\help.png" />
+    <Resource Include="Resource\help.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <SplashScreen Include="Resource\Splash.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </SplashScreen>
@@ -380,7 +383,14 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resource\calendar.png" />
+    <Resource Include="Resource\calendar.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\loading.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

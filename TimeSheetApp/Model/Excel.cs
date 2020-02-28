@@ -94,6 +94,10 @@ namespace TimeSheetApp.Model
 
             string fileName = $"Reports\\Report{Environment.UserName}{DateTime.Now.ToString($"ddMMyyyy_HHmmss")}.xlsx";
             FileInfo newExcelFile = new FileInfo(fileName);
+            if (!Directory.Exists("Reports\\"))
+            {
+                Directory.CreateDirectory("Reports\\");
+            }
             excel.SaveAs(newExcelFile);
             excel.Dispose();
             #endregion

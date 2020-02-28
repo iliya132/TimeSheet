@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using TimeSheetApp.Model;
 using TimeSheetApp.Model.EntitiesBase;
@@ -212,6 +214,7 @@ namespace TimeSheetApp.ViewModel
             }
         }
 
+        DominoWorker worker = new DominoWorker();
         private CalendarItem _currentCalendarItem = new CalendarItem();
         public CalendarItem CurrentCalendarItem { get => _currentCalendarItem; set => _currentCalendarItem = value; }
         private int _calendarItemsCount;
@@ -219,10 +222,43 @@ namespace TimeSheetApp.ViewModel
         public int CalendarItemsCount
         {
             get { return _calendarItemsCount; }
-            set { _calendarItemsCount = value; }
+            set { _calendarItemsCount = value;
+                RaisePropertyChanged("CalendarItemsCount");
+            }
         }
+        private bool isCalendarLoading = true;
+        public bool IsCalendarLoading
+        {
+            get => isCalendarLoading;
+            set { 
+                isCalendarLoading = value;
+                RaisePropertyChanged("LoadingVisibilityInverted");
+                RaisePropertyChanged("LoadingVisibility");
+                RaisePropertyChanged("IsCalendarReady");
+                RaisePropertyChanged("IsCalendarLoading");
+            }
 
-
+        }
+        public bool IsCalendarReady
+        {
+            get => !IsCalendarLoading;
+        }
+        public Visibility LoadingVisibility
+        {
+            get
+            {
+                if (IsCalendarLoading) return Visibility.Visible;
+                else return Visibility.Collapsed;
+            }
+        }
+        public Visibility LoadingVisibilityInverted
+        {
+            get
+            {
+                if (!IsCalendarLoading) return Visibility.Visible;
+                else return Visibility.Collapsed;
+            }
+        }
         #endregion
 
         #region Редактирование процесса
@@ -245,7 +281,8 @@ namespace TimeSheetApp.ViewModel
         private List<string> _reportsAvailable = new List<string>()
         {
             "Отчет по активности аналитиков",
-            "Ресурсный план"
+            "Ресурсный план",
+            "Процессы по отделам"
         };
 
         public List<string> ReportsAvailable
@@ -297,7 +334,6 @@ namespace TimeSheetApp.ViewModel
         private Analytic _currentUser = new Analytic();
         public Analytic CurrentUser { get => _currentUser; set => _currentUser = value; }
         private bool isEditState = false;
-
         private ObservableCollection<CalendarItem> _calendarItems = new ObservableCollection<CalendarItem>();
 
         public ObservableCollection<CalendarItem> CalendarItems
@@ -305,6 +341,8 @@ namespace TimeSheetApp.ViewModel
             get { return _calendarItems; }
             set { _calendarItems = value; }
         }
+
+        Timer loadCalendarTimer;
 
         #endregion
 
@@ -323,7 +361,6 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand<AnalyticOrdered> UnselectAnalytic { get; }
         public RelayCommand ReportSelectionStore { get; }
         public RelayCommand SelectCalendarItem { get; }
-        public RelayCommand UpdateCalendarItems { get; }
 
 
         #endregion
@@ -338,6 +375,7 @@ namespace TimeSheetApp.ViewModel
         public MainViewModel(IEFDataProvider dataProvider)
         {
             EFDataProvider = dataProvider;
+            loadCalendarTimer = new Timer(timerTick, null, Timeout.Infinite, Timeout.Infinite);
 
             FillDataCollections();
             updateSubjectHints();
@@ -355,16 +393,30 @@ namespace TimeSheetApp.ViewModel
             SelectAnalytic = new RelayCommand<AnalyticOrdered>(SelectAnalyticMethod);
             UnselectAnalytic = new RelayCommand<AnalyticOrdered>(UnselectAnalyticMethod);
             SelectCalendarItem = new RelayCommand(SelectCalendarItemMethod);
-            UpdateCalendarItems = new RelayCommand(UpdateCalendarItemsMethod);
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
             GenerateNodes();
+        }
+        private void timerTick(object state)
+        {
             UpdateCalendarItemsMethod();
         }
-
         private void UpdateCalendarItemsMethod()
         {
-            CalendarItems = GetDominoCalendar();
+            loadCalendarTimer.Change(300000, Timeout.Infinite);
+            DateTime date = CurrentDate;
+            CalendarItems.Clear();
+            CalendarItemsCount = 0;
+            IsCalendarLoading = true;
+
+            Task task = new Task(() =>
+            {
+                
+                CalendarItems = GetDominoCalendar(date);
+                IsCalendarLoading = false;
+            });
+            task.Start();
+
         }
 
         private void SelectCalendarItemMethod()
@@ -759,6 +811,7 @@ namespace TimeSheetApp.ViewModel
 
         private void UpdateTimeSpan()
         {
+            UpdateCalendarItemsMethod();
             HistoryRecords.Clear();
             foreach (TimeSheetTable record in EFDataProvider.LoadTimeSheetRecords(CurrentDate, CurrentUser))
             {
@@ -957,10 +1010,9 @@ namespace TimeSheetApp.ViewModel
 
         }
 
-        private ObservableCollection<CalendarItem> GetDominoCalendar()
+        private ObservableCollection<CalendarItem> GetDominoCalendar(DateTime date)
         {
-            DominoWorker worker = new DominoWorker();
-            ObservableCollection<CalendarItem> items = new ObservableCollection<CalendarItem>(worker.GetCalendarRecords());
+            var items = new ObservableCollection<CalendarItem>(worker.GetCalendarRecords(date));
             CalendarItemsCount = items.Count;
             return items;
         }

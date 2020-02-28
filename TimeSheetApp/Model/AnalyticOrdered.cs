@@ -67,5 +67,9 @@ namespace TimeSheetApp.Model
             //Отдел (когда структура полная)
             FourStructure = Analytic.Otdel.Name;
         }
+        public override string ToString()
+        {
+            return $"{Analytic.Id}. {Analytic.FirstName} {Analytic.LastName} {Analytic.FatherName}";
+        }
     }
 }
