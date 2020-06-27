@@ -43,6 +43,7 @@ namespace TimeSheetApp.Model
                     {
                         subjectCounted.Add(item, 1);
                     }
+                    
                 }
                 foreach(KeyValuePair<string, int> item in (from i in subjectCounted orderby i.Value ascending select i))
                 {
@@ -63,7 +64,7 @@ namespace TimeSheetApp.Model
                         subjectCounted.Add(item, 1);
                     }
                 }
-                foreach (KeyValuePair<string, int> item in (from i in subjectCounted orderby i.Value ascending select i))
+                foreach (KeyValuePair<string, int> item in (from i in subjectCounted orderby i.Value descending select i))
                 {
                     subjects.Push(item.Key);
                 }
@@ -606,6 +607,10 @@ namespace TimeSheetApp.Model
                     break;
                 case (2):
                     report = new Report_03(analytics, context);
+                    report.Generate(start, end);
+                    break;
+                case (3):
+                    report = new Report_ExportToDashboard(analytics, context);
                     report.Generate(start, end);
                     break;
             }

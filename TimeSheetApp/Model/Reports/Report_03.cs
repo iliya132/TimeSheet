@@ -37,20 +37,35 @@ namespace TimeSheetApp.Model.Reports
                 ToList();
             List<Analytic> analytics = TimeSheetTableDB.Select(i=>i.Analytic).Distinct().ToList();
 
-            
-
             #region Создание списка подразделений
 
             foreach (AnalyticOrdered analytic in analyticsOrdered)
             {
                 if (analytic.Analytic.FirstName.Equals("null") || analytic.Analytic.FirstName.Equals("NotSet"))
                     continue;
-                if (!structuresData.Any(i => i.structName.Equals(analytic.SecondStructure)))
-                {
-                    structuresData.Add(new StructureData() { structName = analytic.SecondStructure });
-                }
-                structuresData.First(i => i.structName.Equals(analytic.SecondStructure)).analytics.Add(analytic);
+                string structure;
 
+                if (analytic.FourStructure == null)
+                {
+                    if (analytic.ThirdStructure == null)
+                    {
+                        structure = analytic.SecondStructure;
+                    }
+                    else
+                    {
+                        structure = analytic.ThirdStructure;
+                    }
+                }
+                else
+                {
+                    structure = analytic.FourStructure;
+                }
+
+                if (!structuresData.Any(i => i.structName.Equals(structure)))
+                {
+                    structuresData.Add(new StructureData() { structName = structure });
+                }
+                structuresData.First(i => i.structName.Equals(structure)).analytics.Add(analytic);
             }
 
             #endregion
@@ -60,13 +75,13 @@ namespace TimeSheetApp.Model.Reports
 
             foreach (Process process in _processes)
             {
-                //row.operationPercentTotal = row.timeSpent * 1.00 / timeTotal;
+                
                 #region Для каждого подразделения считаем значение
                 if (process.Id != 62 && process.Id != 63)
                 {
                     foreach (StructureData structure in structuresData)
                     {
-                        double operationPercentTotal = 0;
+                        double operationPercentTotal = 0.0;
                         int timeSpent = 0; //Время потраченное в рамках одного процесса
                         int timeSpentTotal = 0; //Время потраченное на все процессы
 
@@ -98,7 +113,11 @@ namespace TimeSheetApp.Model.Reports
                                     Sum(i => i.TimeSpent);
                             }
                             else { timeSpent = 0; }
-                            operationPercentTotal += timeSpent * 1.00 / timeSpentTotal;
+                            if (timeSpentTotal != 0)
+                            {
+                                operationPercentTotal += timeSpent * 1.00 / timeSpentTotal;
+
+                            }
                         }
                         if (operationPercentTotal > 0)
                             structure.processValues.Add(process.ProcName, operationPercentTotal);

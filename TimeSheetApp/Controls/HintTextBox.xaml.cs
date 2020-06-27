@@ -97,7 +97,7 @@ namespace TimeSheetApp.Controls
         }
         private void CloseDropDown(object obj)
         {
-            this.Dispatcher.Invoke(() => InputCacheComboBox.IsDropDownOpen = false);
+            Application.Current.Dispatcher.Invoke(()=>InputCacheComboBox.IsDropDownOpen = false);
             CloseTimer.Change(Timeout.Infinite, Timeout.Infinite);
             userUpdate = false;
         }

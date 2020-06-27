@@ -125,7 +125,6 @@ namespace TimeSheetApp.Model
         }
         public static void PrintNodes(Node node)
         {
-            Console.WriteLine(node.StructureName);
             if (node.Nodes != null)
             {
                 foreach (Node childNode in node.Nodes)

@@ -223,6 +223,10 @@ namespace TimeSheetApp
 
         private void SelectTimeAfterClick(object sender, RoutedEventArgs e)
         {
+            if(TimeSpanListView.SelectedItem == null)
+            {
+                return;
+            }
             DateTime startTime, endTime;
             startTime = (TimeSpanListView.SelectedItem as TimeSheetTable).TimeEnd;
             if (TimeSpanListView.SelectedIndex == TimeSpanListView.Items.Count - 1)
@@ -241,6 +245,10 @@ namespace TimeSheetApp
 
         private void SelectTimeBeforeClick(object sender, RoutedEventArgs e)
         {
+            if (TimeSpanListView.SelectedItem == null)
+            {
+                return;
+            }
             DateTime startTime, endTime;
             endTime = (TimeSpanListView.SelectedItem as TimeSheetTable).TimeStart;
             if (TimeSpanListView.SelectedIndex == 0)

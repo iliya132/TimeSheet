@@ -17,7 +17,7 @@ namespace TimeSheetApp.Services
         public static void CheckForUpdate()
         {
             double.TryParse(Assembly.GetExecutingAssembly().GetName().Version.ToString().Replace(".", ""), out currentVer);
-            FileVersionInfo ServerFileVersion = FileVersionInfo.GetVersionInfo(@"H:\WORK\Архив необычных операций\ОРППА\Timesheet\Data\TimeSheetApp.exe");
+            FileVersionInfo ServerFileVersion = FileVersionInfo.GetVersionInfo(@"\\moscow\hdfs\WORK\Архив необычных операций\ОРППА\Timesheet\Data\TimeSheetApp.exe");
             double.TryParse(ServerFileVersion.FileVersion.Replace(".",string.Empty), out targetVer);
             if (currentVer < targetVer)
             {
@@ -37,7 +37,7 @@ namespace TimeSheetApp.Services
                 updateText.Add("-r");
                 updateText.Add($"TimeSheetApp.exe");
 
-                Process.Start("updater.exe", string.Join(" ", updateText.ToArray()));
+                Process.Start("updaterForm.exe", string.Join(" ", updateText.ToArray()));
             }
         }
     }

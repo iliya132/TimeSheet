@@ -282,7 +282,8 @@ namespace TimeSheetApp.ViewModel
         {
             "Отчет по активности аналитиков",
             "Ресурсный план",
-            "Процессы по отделам"
+            "Процессы по отделам",
+            "Экспорт в дашборд"
         };
 
         public List<string> ReportsAvailable
@@ -365,21 +366,15 @@ namespace TimeSheetApp.ViewModel
 
         #endregion
 
-        private void writeLog(string msg)
-        {
-            using (StreamWriter sw = new StreamWriter($"{Environment.UserName}_exception.txt", true))
-            {
-                sw.WriteLine(msg);
-            }
-        }
+
         public MainViewModel(IEFDataProvider dataProvider)
         {
             EFDataProvider = dataProvider;
-            loadCalendarTimer = new Timer(timerTick, null, Timeout.Infinite, Timeout.Infinite);
+            loadCalendarTimer = new Timer(timerTick, null, 0, Timeout.Infinite);
 
             FillDataCollections();
             updateSubjectHints();
-            AddProcess = new RelayCommand<TimeSheetTable>(AddProcessMethod);
+            AddProcess = new RelayCommand<TimeSheetTable>(AddRecordMethod);
             EditProcess = new RelayCommand<TimeSheetTable>(EditHistoryProcess);
             DeleteProcess = new RelayCommand<TimeSheetTable>(DeleteHistoryRecord);
             ReloadTimeSheet = new RelayCommand(UpdateTimeSpan);
@@ -852,10 +847,9 @@ namespace TimeSheetApp.ViewModel
 
 
         }
-        private void AddProcessMethod(TimeSheetTable newItem)
-        {
-            Console.WriteLine(newItem.Subject);
 
+        private void AddRecordMethod(TimeSheetTable newItem)
+        {
             #region UnitTest's
             if (IsIntersectsWithOtherRecords(newItem))
             {

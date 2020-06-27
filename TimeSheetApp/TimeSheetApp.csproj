@@ -208,6 +208,9 @@
     <Compile Include="Model\AnalyticOrdered.cs" />
     <Compile Include="Model\CalendarItem.cs" />
     <Compile Include="Model\CodeFullConverter.cs" />
+    <Compile Include="Model\DashboardContext.cs" />
+    <Compile Include="Model\DashboardRecord.cs" />
+    <Compile Include="Model\DashboardUnit.cs" />
     <Compile Include="Model\DominoWorker.cs" />
     <Compile Include="Model\EFDataProvider.cs" />
     <Compile Include="Model\EntitiesBase\Analytic.cs" />
@@ -240,6 +243,8 @@
     <Compile Include="Model\Node.cs" />
     <Compile Include="Model\Reports\Report_02.cs" />
     <Compile Include="Model\Reports\Report_03.cs" />
+    <Compile Include="Model\Reports\Report_Allocations.cs" />
+    <Compile Include="Model\Reports\Report_ExportToDashboard.cs" />
     <Compile Include="Model\Selection.cs" />
     <Compile Include="Model\TimeSheetContext.cs" />
     <Compile Include="SelectCalendarItems.xaml.cs">
