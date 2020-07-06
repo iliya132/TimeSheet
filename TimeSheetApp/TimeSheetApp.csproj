@@ -206,6 +206,7 @@
       <DependentUpon>EditForm.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\AnalyticOrdered.cs" />
+    <Compile Include="Model\BusinessBlockNew.cs" />
     <Compile Include="Model\CalendarItem.cs" />
     <Compile Include="Model\CodeFullConverter.cs" />
     <Compile Include="Model\DashboardContext.cs" />
@@ -216,12 +217,10 @@
     <Compile Include="Model\EntitiesBase\Analytic.cs" />
     <Compile Include="Model\EntitiesBase\Block.cs" />
     <Compile Include="Model\EntitiesBase\BusinessBlock.cs" />
-    <Compile Include="Model\EntitiesBase\BusinessBlockChoice.cs" />
     <Compile Include="Model\EntitiesBase\ClientWays.cs" />
     <Compile Include="Model\EntitiesBase\Departments.cs" />
     <Compile Include="Model\EntitiesBase\Directions.cs" />
     <Compile Include="Model\EntitiesBase\Escalation.cs" />
-    <Compile Include="Model\EntitiesBase\EscalationChoice.cs" />
     <Compile Include="Model\EntitiesBase\Formats.cs" />
     <Compile Include="Model\EntitiesBase\Otdel.cs" />
     <Compile Include="Model\EntitiesBase\Positions.cs" />
@@ -229,23 +228,22 @@
     <Compile Include="Model\EntitiesBase\ProcessType.cs" />
     <Compile Include="Model\EntitiesBase\Result.cs" />
     <Compile Include="Model\EntitiesBase\Risk.cs" />
-    <Compile Include="Model\EntitiesBase\RiskChoice.cs" />
     <Compile Include="Model\EntitiesBase\Role.cs" />
     <Compile Include="Model\EntitiesBase\SubBlock.cs" />
-    <Compile Include="Model\EntitiesBase\SupportChoice.cs" />
     <Compile Include="Model\EntitiesBase\Supports.cs" />
     <Compile Include="Model\EntitiesBase\TimeSheetTable.cs" />
     <Compile Include="Model\EntitiesBase\Upravlenie.cs" />
+    <Compile Include="Model\EscalationNew.cs" />
     <Compile Include="Model\Excel.cs" />
     <Compile Include="Model\IEFDataProvider.cs" />
     <Compile Include="Model\Interfaces\IReport.cs" />
-    <Compile Include="Model\LocalWorker.cs" />
     <Compile Include="Model\Node.cs" />
     <Compile Include="Model\Reports\Report_02.cs" />
     <Compile Include="Model\Reports\Report_03.cs" />
     <Compile Include="Model\Reports\Report_Allocations.cs" />
     <Compile Include="Model\Reports\Report_ExportToDashboard.cs" />
-    <Compile Include="Model\Selection.cs" />
+    <Compile Include="Model\RiskNew.cs" />
+    <Compile Include="Model\SupportNew.cs" />
     <Compile Include="Model\TimeSheetContext.cs" />
     <Compile Include="SelectCalendarItems.xaml.cs">
       <DependentUpon>SelectCalendarItems.xaml</DependentUpon>

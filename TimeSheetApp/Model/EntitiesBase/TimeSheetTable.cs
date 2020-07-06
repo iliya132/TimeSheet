@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -22,12 +23,15 @@ namespace TimeSheetApp.Model.EntitiesBase
         public int FormatsId { get; set; }
         public int AnalyticId { get; set; }
         public int Process_id { get; set; }
-        [Column("riskChoise_id")]
-        public int RiskChoice_id { get; set; }
-        public int EscalationChoice_id { get; set; }
-        public int BusinessBlockChoice_id { get; set; }
-        [Column("supportChoice_id")]
-        public int SupportChoice_id { get; set; }
+
+        private List<BusinessBlockNew> businessBlockNews = new List<BusinessBlockNew>();
+        public List<BusinessBlockNew> BusinessBlocks { get => businessBlockNews; set => businessBlockNews = value; }
+        private List<RiskNew> _risks = new List<RiskNew>();
+        public List<RiskNew> Risks { get => _risks; set => _risks = value; }
+        private List<EscalationNew> _escalations = new List<EscalationNew>();
+        public List<EscalationNew> Escalations { get => _escalations; set => _escalations = value; }
+        public List<SupportNew> _supports = new List<SupportNew>();
+        public List<SupportNew> Supports { get => _supports; set => _supports = value; }
 
         [ForeignKey("ClientWaysId")]
         public virtual ClientWays ClientWays { get; set; }
@@ -37,13 +41,5 @@ namespace TimeSheetApp.Model.EntitiesBase
         public virtual Analytic Analytic { get; set; }
         [ForeignKey("Process_id")]
         public virtual Process Process { get; set; }
-        [ForeignKey("RiskChoice_id")]
-        public virtual RiskChoice RiskChoice { get; set; }
-        [ForeignKey("EscalationChoice_id")]
-        public virtual EscalationChoice EscalationChoice { get; set; }
-        [ForeignKey("BusinessBlockChoice_id")]
-        public virtual BusinessBlockChoice BusinessBlockChoice { get; set; }
-        [ForeignKey("SupportChoice_id")]
-        public virtual SupportChoice SupportChoice { get; set; }
     }
 }

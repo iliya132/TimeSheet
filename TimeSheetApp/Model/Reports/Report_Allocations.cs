@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TimeSheetApp.Model.EntitiesBase;
 using TimeSheetApp.Model.Interfaces;
+using OfficeOpenXml;
 
 namespace TimeSheetApp.Model.Reports
 {
@@ -24,6 +25,7 @@ namespace TimeSheetApp.Model.Reports
         }
         public void Generate(DateTime start, DateTime end)
         {
+            
             List<TimeSheetTable> records = _tsContext.TimeSheetTableSet.Where(rec => rec.TimeStart > start && rec.TimeEnd < end).ToList();
             
             foreach(Analytic analytic in _tsContext.AnalyticSet)
@@ -53,6 +55,18 @@ namespace TimeSheetApp.Model.Reports
                 }
             }
 
+            using (ExcelPackage excel = new ExcelPackage())
+            {
+
+                foreach (KeyValuePair<string, List<Analytic>> item in Units)
+                {
+                    string UnitName = item.Key;
+                    foreach (Analytic analytic in item.Value)
+                    {
+
+                    }
+                }
+            }
         }
 
         private void AddNewUnitIfNotExist(string unitName)

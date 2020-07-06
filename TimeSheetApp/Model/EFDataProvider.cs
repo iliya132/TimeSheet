@@ -14,7 +14,7 @@ namespace TimeSheetApp.Model
 {
     class EFDataProvider : IEFDataProvider
     {
-        TimeSheetContext context = new TimeSheetContext();
+        TimeSheetContext _dbContext = new TimeSheetContext();
 
         /// <summary>
         /// Получить подсказки для поля тема
@@ -32,7 +32,7 @@ namespace TimeSheetApp.Model
             {
                 proc_id = process.Id;
 
-                foreach(string item in context.TimeSheetTableSet.Where(i=>i.Analytic.UserName.ToLower().Equals(Environment.UserName.ToLower()) &&
+                foreach(string item in _dbContext.TimeSheetTableSet.Where(i=>i.Analytic.UserName.ToLower().Equals(Environment.UserName.ToLower()) &&
                 i.Subject.Length > 0 && i.Process_id == proc_id).Select(i => i.Subject).ToArray())
                 {
                     if (subjectCounted.ContainsKey(item))
@@ -52,7 +52,7 @@ namespace TimeSheetApp.Model
             }
             else
             {
-                foreach (string item in context.TimeSheetTableSet.Where(i => i.Analytic.UserName.ToLower().Equals(Environment.UserName.ToLower()) &&
+                foreach (string item in _dbContext.TimeSheetTableSet.Where(i => i.Analytic.UserName.ToLower().Equals(Environment.UserName.ToLower()) &&
                  i.Subject.Length > 0).Select(i => i.Subject).ToArray())
                 {
                     if (subjectCounted.ContainsKey(item))
@@ -72,6 +72,11 @@ namespace TimeSheetApp.Model
             return subjects;
         }
 
+        public int GetProcessCountForAnalytic(Process process, Analytic analytic)
+        {
+            return _dbContext.TimeSheetTableSet.Where(record => record.Process_id == process.Id && analytic.Id == record.AnalyticId).Count();
+        }
+
         /// <summary>
         /// Получить расшифровку кода процесса
         /// </summary>
@@ -87,7 +92,7 @@ namespace TimeSheetApp.Model
         {
             ObservableCollection<Process> processes;
 
-            processes = new ObservableCollection<Process>(context.ProcessSet);
+            processes = new ObservableCollection<Process>(_dbContext.ProcessSet);
 
             return processes;
         }
@@ -99,289 +104,10 @@ namespace TimeSheetApp.Model
         public BusinessBlock[] GetBusinessBlocks()
         {
             BusinessBlock[] businessBlocks;
-            businessBlocks = context.BusinessBlockSet.ToArray();
+            businessBlocks = _dbContext.BusinessBlockSet.ToArray();
             return businessBlocks;
         }
 
-        /// <summary>
-        /// Возвращает объект из модели соответствующий входящему id
-        /// </summary>
-        /// <param name="ObjectId"></param>
-        /// <param name="Type">0-BusinessBlock, 1-Supports, 2-Escalation, 3-RiskChoice</param>
-        /// <returns></returns>
-        public List<object> GetChoice(int ObjectId, int Type)
-        {
-            List<object> returnValue = new List<object>();
-            switch (Type)
-            {
-                //TODO: переписать этот ужас)
-                case (0):
-                    BusinessBlockChoice choice = context.BusinessBlockChoiceSet.FirstOrDefault(i => i.Id == ObjectId);
-                    if (choice != null)
-                    {
-                        #region Присваиваем значения выбора бизнес блока по порядку 
-                        if (choice.BusinessBlock_id != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id));
-                        if (choice.BusinessBlock_id1 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id1));
-                        if (choice.BusinessBlock_id2 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id2));
-                        if (choice.BusinessBlock_id3 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id3));
-                        if (choice.BusinessBlock_id4 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id4));
-                        if (choice.BusinessBlock_id5 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id5));
-                        if (choice.BusinessBlock_id6 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id6));
-                        if (choice.BusinessBlock_id7 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id7));
-                        if (choice.BusinessBlock_id8 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id8));
-                        if (choice.BusinessBlock_id9 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id9));
-                        if (choice.BusinessBlock_id10 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id10));
-                        if (choice.BusinessBlock_id11 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id11));
-                        if (choice.BusinessBlock_id12 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id12));
-                        if (choice.BusinessBlock_id13 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id13));
-                        if (choice.BusinessBlock_id14 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id14));
-                        if (choice.BusinessBlock_id15 != null) returnValue.Add(context.BusinessBlockSet.FirstOrDefault(i => i.Id == choice.BusinessBlock_id15));
-                        #endregion
-                    }
-                    break;
-                case (1):
-                    SupportChoice supChoice = context.SupportChoiceSet.FirstOrDefault(i => i.Id == ObjectId);
-                    if (supChoice == null) break;
-                    if (supChoice.Support_id != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id));
-                    if (supChoice.Support_id1 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id1));
-                    if (supChoice.Support_id2 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id2));
-                    if (supChoice.Support_id3 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id3));
-                    if (supChoice.Support_id4 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id4));
-                    if (supChoice.Support_id5 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id5));
-                    if (supChoice.Support_id6 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id6));
-                    if (supChoice.Support_id7 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id7));
-                    if (supChoice.Support_id8 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id8));
-                    if (supChoice.Support_id9 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id9));
-                    if (supChoice.Support_id10 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id10));
-                    if (supChoice.Support_id11 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id11));
-                    if (supChoice.Support_id12 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id12));
-                    if (supChoice.Support_id13 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id13));
-                    if (supChoice.Support_id14 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id14));
-                    if (supChoice.Support_id15 != null) returnValue.Add(context.SupportsSet.FirstOrDefault(i => i.Id == supChoice.Support_id15));
-                    break;
-                case (2):
-                    EscalationChoice EscChoice = context.EscalationChoiceSet.FirstOrDefault(i => i.Id == ObjectId);
-                    if (EscChoice == null) break;
-                    if (EscChoice.Escalation_id != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id));
-                    if (EscChoice.Escalation_id1 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id1));
-                    if (EscChoice.Escalation_id2 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id2));
-                    if (EscChoice.Escalation_id3 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id3));
-                    if (EscChoice.Escalation_id4 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id4));
-                    if (EscChoice.Escalation_id5 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id5));
-                    if (EscChoice.Escalation_id6 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id6));
-                    if (EscChoice.Escalation_id7 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id7));
-                    if (EscChoice.Escalation_id8 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id8));
-                    if (EscChoice.Escalation_id9 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id9));
-                    if (EscChoice.Escalation_id10 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id10));
-                    if (EscChoice.Escalation_id11 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id11));
-                    if (EscChoice.Escalation_id12 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id12));
-                    if (EscChoice.Escalation_id13 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id13));
-                    if (EscChoice.Escalation_id14 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id14));
-                    if (EscChoice.Escalation_id15 != null) returnValue.Add(context.EscalationsSet.FirstOrDefault(i => i.Id == EscChoice.Escalation_id15));
-                    break;
-                case (3):
-                    RiskChoice riskChoice = context.RiskChoiceSet.FirstOrDefault(i => i.Id == ObjectId);
-                    if (riskChoice == null) break;
-                    if (riskChoice.Risk_id != null) returnValue.Add(context.RiskSet.FirstOrDefault(i => i.Id == riskChoice.Risk_id));
-                    if (riskChoice.Risk_id1 != null) returnValue.Add(context.RiskSet.FirstOrDefault(i => i.Id == riskChoice.Risk_id1));
-                    if (riskChoice.Risk_id2 != null) returnValue.Add(context.RiskSet.FirstOrDefault(i => i.Id == riskChoice.Risk_id2));
-                    if (riskChoice.Risk_id3 != null) returnValue.Add(context.RiskSet.FirstOrDefault(i => i.Id == riskChoice.Risk_id3));
-                    if (riskChoice.Risk_id4 != null) returnValue.Add(context.RiskSet.FirstOrDefault(i => i.Id == riskChoice.Risk_id4));
-                    if (riskChoice.Risk_id5 != null) returnValue.Add(context.RiskSet.FirstOrDefault(i => i.Id == riskChoice.Risk_id5));
-                    if (riskChoice.Risk_id6 != null) returnValue.Add(context.RiskSet.FirstOrDefault(i => i.Id == riskChoice.Risk_id6));
-                    if (riskChoice.Risk_id7 != null) returnValue.Add(context.RiskSet.FirstOrDefault(i => i.Id == riskChoice.Risk_id7));
-                    if (riskChoice.Risk_id8 != null) returnValue.Add(context.RiskSet.FirstOrDefault(i => i.Id == riskChoice.Risk_id8));
-                    if (riskChoice.Risk_id9 != null) returnValue.Add(context.RiskSet.FirstOrDefault(i => i.Id == riskChoice.Risk_id9));
-                    break;
-            }
-
-            return returnValue;
-
-        }
-
-        /// <summary>
-        /// Добавить выбор Риска
-        /// </summary>
-        /// <param name="RiskChoice">Мультивыбор</param>
-        /// <returns>id новой строки RiskChoiceId</returns>
-        public int AddRiskChoice(RiskChoice RiskChoice)
-        {
-            if (RiskChoice == null)
-            {
-                RiskChoice = new RiskChoice();
-            }
-            if (context.RiskChoiceSet.Any(i =>
-            i.Risk_id == RiskChoice.Risk_id &&
-            i.Risk_id1 == RiskChoice.Risk_id1 &&
-            i.Risk_id2 == RiskChoice.Risk_id2 &&
-            i.Risk_id3 == RiskChoice.Risk_id3 &&
-            i.Risk_id4 == RiskChoice.Risk_id4 &&
-            i.Risk_id5 == RiskChoice.Risk_id5 &&
-            i.Risk_id6 == RiskChoice.Risk_id6 &&
-            i.Risk_id7 == RiskChoice.Risk_id7 &&
-            i.Risk_id8 == RiskChoice.Risk_id8
-            ))
-            {
-                return context.RiskChoiceSet.First(
-            i => i.Risk_id == RiskChoice.Risk_id &&
-            i.Risk_id1 == RiskChoice.Risk_id1 &&
-            i.Risk_id2 == RiskChoice.Risk_id2 &&
-            i.Risk_id3 == RiskChoice.Risk_id3 &&
-            i.Risk_id4 == RiskChoice.Risk_id4 &&
-            i.Risk_id5 == RiskChoice.Risk_id5 &&
-            i.Risk_id6 == RiskChoice.Risk_id6 &&
-            i.Risk_id7 == RiskChoice.Risk_id7 &&
-            i.Risk_id8 == RiskChoice.Risk_id8).Id;
-            }
-            else
-            {
-                context.RiskChoiceSet.Add(RiskChoice);
-                context.SaveChanges();
-                return RiskChoice.Id;
-            }
-
-        }
-
-        /// <summary>
-        /// Добавить выбор бизнес блоков
-        /// </summary>
-        /// <param name="BBChoice"></param>
-        /// <returns>Id нового BusinessBlockChoice в БД</returns>
-        public int AddBusinessBlockChoice(BusinessBlockChoice BBChoice)
-        {
-            if (BBChoice == null)
-            {
-                BBChoice = new BusinessBlockChoice();
-            }
-            int _id = 0;
-
-            if (context.BusinessBlockChoiceSet.Any(i =>
-            i.BusinessBlock_id == BBChoice.BusinessBlock_id &&
-            i.BusinessBlock_id1 == BBChoice.BusinessBlock_id1 &&
-            i.BusinessBlock_id2 == BBChoice.BusinessBlock_id2 &&
-            i.BusinessBlock_id3 == BBChoice.BusinessBlock_id3 &&
-            i.BusinessBlock_id4 == BBChoice.BusinessBlock_id4 &&
-            i.BusinessBlock_id5 == BBChoice.BusinessBlock_id5 &&
-            i.BusinessBlock_id6 == BBChoice.BusinessBlock_id6 &&
-            i.BusinessBlock_id7 == BBChoice.BusinessBlock_id7 &&
-            i.BusinessBlock_id8 == BBChoice.BusinessBlock_id8
-            ))
-            {
-                _id = context.BusinessBlockChoiceSet.First(
-            i => i.BusinessBlock_id == BBChoice.BusinessBlock_id &&
-            i.BusinessBlock_id1 == BBChoice.BusinessBlock_id1 &&
-            i.BusinessBlock_id2 == BBChoice.BusinessBlock_id2 &&
-            i.BusinessBlock_id3 == BBChoice.BusinessBlock_id3 &&
-            i.BusinessBlock_id4 == BBChoice.BusinessBlock_id4 &&
-            i.BusinessBlock_id5 == BBChoice.BusinessBlock_id5 &&
-            i.BusinessBlock_id6 == BBChoice.BusinessBlock_id6 &&
-            i.BusinessBlock_id7 == BBChoice.BusinessBlock_id7 &&
-            i.BusinessBlock_id8 == BBChoice.BusinessBlock_id8).Id;
-            }
-            else
-            {
-                context.BusinessBlockChoiceSet.Add(BBChoice);
-                context.SaveChanges();
-                _id = BBChoice.Id;
-            }
-            return _id;
-        }
-
-        /// <summary>
-        /// Добавить в БД выбор Эскалации
-        /// </summary>
-        /// <param name="escalationChoice"></param>
-        /// <returns>Id нового списка выбора в БД</returns>
-        public int AddEscalationChoice(EscalationChoice escalationChoice)
-        {
-            if (escalationChoice == null)
-            {
-                escalationChoice = new EscalationChoice();
-            }
-
-            int _id = 0;
-
-            if (context.EscalationChoiceSet.Any(i =>
-            i.Escalation_id == escalationChoice.Escalation_id &&
-            i.Escalation_id1 == escalationChoice.Escalation_id1 &&
-            i.Escalation_id2 == escalationChoice.Escalation_id2 &&
-            i.Escalation_id3 == escalationChoice.Escalation_id3 &&
-            i.Escalation_id4 == escalationChoice.Escalation_id4 &&
-            i.Escalation_id5 == escalationChoice.Escalation_id5 &&
-            i.Escalation_id6 == escalationChoice.Escalation_id6 &&
-            i.Escalation_id7 == escalationChoice.Escalation_id7 &&
-            i.Escalation_id8 == escalationChoice.Escalation_id8
-            ))
-            {
-                _id = context.EscalationChoiceSet.First(
-            i => i.Escalation_id == escalationChoice.Escalation_id &&
-            i.Escalation_id1 == escalationChoice.Escalation_id1 &&
-            i.Escalation_id2 == escalationChoice.Escalation_id2 &&
-            i.Escalation_id3 == escalationChoice.Escalation_id3 &&
-            i.Escalation_id4 == escalationChoice.Escalation_id4 &&
-            i.Escalation_id5 == escalationChoice.Escalation_id5 &&
-            i.Escalation_id6 == escalationChoice.Escalation_id6 &&
-            i.Escalation_id7 == escalationChoice.Escalation_id7 &&
-            i.Escalation_id8 == escalationChoice.Escalation_id8).Id;
-            }
-            else
-            {
-                context.EscalationChoiceSet.Add(escalationChoice);
-                context.SaveChanges();
-                _id = escalationChoice.Id;
-            }
-
-            return _id;
-        }
-
-        /// <summary>
-        /// Добавить в БД выбор Саппортов
-        /// </summary>
-        /// <param name="_suppChoice"></param>
-        /// <returns>Id нового списка выбора в БД</returns>
-        public int AddSupportChoiceSet(SupportChoice _suppChoice)
-        {
-            if (_suppChoice == null)
-            {
-                _suppChoice = new SupportChoice();
-            }
-
-            int _id = 0;
-
-            if (context.SupportChoiceSet.Any(i =>
-            i.Support_id == _suppChoice.Support_id &&
-            i.Support_id1 == _suppChoice.Support_id1 &&
-            i.Support_id2 == _suppChoice.Support_id2 &&
-            i.Support_id3 == _suppChoice.Support_id3 &&
-            i.Support_id4 == _suppChoice.Support_id4 &&
-            i.Support_id5 == _suppChoice.Support_id5 &&
-            i.Support_id6 == _suppChoice.Support_id6 &&
-            i.Support_id7 == _suppChoice.Support_id7 &&
-            i.Support_id8 == _suppChoice.Support_id8
-            ))
-            {
-                _id = context.SupportChoiceSet.First(
-            i => i.Support_id == _suppChoice.Support_id &&
-            i.Support_id1 == _suppChoice.Support_id1 &&
-            i.Support_id2 == _suppChoice.Support_id2 &&
-            i.Support_id3 == _suppChoice.Support_id3 &&
-            i.Support_id4 == _suppChoice.Support_id4 &&
-            i.Support_id5 == _suppChoice.Support_id5 &&
-            i.Support_id6 == _suppChoice.Support_id6 &&
-            i.Support_id7 == _suppChoice.Support_id7 &&
-            i.Support_id8 == _suppChoice.Support_id8).Id;
-            }
-            else
-            {
-                context.SupportChoiceSet.Add(_suppChoice);
-                context.SaveChanges();
-                _id = _suppChoice.Id;
-            }
-
-            return _id;
-        }
-
-        /// <summary>
         /// Добавить запись в TimeSheetTable
         /// </summary>
         /// <param name="activity">Процесс</param>
@@ -389,12 +115,8 @@ namespace TimeSheetApp.Model
         {
             TimeSpan span = activity.TimeEnd - activity.TimeStart;
             activity.TimeSpent = (int)span.TotalMinutes;
-            activity.BusinessBlockChoice = context.BusinessBlockChoiceSet.FirstOrDefault(i => i.Id == activity.BusinessBlockChoice_id);
-            activity.SupportChoice = context.SupportChoiceSet.FirstOrDefault(i => i.Id == activity.SupportChoice_id);
-            activity.EscalationChoice = context.EscalationChoiceSet.FirstOrDefault(i => i.Id == activity.EscalationChoice_id);
-            activity.RiskChoice = context.RiskChoiceSet.FirstOrDefault(i => i.Id == activity.RiskChoice_id);
-            context.TimeSheetTableSet.Add(activity);
-            context.SaveChanges();
+            _dbContext.TimeSheetTableSet.Add(activity);
+            _dbContext.SaveChanges();
         }
 
         /// <summary>
@@ -403,8 +125,8 @@ namespace TimeSheetApp.Model
         /// <param name="record"></param>
         public void DeleteRecord(TimeSheetTable record)
         {
-            context.TimeSheetTableSet.Remove(record);
-            context.SaveChanges();
+            _dbContext.TimeSheetTableSet.Remove(record);
+            _dbContext.SaveChanges();
         }
 
         /// <summary>
@@ -423,7 +145,7 @@ namespace TimeSheetApp.Model
         public List<string> GetBlocksList()
         {
             List<string> BlocksList;
-            BlocksList = new List<string>(context.BlockSet.Select(i => i.BlockName).ToArray());
+            BlocksList = new List<string>(_dbContext.BlockSet.Select(i => i.BlockName).ToArray());
             return BlocksList;
         }
 
@@ -434,7 +156,7 @@ namespace TimeSheetApp.Model
         public ClientWays[] GetClientWays()
         {
             ClientWays[] clientWays;
-            clientWays = context.ClientWaysSet.ToArray();
+            clientWays = _dbContext.ClientWaysSet.ToArray();
             return clientWays;
         }
 
@@ -445,7 +167,7 @@ namespace TimeSheetApp.Model
         public Escalation[] GetEscalation()
         {
             Escalation[] escalations;
-            escalations = context.EscalationsSet.ToArray();
+            escalations = _dbContext.EscalationsSet.ToArray();
             return escalations;
         }
 
@@ -456,102 +178,8 @@ namespace TimeSheetApp.Model
         public Formats[] GetFormat()
         {
             Formats[] formats;
-            formats = context.FormatsSet.ToArray();
+            formats = _dbContext.FormatsSet.ToArray();
             return formats;
-        }
-
-        /// <summary>
-        /// Получить список выбора риска
-        /// </summary>
-        /// <param name="riskChoice"></param>
-        /// <returns></returns>
-        public Risk[] LoadRiskChoice(RiskChoice riskChoice)
-        {
-            Risk[] risks;
-            risks = context.RiskSet.Where(
-                risk =>
-            risk.Id == riskChoice.Risk_id ||
-            risk.Id == riskChoice.Risk_id1 ||
-            risk.Id == riskChoice.Risk_id2 ||
-            risk.Id == riskChoice.Risk_id3 ||
-            risk.Id == riskChoice.Risk_id4 ||
-            risk.Id == riskChoice.Risk_id5 ||
-            risk.Id == riskChoice.Risk_id6 ||
-            risk.Id == riskChoice.Risk_id7 ||
-            risk.Id == riskChoice.Risk_id8 ||
-            risk.Id == riskChoice.Risk_id9).ToArray();
-            return risks;
-        }
-
-        /// <summary>
-        /// Получить список выбора бизнесблоков
-        /// </summary>
-        /// <param name="businessBlockChoice"></param>
-        /// <returns></returns>
-        public BusinessBlock[] LoadBusinessBlockChoice(BusinessBlockChoice businessBlockChoice)
-        {
-            BusinessBlock[] businessBlocks;
-            businessBlocks = context.BusinessBlockSet.Where(
-                businessBlock =>
-            businessBlock.Id == businessBlockChoice.BusinessBlock_id ||
-            businessBlock.Id == businessBlockChoice.BusinessBlock_id1 ||
-            businessBlock.Id == businessBlockChoice.BusinessBlock_id2 ||
-            businessBlock.Id == businessBlockChoice.BusinessBlock_id3 ||
-            businessBlock.Id == businessBlockChoice.BusinessBlock_id4 ||
-            businessBlock.Id == businessBlockChoice.BusinessBlock_id5 ||
-            businessBlock.Id == businessBlockChoice.BusinessBlock_id6 ||
-            businessBlock.Id == businessBlockChoice.BusinessBlock_id7 ||
-            businessBlock.Id == businessBlockChoice.BusinessBlock_id8 ||
-            businessBlock.Id == businessBlockChoice.BusinessBlock_id9).ToArray();
-            return businessBlocks;
-        }
-
-        /// <summary>
-        /// Получить список выбора саппортов
-        /// </summary>
-        /// <param name="SupportChoice"></param>
-        /// <returns></returns>
-        public Supports[] LoadSupportsChoice(SupportChoice SupportChoice)
-        {
-            Supports[] supports;
-            supports = context.SupportsSet.Where(
-                support =>
-            support.Id == SupportChoice.Support_id ||
-            support.Id == SupportChoice.Support_id1 ||
-            support.Id == SupportChoice.Support_id2 ||
-            support.Id == SupportChoice.Support_id3 ||
-            support.Id == SupportChoice.Support_id4 ||
-            support.Id == SupportChoice.Support_id5 ||
-            support.Id == SupportChoice.Support_id6 ||
-            support.Id == SupportChoice.Support_id7 ||
-            support.Id == SupportChoice.Support_id8 ||
-            support.Id == SupportChoice.Support_id9).ToArray();
-            return supports;
-        }
-
-        /// <summary>
-        /// Получить список выбора эскалаций
-        /// </summary>
-        /// <param name="escalationChoice"></param>
-        /// <returns></returns>
-        public Escalation[] LoadEscalationChoice(EscalationChoice escalationChoice)
-        {
-            Escalation[] escalations;
-
-            escalations = context.EscalationsSet.Where(
-                escalation =>
-            escalation.Id == escalationChoice.Escalation_id ||
-            escalation.Id == escalationChoice.Escalation_id1 ||
-            escalation.Id == escalationChoice.Escalation_id2 ||
-            escalation.Id == escalationChoice.Escalation_id3 ||
-            escalation.Id == escalationChoice.Escalation_id4 ||
-            escalation.Id == escalationChoice.Escalation_id5 ||
-            escalation.Id == escalationChoice.Escalation_id6 ||
-            escalation.Id == escalationChoice.Escalation_id7 ||
-            escalation.Id == escalationChoice.Escalation_id8 ||
-            escalation.Id == escalationChoice.Escalation_id9).ToArray();
-
-            return escalations;
         }
 
         /// <summary>
@@ -565,22 +193,22 @@ namespace TimeSheetApp.Model
             switch (currentUser.RoleTableId)
             {
                 case (1):
-                    analytics = new ObservableCollection<Analytic>(context.AnalyticSet.Where(i => i.DepartmentId == currentUser.DepartmentId).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.DepartmentId == currentUser.DepartmentId).ToArray());
                     break;
                 case (2):
-                    analytics = new ObservableCollection<Analytic>(context.AnalyticSet.Where(i => i.DirectionId == currentUser.DirectionId).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.DirectionId == currentUser.DirectionId).ToArray());
                     break;
                 case (3):
-                    analytics = new ObservableCollection<Analytic>(context.AnalyticSet.Where(i => i.UpravlenieId == currentUser.UpravlenieId).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.UpravlenieId == currentUser.UpravlenieId).ToArray());
                     break;
                 case (4):
-                    analytics = new ObservableCollection<Analytic>(context.AnalyticSet.Where(i => i.OtdelId == currentUser.OtdelId).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.OtdelId == currentUser.OtdelId).ToArray());
                     break;
                 case (5):
-                    analytics = new ObservableCollection<Analytic>(context.AnalyticSet.ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.ToArray());
                     break;
                 default:
-                    analytics = new ObservableCollection<Analytic>(context.AnalyticSet.Where(i => i.Id == currentUser.Id).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.Id == currentUser.Id).ToArray());
                     break;
             }
             return analytics;
@@ -602,15 +230,15 @@ namespace TimeSheetApp.Model
                     ExcelWorker.ExportDataTableToExcel(GetAnalyticsReport(analytics, start, end));
                     break;
                 case (1):
-                    report = new Report_02(context, analytics);
+                    report = new Report_02(_dbContext, analytics);
                     report.Generate(start, end);
                     break;
                 case (2):
-                    report = new Report_03(analytics, context);
+                    report = new Report_03(analytics, _dbContext);
                     report.Generate(start, end);
                     break;
                 case (3):
-                    report = new Report_ExportToDashboard(analytics, context);
+                    report = new Report_ExportToDashboard(analytics, _dbContext);
                     report.Generate(start, end);
                     break;
             }
@@ -623,7 +251,7 @@ namespace TimeSheetApp.Model
         public Risk[] GetRisks()
         {
             Risk[] risks;
-            risks = context.RiskSet.ToArray();
+            risks = _dbContext.RiskSet.ToArray();
             return risks;
         }
 
@@ -634,7 +262,7 @@ namespace TimeSheetApp.Model
         public List<string> GetSubBlocksList()
         {
             List<string> SubBlockNames;
-            SubBlockNames = new List<string>(context.SubBlockSet.Select(i => i.SubblockName).ToArray());
+            SubBlockNames = new List<string>(_dbContext.SubBlockSet.Select(i => i.SubblockName).ToArray());
             return SubBlockNames;
         }
 
@@ -645,7 +273,7 @@ namespace TimeSheetApp.Model
         public Supports[] GetSupports()
         {
             Supports[] supports;
-            supports = context.SupportsSet.ToArray();
+            supports = _dbContext.SupportsSet.ToArray();
             return supports;
         }
 
@@ -671,9 +299,9 @@ namespace TimeSheetApp.Model
             string user = Environment.UserName;
             Analytic analytic = new Analytic();
 
-            if (context.AnalyticSet.Any(i => i.UserName.ToLower().Equals(user.ToLower())))
+            if (_dbContext.AnalyticSet.Any(i => i.UserName.ToLower().Equals(user.ToLower())))
             {
-                analytic = context.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(user.ToLower()));
+                analytic = _dbContext.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(user.ToLower()));
             }
             else
             {
@@ -690,9 +318,9 @@ namespace TimeSheetApp.Model
                     RoleTableId = 1,
                     UpravlenieId = 1
                 };
-                context.AnalyticSet.Add(analytic);
-                context.SaveChanges();
-                analytic = context.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(Environment.UserName.ToLower()));
+                _dbContext.AnalyticSet.Add(analytic);
+                _dbContext.SaveChanges();
+                analytic = _dbContext.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(Environment.UserName.ToLower()));
             }
 
             return analytic;
@@ -707,7 +335,7 @@ namespace TimeSheetApp.Model
         public List<TimeSheetTable> LoadTimeSheetRecords(DateTime date, Analytic user)
         {
             List<TimeSheetTable> timeSheetTables;
-            timeSheetTables = context.TimeSheetTableSet.Where(i => i.AnalyticId == user.Id && DbFunctions.TruncateTime(i.TimeStart) == date.Date).ToList();
+            timeSheetTables = _dbContext.TimeSheetTableSet.Where(i => i.AnalyticId == user.Id && DbFunctions.TruncateTime(i.TimeStart) == date.Date).ToList();
             return timeSheetTables;
         }
 
@@ -721,22 +349,18 @@ namespace TimeSheetApp.Model
             oldProcess.Subject = newProcess.Subject;
             oldProcess.Comment = newProcess.Comment;
             oldProcess.Process = newProcess.Process;
-            oldProcess.BusinessBlockChoice = newProcess.BusinessBlockChoice;
-            oldProcess.SupportChoice = newProcess.SupportChoice;
+            oldProcess.BusinessBlocks = newProcess.BusinessBlocks;
+            oldProcess.Supports = newProcess.Supports;
             oldProcess.Process = newProcess.Process;
-            oldProcess.TimeEnd = newProcess.TimeEnd;
             oldProcess.TimeSpent = newProcess.TimeSpent;
             oldProcess.ClientWays = newProcess.ClientWays;
-            oldProcess.EscalationChoice = newProcess.EscalationChoice;
+            oldProcess.Escalations = newProcess.Escalations;
             oldProcess.Formats = newProcess.Formats;
-            oldProcess.RiskChoice = newProcess.RiskChoice;
+            oldProcess.Risks = newProcess.Risks;
             oldProcess.TimeStart = newProcess.TimeStart;
-            oldProcess.BusinessBlockChoice = context.BusinessBlockChoiceSet.FirstOrDefault(i => i.Id == newProcess.BusinessBlockChoice_id);
-            oldProcess.SupportChoice = context.SupportChoiceSet.FirstOrDefault(i => i.Id == newProcess.SupportChoice_id);
-            oldProcess.EscalationChoice = context.EscalationChoiceSet.FirstOrDefault(i => i.Id == newProcess.EscalationChoice_id);
-            oldProcess.RiskChoice = context.RiskChoiceSet.FirstOrDefault(i => i.Id == newProcess.RiskChoice_id);
+            oldProcess.TimeEnd = newProcess.TimeEnd;
 
-            context.SaveChanges();
+            _dbContext.SaveChanges();
 
         }
 
@@ -748,7 +372,7 @@ namespace TimeSheetApp.Model
         public bool IsCollisionedWithOtherRecords(TimeSheetTable record)
         {
             bool state = false;
-            foreach (TimeSheetTable historyRecord in context.TimeSheetTableSet.Where(i => i.AnalyticId == record.AnalyticId))
+            foreach (TimeSheetTable historyRecord in _dbContext.TimeSheetTableSet.Where(i => i.AnalyticId == record.AnalyticId))
             {
                 if (historyRecord.Id != record.Id && isInInterval(record.TimeStart, record.TimeEnd, historyRecord.TimeStart, historyRecord.TimeEnd))
                 {
@@ -812,7 +436,7 @@ namespace TimeSheetApp.Model
             foreach (Analytic analytic in analytics)
             {
                 List<TimeSheetTable> ReportEntity = new List<TimeSheetTable>();
-                ReportEntity = context.TimeSheetTableSet.Where(
+                ReportEntity = _dbContext.TimeSheetTableSet.Where(
                     record => record.AnalyticId == analytic.Id &&
                     record.TimeStart > TimeStart && record.TimeStart < TimeEnd).ToList();
                 for (int i = 0; i < ReportEntity.Count; i++)
@@ -833,78 +457,20 @@ namespace TimeSheetApp.Model
                     #region Добавление информации о мультивыборе
 
                     StringBuilder choice = new StringBuilder();
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock1 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock1?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock2 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock2?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock3 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock3?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock4 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock4?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock5 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock5?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock6 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock6?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock7 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock7?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock8 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock8?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock9 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock9?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock10 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock10?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock11 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock11?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock12 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock12?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock13 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock13?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock14 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock14?.BusinessBlockName}; ");
-                    if (ReportEntity[i].BusinessBlockChoice.BusinessBlock15 != null)
-                        choice.Append($"{ReportEntity[i].BusinessBlockChoice.BusinessBlock15?.BusinessBlockName}; ");
-
+                    foreach(BusinessBlockNew item in ReportEntity[i].BusinessBlocks)
+                    {
+                        choice.Append(item.BusinessBlock.BusinessBlockName);
+                    }
                     row["BusinessBlockName"] = choice.ToString();
                     #endregion
 
                     #region Добавление строки о мультивыборе саппорта
                     choice.Clear();
-
-                    if (ReportEntity[i].SupportChoice.Support1 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support1?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support2 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support2?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support3 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support3?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support4 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support4?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support5 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support5?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support6 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support6?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support7 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support7?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support8 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support8?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support9 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support9?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support10 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support10?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support11 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support11?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support12 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support12?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support13 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support13?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support14 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support14?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support15 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support15?.Name}; ");
-                    if (ReportEntity[i].SupportChoice.Support16 != null)
-                        choice.Append($"{ReportEntity[i].SupportChoice.Support16?.Name}; ");
-
+                    foreach(SupportNew item in ReportEntity[i].Supports)
+                    {
+                        choice.Append(item.Supports.Name);
+                    }
                     row["SupportsName"] = choice.ToString();
-
                     #endregion
 
                     row["ClientWaysName"] = ReportEntity[i].ClientWays.Name;
@@ -912,40 +478,10 @@ namespace TimeSheetApp.Model
                     #region добавление строки о мультивыбора эскалации
 
                     choice.Clear();
-
-                    if (ReportEntity[i].EscalationChoice.Escalation1 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation1?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation2 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation2?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation3 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation3?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation4 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation4?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation5 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation5?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation6 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation6?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation7 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation7?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation8 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation8?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation9 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation9?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation10 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation10?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation11 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation11?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation12 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation12?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation13 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation13?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation14 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation14?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation15 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation15?.Name}; ");
-                    if (ReportEntity[i].EscalationChoice.Escalation16 != null)
-                        choice.Append($"{ReportEntity[i].EscalationChoice.Escalation16?.Name}; ");
-
+                    foreach(EscalationNew item in ReportEntity[i].Escalations)
+                    {
+                        choice.Append(item.Escalation.Name);
+                    }
                     row["EscalationsName"] = choice.ToString();
 
                     #endregion
@@ -955,26 +491,10 @@ namespace TimeSheetApp.Model
                     #region добавление строки о мультивыборе риска
 
                     choice.Clear();
-                    if(ReportEntity[i].RiskChoice.Risk1!=null)
-                        choice.Append($"{ReportEntity[i].RiskChoice.Risk1?.RiskName}; ");
-                    if (ReportEntity[i].RiskChoice.Risk2 != null)
-                        choice.Append($"{ReportEntity[i].RiskChoice.Risk2?.RiskName}; ");
-                    if (ReportEntity[i].RiskChoice.Risk3 != null)
-                        choice.Append($"{ReportEntity[i].RiskChoice.Risk3?.RiskName}; ");
-                    if (ReportEntity[i].RiskChoice.Risk4 != null)
-                        choice.Append($"{ReportEntity[i].RiskChoice.Risk4?.RiskName}; ");
-                    if (ReportEntity[i].RiskChoice.Risk5 != null)
-                        choice.Append($"{ReportEntity[i].RiskChoice.Risk5?.RiskName}; ");
-                    if (ReportEntity[i].RiskChoice.Risk6 != null)
-                        choice.Append($"{ReportEntity[i].RiskChoice.Risk6?.RiskName}; ");
-                    if (ReportEntity[i].RiskChoice.Risk7 != null)
-                        choice.Append($"{ReportEntity[i].RiskChoice.Risk7?.RiskName}; ");
-                    if (ReportEntity[i].RiskChoice.Risk8 != null)
-                        choice.Append($"{ReportEntity[i].RiskChoice.Risk8?.RiskName}; ");
-                    if (ReportEntity[i].RiskChoice.Risk9 != null)
-                        choice.Append($"{ReportEntity[i].RiskChoice.Risk9?.RiskName}; ");
-                    if (ReportEntity[i].RiskChoice.Risk10 != null)
-                        choice.Append($"{ReportEntity[i].RiskChoice.Risk10?.RiskName}; ");
+                    foreach(RiskNew item in ReportEntity[i].Risks)
+                    {
+                        choice.Append(item.Risk.RiskName);
+                    }
 
                     row["RiskName"] = choice.ToString();
 
@@ -983,6 +503,11 @@ namespace TimeSheetApp.Model
             }
             #endregion
             return dataTable;
+        }
+
+        public TimeSheetTable GetLastActivityWithSameProcess(Process process, Analytic user)
+        {
+            return _dbContext.TimeSheetTableSet.OrderByDescending(rec => rec.Id).FirstOrDefault();
         }
     }
 }
