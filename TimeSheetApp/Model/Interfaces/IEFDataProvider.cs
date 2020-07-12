@@ -11,7 +11,7 @@ namespace TimeSheetApp.Model
 {
     public interface IEFDataProvider
     {
-        Stack<string> GetSubjectHints(Process process);
+        List<string> GetSubjectHints(Process process);
         bool ForcedToQuit();
         ObservableCollection<Process> GetProcesses();
         BusinessBlock[] GetBusinessBlocks();
@@ -33,5 +33,6 @@ namespace TimeSheetApp.Model
         Visibility IsAnalyticHasAccess(Analytic currentUser);
         int GetProcessCountForAnalytic(Process process, Analytic analytic);
         TimeSheetTable GetLastActivityWithSameProcess(Process process, Analytic user);
+        void RemoveSelection(TimeSheetTable record);
     }
 }

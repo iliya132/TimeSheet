@@ -41,5 +41,10 @@ namespace TimeSheetApp.Model.EntitiesBase
         public virtual Analytic Analytic { get; set; }
         [ForeignKey("Process_id")]
         public virtual Process Process { get; set; }
+
+        public override string ToString()
+        {
+            return Subject;
+        }
     }
 }

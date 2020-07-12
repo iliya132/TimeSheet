@@ -28,6 +28,7 @@ namespace TimeSheetApp.Model.EntitiesBase
         public int OtdelId { get; set; }
         public int PositionsId { get; set; }
         public int RoleTableId { get; set; }
+        public bool? Deleted_Flag { get; set; }
 
         [ForeignKey("DepartmentId")]
         public virtual Departments Departments { get; set; }

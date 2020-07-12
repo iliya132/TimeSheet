@@ -4,6 +4,7 @@ using TimeSheetApp.Model.EntitiesBase;
 
 namespace TimeSheetApp.Model
 {
+    [Table("NewSupportsSet")]
     public class SupportNew
     {
         public int Id { get; set; }

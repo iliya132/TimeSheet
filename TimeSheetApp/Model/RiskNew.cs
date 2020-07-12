@@ -8,6 +8,7 @@ using TimeSheetApp.Model.EntitiesBase;
 
 namespace TimeSheetApp.Model
 {
+    [Table("NewRiskSet")]
     public class RiskNew
     {
         public int Id { get; set; }

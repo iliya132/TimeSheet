@@ -8,6 +8,7 @@ using TimeSheetApp.Model.EntitiesBase;
 
 namespace TimeSheetApp.Model
 {
+    [Table("NewEscalations")]
     public class EscalationNew
     {
         public int Id { get; set; }

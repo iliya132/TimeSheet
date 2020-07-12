@@ -11,7 +11,6 @@ namespace UpdaterForm
 {
     static class Program
     {
-        private static Form1 form;
         /// <summary>
         /// The main entry point for the application.
         /// </summary>

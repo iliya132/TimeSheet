@@ -21,54 +21,22 @@ namespace TimeSheetApp.Model
         /// </summary>
         /// <param name="process">Процесс, к которому нужно подобрать подсказки</param>
         /// <returns>Стек тем, введенных ранее пользователем</returns>
-        public Stack<string> GetSubjectHints(Process process)
+        public List<string> GetSubjectHints(Process process)
         {
-            Stack<string> subjects = new Stack<string>();
-            Dictionary<string, int> subjectCounted = new Dictionary<string, int>();
-
-            int proc_id;
-
+            List<string> subjects = new List<string>();
             if (process != null)
             {
-                proc_id = process.Id;
+                int CurrentAnalyticId = _dbContext.AnalyticSet.
+                    FirstOrDefault(i => i.UserName.ToLower().Equals(Environment.UserName.ToLower())).Id;
+            
+                subjects = _dbContext.TimeSheetTableSet.
+                    Where(i => i.AnalyticId == CurrentAnalyticId &&
+                        i.Subject.Length > 0 &&
+                        i.Process_id == process.Id).OrderBy(i => i.TimeStart).
+                    Select(i => i.Subject).ToList();
+            }
 
-                foreach(string item in _dbContext.TimeSheetTableSet.Where(i=>i.Analytic.UserName.ToLower().Equals(Environment.UserName.ToLower()) &&
-                i.Subject.Length > 0 && i.Process_id == proc_id).Select(i => i.Subject).ToArray())
-                {
-                    if (subjectCounted.ContainsKey(item))
-                    {
-                        subjectCounted[item]++;
-                    }
-                    else
-                    {
-                        subjectCounted.Add(item, 1);
-                    }
-                    
-                }
-                foreach(KeyValuePair<string, int> item in (from i in subjectCounted orderby i.Value ascending select i))
-                {
-                    subjects.Push(item.Key);
-                }
-            }
-            else
-            {
-                foreach (string item in _dbContext.TimeSheetTableSet.Where(i => i.Analytic.UserName.ToLower().Equals(Environment.UserName.ToLower()) &&
-                 i.Subject.Length > 0).Select(i => i.Subject).ToArray())
-                {
-                    if (subjectCounted.ContainsKey(item))
-                    {
-                        subjectCounted[item]++;
-                    }
-                    else
-                    {
-                        subjectCounted.Add(item, 1);
-                    }
-                }
-                foreach (KeyValuePair<string, int> item in (from i in subjectCounted orderby i.Value descending select i))
-                {
-                    subjects.Push(item.Key);
-                }
-            }
+            
             return subjects;
         }
 
@@ -193,22 +161,22 @@ namespace TimeSheetApp.Model
             switch (currentUser.RoleTableId)
             {
                 case (1):
-                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.DepartmentId == currentUser.DepartmentId).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.DepartmentId == currentUser.DepartmentId && !i.Deleted_Flag.HasValue).ToArray());
                     break;
                 case (2):
-                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.DirectionId == currentUser.DirectionId).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.DirectionId == currentUser.DirectionId && !i.Deleted_Flag.HasValue).ToArray());
                     break;
                 case (3):
-                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.UpravlenieId == currentUser.UpravlenieId).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.UpravlenieId == currentUser.UpravlenieId && !i.Deleted_Flag.HasValue).ToArray());
                     break;
                 case (4):
-                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.OtdelId == currentUser.OtdelId).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.OtdelId == currentUser.OtdelId && !i.Deleted_Flag.HasValue).ToArray());
                     break;
                 case (5):
-                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i=> !i.Deleted_Flag.HasValue).ToArray());
                     break;
                 default:
-                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.Id == currentUser.Id).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.Id == currentUser.Id && !i.Deleted_Flag.HasValue).ToArray());
                     break;
             }
             return analytics;
@@ -239,6 +207,10 @@ namespace TimeSheetApp.Model
                     break;
                 case (3):
                     report = new Report_ExportToDashboard(analytics, _dbContext);
+                    report.Generate(start, end);
+                    break;
+                case (4):
+                    report = new Report_Allocations(_dbContext, analytics);
                     report.Generate(start, end);
                     break;
             }
@@ -335,7 +307,11 @@ namespace TimeSheetApp.Model
         public List<TimeSheetTable> LoadTimeSheetRecords(DateTime date, Analytic user)
         {
             List<TimeSheetTable> timeSheetTables;
-            timeSheetTables = _dbContext.TimeSheetTableSet.Where(i => i.AnalyticId == user.Id && DbFunctions.TruncateTime(i.TimeStart) == date.Date).ToList();
+            timeSheetTables = _dbContext.TimeSheetTableSet.Include("BusinessBlocks").
+                Include("Risks").
+                Include("Escalations").
+                Include("Supports").
+                Where(i => i.AnalyticId == user.Id && DbFunctions.TruncateTime(i.TimeStart) == date.Date).ToList();
             return timeSheetTables;
         }
 
@@ -346,22 +322,28 @@ namespace TimeSheetApp.Model
         /// <param name="newProcess"></param>
         public void UpdateProcess(TimeSheetTable oldProcess, TimeSheetTable newProcess)
         {
+            oldProcess.Process_id = newProcess.Process.Id;
             oldProcess.Subject = newProcess.Subject;
-            oldProcess.Comment = newProcess.Comment;
-            oldProcess.Process = newProcess.Process;
-            oldProcess.BusinessBlocks = newProcess.BusinessBlocks;
-            oldProcess.Supports = newProcess.Supports;
-            oldProcess.Process = newProcess.Process;
-            oldProcess.TimeSpent = newProcess.TimeSpent;
-            oldProcess.ClientWays = newProcess.ClientWays;
-            oldProcess.Escalations = newProcess.Escalations;
-            oldProcess.Formats = newProcess.Formats;
-            oldProcess.Risks = newProcess.Risks;
             oldProcess.TimeStart = newProcess.TimeStart;
             oldProcess.TimeEnd = newProcess.TimeEnd;
+            oldProcess.Comment = newProcess.Comment;
+            oldProcess.TimeSpent = (int)(oldProcess.TimeEnd - oldProcess.TimeStart).TotalMinutes;
+            oldProcess.ClientWaysId = newProcess.ClientWays.Id;
+            oldProcess.FormatsId = newProcess.Formats.Id;
 
             _dbContext.SaveChanges();
+        }
 
+        public void RemoveSelection(TimeSheetTable record)
+        {
+            List<BusinessBlockNew> businessBlocksToDelete = _dbContext.NewBusinessBlockSet.Where(rec => rec.TimeSheetTableId == record.Id).ToList();
+            List<EscalationNew> escalationsToDelete = _dbContext.NewEscalations.Where(rec => rec.TimeSheetTableId == record.Id).ToList();
+            List<SupportNew> supportsToDelete = _dbContext.NewSupportsSet.Where(rec => rec.TimeSheetTableId == record.Id).ToList();
+            List<RiskNew> risksToDelete = _dbContext.NewRiskSet.Where(rec => rec.TimeSheetTableId == record.Id).ToList();
+            _dbContext.NewBusinessBlockSet.RemoveRange(businessBlocksToDelete);
+            _dbContext.NewEscalations.RemoveRange(escalationsToDelete);
+            _dbContext.NewSupportsSet.RemoveRange(supportsToDelete);
+            _dbContext.NewRiskSet.RemoveRange(risksToDelete);
         }
 
         /// <summary>
@@ -436,8 +418,9 @@ namespace TimeSheetApp.Model
             foreach (Analytic analytic in analytics)
             {
                 List<TimeSheetTable> ReportEntity = new List<TimeSheetTable>();
-                ReportEntity = _dbContext.TimeSheetTableSet.Where(
-                    record => record.AnalyticId == analytic.Id &&
+                ReportEntity = _dbContext.TimeSheetTableSet.Include("BusinessBlocks").
+                    Include("Supports").Include("Risks").Include("Escalations").
+                    Where(record => record.AnalyticId == analytic.Id &&
                     record.TimeStart > TimeStart && record.TimeStart < TimeEnd).ToList();
                 for (int i = 0; i < ReportEntity.Count; i++)
                 {
@@ -459,7 +442,7 @@ namespace TimeSheetApp.Model
                     StringBuilder choice = new StringBuilder();
                     foreach(BusinessBlockNew item in ReportEntity[i].BusinessBlocks)
                     {
-                        choice.Append(item.BusinessBlock.BusinessBlockName);
+                        choice.Append($"{item.BusinessBlock.BusinessBlockName}; ");
                     }
                     row["BusinessBlockName"] = choice.ToString();
                     #endregion
@@ -468,7 +451,7 @@ namespace TimeSheetApp.Model
                     choice.Clear();
                     foreach(SupportNew item in ReportEntity[i].Supports)
                     {
-                        choice.Append(item.Supports.Name);
+                        choice.Append($"{item.Supports.Name}; ");
                     }
                     row["SupportsName"] = choice.ToString();
                     #endregion
@@ -480,7 +463,7 @@ namespace TimeSheetApp.Model
                     choice.Clear();
                     foreach(EscalationNew item in ReportEntity[i].Escalations)
                     {
-                        choice.Append(item.Escalation.Name);
+                        choice.Append($"{item.Escalation.Name}; ");
                     }
                     row["EscalationsName"] = choice.ToString();
 
@@ -493,7 +476,7 @@ namespace TimeSheetApp.Model
                     choice.Clear();
                     foreach(RiskNew item in ReportEntity[i].Risks)
                     {
-                        choice.Append(item.Risk.RiskName);
+                        choice.Append($"{item.Risk.RiskName}; ");
                     }
 
                     row["RiskName"] = choice.ToString();
@@ -507,7 +490,12 @@ namespace TimeSheetApp.Model
 
         public TimeSheetTable GetLastActivityWithSameProcess(Process process, Analytic user)
         {
-            return _dbContext.TimeSheetTableSet.OrderByDescending(rec => rec.Id).FirstOrDefault();
+            return _dbContext.TimeSheetTableSet.Include("BusinessBlocks").
+                Include("Risks").
+                Include("Escalations").
+                Include("Supports").
+                OrderByDescending(rec => rec.Id).
+                FirstOrDefault(rec=>rec.Process_id == process.Id && rec.AnalyticId == user.Id);
         }
     }
 }

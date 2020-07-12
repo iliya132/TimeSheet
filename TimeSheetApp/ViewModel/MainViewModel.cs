@@ -116,7 +116,7 @@ namespace TimeSheetApp.ViewModel
         /// подсказки для ввода текста в поле Тема
         /// </summary>
 
-        private Stack<string> subjectsFromDB;
+        private List<string> subjectsFromDB;
         private ObservableCollection<string> subjectHints = new ObservableCollection<string>();
         public ObservableCollection<string> SubjectHints { get => subjectHints; set => subjectHints = value; }
 
@@ -234,7 +234,8 @@ namespace TimeSheetApp.ViewModel
             "Отчет по активности аналитиков",
             "Ресурсный план",
             "Процессы по отделам",
-            "Экспорт в дашборд"
+            "Экспорт в дашборд",
+            "Аллокации"
         };
 
         public List<string> ReportsAvailable
@@ -310,29 +311,46 @@ namespace TimeSheetApp.ViewModel
 
         public MainViewModel(IEFDataProvider dataProvider)
         {
-            QuitIfStartedFromServer();
+            try
+            {
+                QuitIfStartedFromServer();
 
-            EFDataProvider = dataProvider;
-            loadCalendarTimer = new Timer(timerTick, null, 0, Timeout.Infinite);
+                EFDataProvider = dataProvider;
 
-            FillDataCollections();
-            updateSubjectHints();
-            AddProcess = new RelayCommand<TimeSheetTable>(AddRecordMethod);
-            EditProcess = new RelayCommand<TimeSheetTable>(EditHistoryProcess);
-            DeleteProcess = new RelayCommand<TimeSheetTable>(DeleteHistoryRecord);
-            ReloadTimeSheet = new RelayCommand(UpdateTimeSpan);
-            CheckTimeForIntersection = new RelayCommand(CheckTimeForIntesectionMethod);
-            LoadSelectionForSelectedProcess = new RelayCommand<Process>(LoadSelection);
-            FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
-            GetReport = new RelayCommand(GetReportMethod);
-            ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
-            ReportSelectionStore = new RelayCommand(ReportSelectionUpdate);
-            SelectAnalytic = new RelayCommand<AnalyticOrdered>(SelectAnalyticMethod);
-            UnselectAnalytic = new RelayCommand<AnalyticOrdered>(UnselectAnalyticMethod);
-            SelectCalendarItem = new RelayCommand(SelectCalendarItemMethod);
-            NewRecord.Analytic = CurrentUser;
-            NewRecord.AnalyticId = CurrentUser.Id;
-            GenerateNodes();
+                FillDataCollections();
+                updateSubjectHints();
+                AddProcess = new RelayCommand<TimeSheetTable>(AddRecordMethod);
+                EditProcess = new RelayCommand<TimeSheetTable>(EditHistoryProcess);
+                DeleteProcess = new RelayCommand<TimeSheetTable>(DeleteHistoryRecord);
+                ReloadTimeSheet = new RelayCommand(UpdateTimeSpan);
+                CheckTimeForIntersection = new RelayCommand(CheckTimeForIntesectionMethod);
+                LoadSelectionForSelectedProcess = new RelayCommand<Process>(LoadSelection);
+                FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
+                GetReport = new RelayCommand(GetReportMethod);
+                ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
+                ReportSelectionStore = new RelayCommand(ReportSelectionUpdate);
+                SelectAnalytic = new RelayCommand<AnalyticOrdered>(SelectAnalyticMethod);
+                UnselectAnalytic = new RelayCommand<AnalyticOrdered>(UnselectAnalyticMethod);
+                SelectCalendarItem = new RelayCommand(SelectCalendarItemMethod);
+                NewRecord.Analytic = CurrentUser;
+                NewRecord.AnalyticId = CurrentUser.Id;
+                GenerateNodes();
+                loadCalendarTimer = new Timer(timerTick, null, 0, Timeout.Infinite);
+                UpdateTimeSpan();
+            }
+            catch(Exception ex)
+            {
+                if(MessageBox.Show($"{ex.Message}. {ex.InnerException}. {ex.StackTrace}", "ОШИБКА", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                {
+                    Environment.Exit(0);
+                }
+                else
+                {
+                    Environment.Exit(0);
+                }
+
+            }
+            
         }
 
         private void QuitIfStartedFromServer()
@@ -359,7 +377,6 @@ namespace TimeSheetApp.ViewModel
 
             Task task = new Task(() =>
             {
-                
                 CalendarItems = GetDominoCalendar(date);
                 IsCalendarLoading = false;
             });
@@ -407,18 +424,13 @@ namespace TimeSheetApp.ViewModel
             foreach (AnalyticOrdered analytic in SubordinatedOrdered)
             {
                 #region initialize
-
                 if (NodesCollection.Count < 1)
                     NodesCollection.Add(new Node(analytic.FirstStructure));
-
                 #endregion
-
                 #region Generate Ierarhial
                 foreach (Node node in NodesCollection)
                 {
-
                     #region 1stGen
-
                     if (string.IsNullOrEmpty(analytic.FirstStructure)) break;
                     Node firstGen = Node.FindNode(analytic.FirstStructure, NodesCollection);
                     if (firstGen == null)
@@ -426,7 +438,6 @@ namespace TimeSheetApp.ViewModel
                         firstGen = new Node(analytic.FirstStructure);
                         NodesCollection.Add(firstGen);
                     }
-
                     #endregion
 
                     #region 2ndGen
@@ -499,14 +510,13 @@ namespace TimeSheetApp.ViewModel
             SubjectHints.Clear();
             int itemsCount = subjectsFromDB.Count;
 
-            for (int i = 0; i < 10 && i < itemsCount; i++)
+            for (int i = itemsCount-1; i > 0 && SubjectHints.Count < 11; i--)
             {
-                if (subjectsFromDB.Count > 0)
+                if (subjectsFromDB.Count > 0 && !SubjectHints.Any(subj=> subj.Equals(subjectsFromDB[i])))
                 {
-                    SubjectHints.Add(subjectsFromDB.Pop());
+                    SubjectHints.Add(subjectsFromDB[i]);
                 }
             }
-
         }
 
         private void GetReportMethod()
@@ -546,26 +556,27 @@ namespace TimeSheetApp.ViewModel
             if (selectedProcess != null)
             {
                 TimeSheetTable lastRecord = EFDataProvider.GetLastActivityWithSameProcess(selectedProcess, CurrentUser);
-                foreach(BusinessBlockNew item in lastRecord.BusinessBlocks)
-                {
-                    BusinessBlockChoiceCollection.Add(item.BusinessBlock);
-                }
-                foreach(SupportNew item in lastRecord.Supports)
-                {
-                    SupportsChoiceCollection.Add(item.Supports);
-                }
-                foreach(EscalationNew item in lastRecord.Escalations)
-                {
-                    EscalationsChoiceCollection.Add(item.Escalation);
-                }
-                foreach(RiskNew item in lastRecord.Risks)
-                {
-                    RiskChoiceCollection.Add(item.Risk);
-                }
+                if (lastRecord != null) { 
+                    foreach(BusinessBlockNew item in lastRecord.BusinessBlocks)
+                    {
+                        BusinessBlockChoiceCollection.Add(item.BusinessBlock);
+                    }
+                    foreach(SupportNew item in lastRecord.Supports)
+                    {
+                        SupportsChoiceCollection.Add(item.Supports);
+                    }
+                    foreach(EscalationNew item in lastRecord.Escalations)
+                    {
+                        EscalationsChoiceCollection.Add(item.Escalation);
+                    }
+                    foreach(RiskNew item in lastRecord.Risks)
+                    {
+                        RiskChoiceCollection.Add(item.Risk);
+                    }
 
-                NewRecord.ClientWays = lastRecord.ClientWays;
-                NewRecord.Formats = lastRecord.Formats;
-
+                    NewRecord.ClientWays = lastRecord.ClientWays;
+                    NewRecord.Formats = lastRecord.Formats;
+                }
                 RaisePropertyChanged(nameof(NewRecord));
             }
             updateSubjectHints();
@@ -593,7 +604,7 @@ namespace TimeSheetApp.ViewModel
             FilterProcessesMethod(string.Empty);
             SubordinateEmployees = EFDataProvider.GetMyAnalyticsData(CurrentUser);
             SubordinatedOrdered = GetAnalyticOrdereds(SubordinateEmployees);
-            UpdateTimeSpan();
+            
         }
 
         private ObservableCollection<AnalyticOrdered> GetAnalyticOrdereds(IEnumerable<Analytic> analytics)
@@ -674,21 +685,20 @@ namespace TimeSheetApp.ViewModel
             TimeSheetTable newRec = new TimeSheetTable
             {
                 Analytic = CurrentUser,
-                Risks = RiskChoiceCollection.Select(item => new RiskNew { TimeSheetTable = newItem, Risk = item }).ToList(),
-                Escalations = EscalationsChoiceCollection.Select(item => new EscalationNew { TimeSheetTable = newItem, Escalation = item }).ToList(),
-                BusinessBlocks = BusinessBlockChoiceCollection.Select(item => new BusinessBlockNew { TimeSheetTable = newItem, BusinessBlock = item }).ToList(),
-                Supports = SupportsChoiceCollection.Select(item => new SupportNew { TimeSheetTable = newItem, Supports = item }).ToList(),
-                ClientWaysId = newItem.ClientWaysId,
+                Risks = RiskChoiceCollection.Select(item => new RiskNew { TimeSheetTableId = newItem.Id, RiskId = item.Id }).ToList(),
+                Escalations = EscalationsChoiceCollection.Select(item => new EscalationNew { TimeSheetTableId = newItem.Id, EscalationId = item.Id }).ToList(),
+                BusinessBlocks = BusinessBlockChoiceCollection.Select(item => new BusinessBlockNew { TimeSheetTableId = newItem.Id, BusinessBlockId = item.Id }).ToList(),
+                Supports = SupportsChoiceCollection.Select(item => new SupportNew { TimeSheetTableId = newItem.Id, SupportId = item.Id }).ToList(),
+                ClientWaysId = newItem.ClientWays.Id,
                 Comment = newItem.Comment,
-                FormatsId = newItem.FormatsId,
-                Process_id = newItem.Process_id,
+                FormatsId = newItem.Formats.Id,
+                Process_id = newItem.Process.Id,
                 Subject = newItem.Subject,
                 TimeStart = newItem.TimeStart,
                 TimeEnd = newItem.TimeEnd,
                 TimeSpent = (int)(newItem.TimeEnd - newItem.TimeStart).TotalMinutes
             };
 
-            newRec.ClientWaysId = newRec.ClientWaysId == 0 ? 1 : newRec.ClientWaysId;
 
             EFDataProvider.AddActivity(newRec) ;
 
@@ -730,15 +740,11 @@ namespace TimeSheetApp.ViewModel
                 Subject = Record.Subject,
                 Comment = Record.Comment,
                 Process = Record.Process,
-                BusinessBlocks = Record.BusinessBlocks,
-                Supports = Record.Supports,
                 TimeStart = Record.TimeStart,
                 TimeEnd = Record.TimeEnd,
                 TimeSpent = Record.TimeSpent,
                 ClientWays = Record.ClientWays,
-                Escalations = Record.Escalations,
                 Formats = Record.Formats,
-                Risks = Record.Risks,
                 Id = Record.Id
             };
             initalTimeStart = Record.TimeStart;
@@ -773,14 +779,15 @@ namespace TimeSheetApp.ViewModel
             if (form.ShowDialog() == true)
             {
                 CheckTimeForIntesectionMethod();
-                EditedRecord.Risks.Clear();
-                EditedRecord.BusinessBlocks.Clear();
-                EditedRecord.Supports.Clear();
-                EditedRecord.Escalations.Clear();
-                EditedRecord.Risks.AddRange(RiskChoiceCollection.Select(item => new RiskNew { TimeSheetTable = EditedRecord, Risk = item }));
-                EditedRecord.BusinessBlocks.AddRange(BusinessBlockChoiceCollection.Select(item => new BusinessBlockNew { TimeSheetTable = EditedRecord, BusinessBlock = item }));
-                EditedRecord.Supports.AddRange(SupportsChoiceCollection.Select(item => new SupportNew { TimeSheetTable = EditedRecord, Supports = item }));
-                EditedRecord.Escalations.AddRange(EscalationsChoiceCollection.Select(item => new EscalationNew { TimeSheetTable = EditedRecord, Escalation = item }));
+                EFDataProvider.RemoveSelection(Record);
+                Record.Risks.Clear();
+                Record.BusinessBlocks.Clear();
+                Record.Supports.Clear();
+                Record.Escalations.Clear();
+                Record.Risks.AddRange(RiskChoiceCollection.Select(item => new RiskNew { TimeSheetTableId = Record.Id, RiskId = item.Id }));
+                Record.BusinessBlocks.AddRange(BusinessBlockChoiceCollection.Select(item => new BusinessBlockNew { TimeSheetTableId = Record.Id, BusinessBlockId = item.Id }));
+                Record.Supports.AddRange(SupportsChoiceCollection.Select(item => new SupportNew { TimeSheetTableId = Record.Id, SupportId = item.Id }));
+                Record.Escalations.AddRange(EscalationsChoiceCollection.Select(item => new EscalationNew { TimeSheetTableId = Record.Id, EscalationId = item.Id }));
 
                 EFDataProvider.UpdateProcess(Record, EditedRecord);
                 UpdateTimeSpan();

@@ -23,20 +23,15 @@ namespace TimeSheetApp.Services
             {
                 MessageBox.Show("Обнаружена новая версия программы. TimeSheet будет перезапущен после обновления", "Обновление", MessageBoxButton.OK, MessageBoxImage.Information);
                 List<string> updateText = new List<string>();
-
                 updateText.Add("-g");
-
                 foreach (string fileName in Directory.GetFiles(@"\\moscow\hdfs\WORK\Архив необычных операций\ОРППА\Timesheet\Data"))
                 {
                     updateText.Add($"\"{fileName}\"");
                 }
-
                 updateText.Add("-k");
                 updateText.Add($"{Process.GetCurrentProcess().ProcessName}");
-
                 updateText.Add("-r");
                 updateText.Add($"TimeSheetApp.exe");
-
                 Process.Start("updaterForm.exe", string.Join(" ", updateText.ToArray()));
             }
         }

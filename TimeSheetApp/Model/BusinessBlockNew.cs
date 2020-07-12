@@ -8,6 +8,7 @@ using TimeSheetApp.Model.EntitiesBase;
 
 namespace TimeSheetApp.Model
 {
+    [Table("NewBusinessBlockSet")]
     public class BusinessBlockNew
     {
         public int Id { get; set; }
