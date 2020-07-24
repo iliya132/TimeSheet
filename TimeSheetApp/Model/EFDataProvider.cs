@@ -161,22 +161,22 @@ namespace TimeSheetApp.Model
             switch (currentUser.RoleTableId)
             {
                 case (1):
-                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.DepartmentId == currentUser.DepartmentId && !i.Deleted_Flag.HasValue).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.DepartmentId == currentUser.DepartmentId).ToArray());
                     break;
                 case (2):
-                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.DirectionId == currentUser.DirectionId && !i.Deleted_Flag.HasValue).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.DirectionId == currentUser.DirectionId));
                     break;
                 case (3):
-                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.UpravlenieId == currentUser.UpravlenieId && !i.Deleted_Flag.HasValue).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.UpravlenieId == currentUser.UpravlenieId));
                     break;
                 case (4):
-                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.OtdelId == currentUser.OtdelId && !i.Deleted_Flag.HasValue).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.OtdelId == currentUser.OtdelId).ToArray());
                     break;
                 case (5):
-                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i=> !i.Deleted_Flag.HasValue).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.ToArray());
                     break;
                 default:
-                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.Id == currentUser.Id && !i.Deleted_Flag.HasValue).ToArray());
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.Id == currentUser.Id).ToArray());
                     break;
             }
             return analytics;
@@ -206,10 +206,6 @@ namespace TimeSheetApp.Model
                     report.Generate(start, end);
                     break;
                 case (3):
-                    report = new Report_ExportToDashboard(analytics, _dbContext);
-                    report.Generate(start, end);
-                    break;
-                case (4):
                     report = new Report_Allocations(_dbContext, analytics);
                     report.Generate(start, end);
                     break;
@@ -496,6 +492,11 @@ namespace TimeSheetApp.Model
                 Include("Supports").
                 OrderByDescending(rec => rec.Id).
                 FirstOrDefault(rec=>rec.Process_id == process.Id && rec.AnalyticId == user.Id);
+        }
+
+        public List<TimeSheetTable> GetTimeSheetRecordsForAnalytic(Analytic currentUser)
+        {
+            return _dbContext.TimeSheetTableSet.Where(i => i.AnalyticId == currentUser.Id).ToList();
         }
     }
 }

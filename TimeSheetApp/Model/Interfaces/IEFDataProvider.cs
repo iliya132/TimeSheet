@@ -34,5 +34,6 @@ namespace TimeSheetApp.Model
         int GetProcessCountForAnalytic(Process process, Analytic analytic);
         TimeSheetTable GetLastActivityWithSameProcess(Process process, Analytic user);
         void RemoveSelection(TimeSheetTable record);
+        List<TimeSheetTable> GetTimeSheetRecordsForAnalytic(Analytic currentUser);
     }
 }

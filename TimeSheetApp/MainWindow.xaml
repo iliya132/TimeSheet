@@ -8,9 +8,9 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:mvvm="http://www.galasoft.ch/mvvmlight"
         mc:Ignorable="d"
-        Title="MainWindow" Height="750" Width="1100"
+        Title="{Binding Source={StaticResource Locator}, Path=Main.Title}" Height="750" Width="1100"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
-        IsEnabled="True" Icon="Resource/MainIco.ico" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" >
+        IsEnabled="{Binding Source={StaticResource Locator}, Path=Main.IsReady}" Icon="Resource/MainIco.ico" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" >
     <Window.Resources>
         <local:CodeFullConverter x:Key="CodeFullConverter"/>
         <local:CodeDescriptionConverter x:Key="CodeDescriptionConverter"/>

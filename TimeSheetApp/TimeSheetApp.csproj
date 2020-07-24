@@ -237,8 +237,8 @@
     <Compile Include="Model\Node.cs" />
     <Compile Include="Model\Reports\Report_02.cs" />
     <Compile Include="Model\Reports\Report_03.cs" />
+    <Compile Include="Model\Reports\Report_Allocation\MVZ.cs" />
     <Compile Include="Model\Reports\Report_Allocations.cs" />
-    <Compile Include="Model\Reports\Report_ExportToDashboard.cs" />
     <Compile Include="Model\RiskNew.cs" />
     <Compile Include="Model\SupportNew.cs" />
     <Compile Include="Model\TimeSheetContext.cs" />

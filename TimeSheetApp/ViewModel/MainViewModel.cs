@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using TimeSheetApp.Model;
 using TimeSheetApp.Model.EntitiesBase;
 
@@ -110,6 +111,33 @@ namespace TimeSheetApp.ViewModel
         private ObservableCollection<Supports> _supportsChoiceCollection = new ObservableCollection<Supports>();
         public ObservableCollection<Supports> SupportsChoiceCollection { get => _supportsChoiceCollection; set => _supportsChoiceCollection = value; }
         #endregion
+        private bool _isReady = true;
+        public bool IsReady
+        {
+            get 
+            {
+                return _isReady;
+            }
+            set
+            {
+                _isReady = value;
+                RaisePropertyChanged("IsReady");
+            }
+        }
+        private string _title = "TimeSheet";
+        public string Title
+        {
+            get
+            {
+                return _title;
+            }
+            set
+            {
+                _title = value;
+                RaisePropertyChanged("Title");
+            }
+        }
+        Dispatcher currentDispatcher = Dispatcher.CurrentDispatcher;
 
         public bool IgnoreSubjectTextChange { get; set; }
         /// <summary>
@@ -234,7 +262,6 @@ namespace TimeSheetApp.ViewModel
             "Отчет по активности аналитиков",
             "Ресурсный план",
             "Процессы по отделам",
-            "Экспорт в дашборд",
             "Аллокации"
         };
 
@@ -313,6 +340,8 @@ namespace TimeSheetApp.ViewModel
         {
             try
             {
+                IsReady = false;
+                Title = "TimeSheet";
                 QuitIfStartedFromServer();
 
                 EFDataProvider = dataProvider;
@@ -337,6 +366,7 @@ namespace TimeSheetApp.ViewModel
                 GenerateNodes();
                 loadCalendarTimer = new Timer(timerTick, null, 0, Timeout.Infinite);
                 UpdateTimeSpan();
+                IsReady = true;
             }
             catch(Exception ex)
             {
@@ -369,17 +399,21 @@ namespace TimeSheetApp.ViewModel
         }
         private void UpdateCalendarItemsMethod()
         {
-            loadCalendarTimer.Change(300000, Timeout.Infinite);
             DateTime date = CurrentDate;
-            CalendarItems.Clear();
-            CalendarItemsCount = 0;
-            IsCalendarLoading = true;
+            currentDispatcher.Invoke(() =>
+            {
+                loadCalendarTimer.Change(300000, Timeout.Infinite);
+                CalendarItems.Clear();
+                CalendarItemsCount = 0;
+                IsCalendarLoading = true;
+            });
 
             Task task = new Task(() =>
             {
                 CalendarItems = GetDominoCalendar(date);
                 IsCalendarLoading = false;
             });
+            
             task.Start();
 
         }
@@ -416,13 +450,12 @@ namespace TimeSheetApp.ViewModel
 
         }
 
-
-
         private void GenerateNodes()
         {
 
             foreach (AnalyticOrdered analytic in SubordinatedOrdered)
             {
+                
                 #region initialize
                 if (NodesCollection.Count < 1)
                     NodesCollection.Add(new Node(analytic.FirstStructure));
@@ -432,6 +465,7 @@ namespace TimeSheetApp.ViewModel
                 {
                     #region 1stGen
                     if (string.IsNullOrEmpty(analytic.FirstStructure)) break;
+
                     Node firstGen = Node.FindNode(analytic.FirstStructure, NodesCollection);
                     if (firstGen == null)
                     {
@@ -442,7 +476,7 @@ namespace TimeSheetApp.ViewModel
 
                     #region 2ndGen
 
-                    if (string.IsNullOrEmpty(analytic.SecondStructure))
+                    if (string.IsNullOrEmpty(analytic.SecondStructure) || analytic.SecondStructure.Equals("Отсутствует"))
                     {
                         firstGen.Analytics.Add(analytic);
                         break;
@@ -459,7 +493,7 @@ namespace TimeSheetApp.ViewModel
 
                     #region 3ndGen
 
-                    if (string.IsNullOrEmpty(analytic.ThirdStructure))
+                    if (string.IsNullOrEmpty(analytic.ThirdStructure) || analytic.ThirdStructure.Equals("Отсутствует"))
                     {
                         secondGen.Analytics.Add(analytic);
                         break;
@@ -476,7 +510,7 @@ namespace TimeSheetApp.ViewModel
 
                     #region 4thGen
 
-                    if (string.IsNullOrEmpty(analytic.FourStructure))
+                    if (string.IsNullOrEmpty(analytic.FourStructure) || analytic.FourStructure.Equals("Отсутствует"))
                     {
                         thirdGen.Analytics.Add(analytic);
                         break;
@@ -526,8 +560,11 @@ namespace TimeSheetApp.ViewModel
                 MessageBox.Show("Не выбрано ни одного аналитика", "Выберите аналитика", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
+            IsReady = false;
+            Title = "TimeSheet (Выгружаю отчет...)";
             EFDataProvider.GetReport(SelectedReport, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
+            Title = "TimeSheet";
+            IsReady = true;
         }
 
         private void CheckTimeForIntesectionMethod()
@@ -638,28 +675,39 @@ namespace TimeSheetApp.ViewModel
             RaisePropertyChanged(nameof(TotalDurationInMinutes));
         }
 
-        private void FilterProcessesMethod(string filterText)
+        private async void FilterProcessesMethod(string filterText)
         {
             ProcessFiltered?.Clear();
             Dictionary<Process, int> orderedProcesses = new Dictionary<Process, int>();
             List<Process> processes = EFDataProvider.GetProcesses().ToList();
 
+
+
             if (!string.IsNullOrWhiteSpace(filterText))
             {
-                processes = processes.Where(rec => rec.ProcName.ToLower().IndexOf(filterText.ToLower()) > -1).ToList();
+                processes = processes.Where(rec => rec.ProcName.ToLower().IndexOf(filterText.ToLower()) > -1 ||
+                rec.Comment?.ToLower().IndexOf(filterText.ToLower()) > -1 || 
+                rec.Id.ToString().Equals(filterText)).ToList();
+                foreach(Process process in processes)
+                {
+                    orderedProcesses.Add(process, 1);
+                }
+            }
+            else
+            {
+                List<TimeSheetTable> currentAnalyticRecords = EFDataProvider.GetTimeSheetRecordsForAnalytic(CurrentUser);
+                foreach(Process process in processes)
+                {
+                    int currentProcCount = currentAnalyticRecords.Where(i => i.Process_id == process.Id).Count();
+                    orderedProcesses.Add(process, currentProcCount);
+                }
             }
 
-            foreach(Process process in processes)
-            {
-                orderedProcesses.Add(process, EFDataProvider.GetProcessCountForAnalytic(process, CurrentUser));
-            }
 
             foreach (KeyValuePair<Process, int> keyValue in orderedProcesses.OrderByDescending(i => i.Value))
             {
                 ProcessFiltered.Add(keyValue.Key);
             }
-
-
         }
 
         private void AddRecordMethod(TimeSheetTable newItem)
@@ -678,6 +726,10 @@ namespace TimeSheetApp.ViewModel
             else if (newItem.TimeStart > newItem.TimeEnd)
             {
                 MessageBox.Show("Время начала больше времени окончания. Укажите корректное время", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            } else if (BusinessBlockChoiceCollection.Count == 0)
+            {
+                MessageBox.Show("Не указан ни один бизнес блок. Укажите хотя бы один", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
             #endregion
