@@ -304,6 +304,18 @@ namespace TimeSheetApp.ViewModel
         public DateTime CurrentDate { get => _currentDate; set => _currentDate = value; }
         private Analytic _currentUser = new Analytic();
         public Analytic CurrentUser { get => _currentUser; set => _currentUser = value; }
+        private string _currentUserFullName;
+        public string CurrentUserFullName
+        {
+            get
+            {
+                return _currentUserFullName;
+            }
+            set
+            {
+                _currentUserFullName = value;
+            }
+        }
         private bool isEditState = false;
         private ObservableCollection<CalendarItem> _calendarItems = new ObservableCollection<CalendarItem>();
 
@@ -631,6 +643,7 @@ namespace TimeSheetApp.ViewModel
         private void FillDataCollections()
         {
             CurrentUser = EFDataProvider.LoadAnalyticData();
+            CurrentUserFullName = $"{CurrentUser.LastName} {CurrentUser.FirstName} {CurrentUser.FatherName}";
             Processes = EFDataProvider.GetProcesses();
             BusinessBlock = EFDataProvider.GetBusinessBlocks();
             SupportsArr = EFDataProvider.GetSupports();

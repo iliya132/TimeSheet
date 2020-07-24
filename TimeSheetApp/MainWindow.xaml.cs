@@ -263,5 +263,22 @@ namespace TimeSheetApp
             TimeIn.Value = startTime;
             Timeout.Value = endTime;
         }
+
+        private void EditUserNameBtn_Click(object sender, RoutedEventArgs e)
+        {
+            UserNameLabel.Visibility = Visibility.Collapsed;
+            EditUserName.Visibility = Visibility.Visible;
+            editUserNameBtn.Visibility = Visibility.Collapsed;
+            EditUserName.Focus();
+            EditUserName.SelectAll();
+        }
+
+        private void EditUserName_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            UserNameLabel.Visibility = Visibility.Visible;
+            UserNameLabel.Focus();
+            EditUserName.Visibility = Visibility.Collapsed;
+            editUserNameBtn.Visibility = Visibility.Visible;
+        }
     }
 }
