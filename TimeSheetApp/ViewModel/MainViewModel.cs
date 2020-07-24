@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Threading;
 using TimeSheetApp.Model;
 using TimeSheetApp.Model.EntitiesBase;
@@ -343,6 +344,7 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand<AnalyticOrdered> UnselectAnalytic { get; }
         public RelayCommand ReportSelectionStore { get; }
         public RelayCommand SelectCalendarItem { get; }
+        public RelayCommand<System.Windows.Input.KeyEventArgs> FinilizeEditUserName { get; }
 
 
         #endregion
@@ -373,6 +375,7 @@ namespace TimeSheetApp.ViewModel
                 SelectAnalytic = new RelayCommand<AnalyticOrdered>(SelectAnalyticMethod);
                 UnselectAnalytic = new RelayCommand<AnalyticOrdered>(UnselectAnalyticMethod);
                 SelectCalendarItem = new RelayCommand(SelectCalendarItemMethod);
+                FinilizeEditUserName = new RelayCommand<System.Windows.Input.KeyEventArgs>(FinishEditingUserName);
                 NewRecord.Analytic = CurrentUser;
                 NewRecord.AnalyticId = CurrentUser.Id;
                 GenerateNodes();
@@ -393,6 +396,11 @@ namespace TimeSheetApp.ViewModel
 
             }
             
+        }
+
+        private void FinishEditingUserName(KeyEventArgs obj)
+        {
+            MessageBox.Show(obj.Key.ToString());
         }
 
         private void QuitIfStartedFromServer()

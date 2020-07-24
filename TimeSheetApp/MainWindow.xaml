@@ -320,7 +320,14 @@
                             <TextBlock Name="UserNameLabel" Text="{Binding Source={StaticResource Locator}, Path=Main.CurrentUserFullName}" VerticalAlignment="Center" MaxWidth="215" TextWrapping="WrapWithOverflow" Visibility="Visible"/>
                             <TextBox Name="EditUserName" KeyDown="EditUserName_KeyDown" Text="{Binding Source={StaticResource Locator}, Path=Main.CurrentUserFullName}" 
                                      VerticalAlignment="Center" IsReadOnly="True" BorderBrush="{x:Null}" MaxWidth="215" TextWrapping="WrapWithOverflow" 
-                                     Visibility="Collapsed"/>
+                                     Visibility="Collapsed">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="EditUserName_KeyDown">
+                                        <mvvm:EventToCommand Command="{Binding FinilizeEditUserName}"
+                                                             CommandParameter="{Binding}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </TextBox>
                             <Button Name="editUserNameBtn" Margin="10,0,0,0" Height="20" BorderBrush="{x:Null}" Background="{x:Null}" Click="EditUserNameBtn_Click">
                                 <Image Source="Resource/Edit.png"/>
                             </Button>
