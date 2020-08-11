@@ -35,5 +35,6 @@ namespace TimeSheetApp.Model
         TimeSheetTable GetLastActivityWithSameProcess(Process process, Analytic user);
         void RemoveSelection(TimeSheetTable record);
         List<TimeSheetTable> GetTimeSheetRecordsForAnalytic(Analytic currentUser);
+        void Commit();
     }
 }

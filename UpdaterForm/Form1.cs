@@ -19,13 +19,18 @@ namespace UpdaterForm
         public Form1(string[] args)
         {
             InitializeComponent();
+            if(args.Length==0 || args == null)
+            {
+                Environment.Exit(0);
+            }
             Update(args);
         }
         enum Operation
         {
             Get = 0,
             Kill = 1,
-            Run = 2
+            Run = 2,
+            Delete = 3
         }
 
         public void Update(string[] args)
@@ -36,6 +41,7 @@ namespace UpdaterForm
             List<string> filesToCopy = new List<string>();
             List<string> filesToRun = new List<string>();
             List<string> filesToKill = new List<string>();
+            List<string> filesToDelete = new List<string>();
             Operation currentOperation = 0;
             string currentDirectoryStr = Directory.GetCurrentDirectory();
 
@@ -45,6 +51,7 @@ namespace UpdaterForm
                 if (line.ToLower().Equals("-g")) { currentOperation = Operation.Get; continue; }
                 if (line.ToLower().Equals("-k")) { currentOperation = Operation.Kill; continue; }
                 if (line.ToLower().Equals("-r")) { currentOperation = Operation.Run; continue; }
+                if (line.ToLower().Equals("-d")) { currentOperation = Operation.Delete; continue; }
 
                 switch (currentOperation)
                 {
@@ -56,6 +63,9 @@ namespace UpdaterForm
                         break;
                     case (Operation.Run):
                         filesToRun.Add(line);
+                        break;
+                    case (Operation.Delete):
+                        filesToDelete.Add(line);
                         break;
                 }
             }
@@ -80,10 +90,10 @@ namespace UpdaterForm
             }
             #endregion
 
-            ProgressBar.Maximum = Directory.GetFiles(Directory.GetCurrentDirectory()).Length + filesToCopy.Count;
+            ProgressBar.Maximum = filesToDelete.Count + filesToCopy.Count;
 
             #region  Удаляем все файлы в директории
-            foreach (string fileStr in Directory.GetFiles(Directory.GetCurrentDirectory()))
+            foreach (string fileStr in filesToDelete)
             {
                 ProgressBar.Value = ProgressBar.Value + 1;
                 Label.Text = $"Удаление {fileStr}";

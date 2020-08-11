@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Threading;
 using TimeSheetApp.Model;
 using TimeSheetApp.Model.EntitiesBase;
@@ -314,6 +315,7 @@ namespace TimeSheetApp.ViewModel
             set
             {
                 _currentUserFullName = value;
+                RaisePropertyChanged(nameof(CurrentUserFullName));
             }
         }
         private bool isEditState = false;
@@ -343,6 +345,7 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand<AnalyticOrdered> UnselectAnalytic { get; }
         public RelayCommand ReportSelectionStore { get; }
         public RelayCommand SelectCalendarItem { get; }
+        public RelayCommand<string> FinilizeEditUserName { get; }
 
 
         #endregion
@@ -373,6 +376,7 @@ namespace TimeSheetApp.ViewModel
                 SelectAnalytic = new RelayCommand<AnalyticOrdered>(SelectAnalyticMethod);
                 UnselectAnalytic = new RelayCommand<AnalyticOrdered>(UnselectAnalyticMethod);
                 SelectCalendarItem = new RelayCommand(SelectCalendarItemMethod);
+                FinilizeEditUserName = new RelayCommand<string>(FinishEditingUserName);
                 NewRecord.Analytic = CurrentUser;
                 NewRecord.AnalyticId = CurrentUser.Id;
                 GenerateNodes();
@@ -390,7 +394,23 @@ namespace TimeSheetApp.ViewModel
                 {
                     Environment.Exit(0);
                 }
+            }
+        }
 
+        private void FinishEditingUserName(string newName)
+        {
+            string[] UserNameSplited = newName.Split(' ');
+            if(UserNameSplited.Length < 3)
+            {
+                MessageBox.Show("Указано некорректное ФИО", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+            else
+            {
+                CurrentUser.LastName = UserNameSplited[0];
+                CurrentUser.FirstName = UserNameSplited[1];
+                CurrentUser.FatherName = UserNameSplited[2];
+                EFDataProvider.Commit();
             }
             
         }

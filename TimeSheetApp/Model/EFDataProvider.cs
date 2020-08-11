@@ -498,5 +498,10 @@ namespace TimeSheetApp.Model
         {
             return _dbContext.TimeSheetTableSet.Where(i => i.AnalyticId == currentUser.Id).ToList();
         }
+
+        public void Commit()
+        {
+            _dbContext.SaveChanges();
+        }
     }
 }

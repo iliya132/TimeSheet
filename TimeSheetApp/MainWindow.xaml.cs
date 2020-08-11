@@ -266,6 +266,25 @@ namespace TimeSheetApp
 
         private void EditUserNameBtn_Click(object sender, RoutedEventArgs e)
         {
+            ShowEdit();
+        }
+
+        private void EditUserName_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if(e.Key == System.Windows.Input.Key.Escape || e.Key == System.Windows.Input.Key.Return)
+            {
+                HideEdit();
+            }
+        }
+
+        private void EditUserName_LostFocus(object sender, RoutedEventArgs e)
+        {
+            EditUserName.Text = UserNameLabel.Text;
+            HideEdit();
+        }
+
+        private void ShowEdit()
+        {
             UserNameLabel.Visibility = Visibility.Collapsed;
             EditUserName.Visibility = Visibility.Visible;
             editUserNameBtn.Visibility = Visibility.Collapsed;
@@ -273,12 +292,14 @@ namespace TimeSheetApp
             EditUserName.SelectAll();
         }
 
-        private void EditUserName_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void HideEdit()
         {
             UserNameLabel.Visibility = Visibility.Visible;
             UserNameLabel.Focus();
             EditUserName.Visibility = Visibility.Collapsed;
             editUserNameBtn.Visibility = Visibility.Visible;
         }
+
+
     }
 }

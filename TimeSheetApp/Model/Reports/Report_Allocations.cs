@@ -30,12 +30,10 @@ namespace TimeSheetApp.Model.Reports
         }
         public void Generate(DateTime start, DateTime end)
         {
-
             List<TimeSheetTable> records = _tsContext.TimeSheetTableSet.Include("BusinessBlocks").Where(rec => rec.TimeStart > start && rec.TimeEnd < end && rec.Process_id != 62 && rec.Process_id != 63).ToList();
             List<BusinessBlock> blocks = _tsContext.BusinessBlockSet.ToList();
             List<Process> processes = _tsContext.ProcessSet.ToList();
             allUnits = CreateMVZList();
-
             using (ExcelPackage excel = new ExcelPackage())
             {
                 ExcelWorksheet sheetWithTime = excel.Workbook.Worksheets.Add("Аллокации ДК (min)");
@@ -103,9 +101,73 @@ namespace TimeSheetApp.Model.Reports
                             Where(record => currentUnit.Analytics.Select(i => i.Id).Contains(record.AnalyticId)).Select(record => record.AnalyticId).Distinct().Count();
 
                     int AllocatedBusinessBlockCount = currentUnit.AllocationRules.Values.Sum();
+                    #region Общее управление
+                    currentSheetWithTimeCol = 6;
+                    currentSheetWithPercentageCol = 6;
+                    float ManagerFunctionTimeSpent = (int?)records.
+                            Where(record => currentUnit.Analytics.Select(i => i.Id).Contains(record.AnalyticId) &&
+                                record.Process.Block_Id == 0).
+                            Select(i => (int?)i.TimeSpent).
+                            Sum() ?? 0;
+                    float ManagerFunctionFTE = ManagerFunctionTimeSpent / totalTimeSpentForUnit * AnalyticsCount;
+                    sheetWithTime.Cells[currentShetWithTimeRow, 1].Value = currentUnit.Name;
+                    sheetWithTime.Cells[currentShetWithTimeRow, 2].Value = UnitName;
+                    sheetWithTime.Cells[currentShetWithTimeRow, 3].Value = "0.*";
+                    sheetWithTime.Cells[currentShetWithTimeRow, 4].Value = "Общее управление";
+                    sheetWithPercentage.Cells[currentShetPercentageTimeRow, 1].Value = currentUnit.Name;
+                    sheetWithPercentage.Cells[currentShetPercentageTimeRow, 2].Value = UnitName;
+                    sheetWithPercentage.Cells[currentShetPercentageTimeRow, 3].Value = "0.*";
+                    sheetWithPercentage.Cells[currentShetPercentageTimeRow, 4].Value = "Общее управление";
+                    sheetWithTime.Cells[currentShetWithTimeRow, 5].Value = ManagerFunctionFTE;
+                    sheetWithTime.Cells[currentShetWithTimeRow, 5].Style.Numberformat.Format = "0.00";
+                    sheetWithPercentage.Cells[currentShetPercentageTimeRow, 5].Value = ManagerFunctionFTE;
+                    sheetWithPercentage.Cells[currentShetPercentageTimeRow, 5].Style.Numberformat.Format = "0.00";
+                    float ManagerBusinessBlockNotSet = (int?)records.
+                        Where(record => currentUnit.Analytics.Select(i => i.Id).Contains(record.AnalyticId) && record.BusinessBlocks.Count == 0 &&
+                            record.Process.Block_Id == 0).
+                        Select(i => (float?)i.TimeSpent).
+                        Sum() ?? 0;
+                    foreach (BusinessBlock block in blocks)
+                    {
+                        bool isAllocatedToCurrentBlock = (currentUnit.AllocationRules[block.Id] == 1);
+
+                        float currentBusinessTimeSpent = (float?)records.
+                                    Where(record => currentUnit.Analytics.Select(i => i.Id).Contains(record.AnalyticId) &&
+                                        record.BusinessBlocks.Any(o => o.BusinessBlockId == block.Id) &&
+                                        record.Process.Block_Id == 0).
+                                    Select(i => i.BusinessBlocks.Count > 0 ? (float?)i.TimeSpent / i.BusinessBlocks.Count : (float?)i.TimeSpent).
+                                    Sum() ?? 0;
+
+                        if (isAllocatedToCurrentBlock)
+                        {
+                            currentBusinessTimeSpent += ManagerBusinessBlockNotSet / AllocatedBusinessBlockCount;
+                        }
+
+                        float currentBusinessTimePercentage = currentBusinessTimeSpent / ManagerFunctionTimeSpent;
+
+                        sheetWithTime.Column(currentSheetWithTimeCol).Width = 18;
+                        sheetWithTime.Cells[currentShetWithTimeRow, currentSheetWithTimeCol].Style.Numberformat.Format = "0.00";
+                        sheetWithTime.Cells[currentShetWithTimeRow, currentSheetWithTimeCol++].Value = currentBusinessTimeSpent;
+                        sheetWithPercentage.Column(currentSheetWithPercentageCol).Width = 18;
+                        sheetWithPercentage.Cells[currentShetPercentageTimeRow, currentSheetWithPercentageCol].Style.Numberformat.Format = "0.00%";
+                        sheetWithPercentage.Cells[currentShetPercentageTimeRow, currentSheetWithPercentageCol++].Value = currentBusinessTimePercentage;
+                    }
+                    sheetWithTime.Cells[currentShetWithTimeRow, currentSheetWithTimeCol++].Value = ManagerFunctionTimeSpent;
+                    if (ManagerFunctionTimeSpent == 0)
+                    {
+                        sheetWithTime.Cells[currentShetWithTimeRow, 1, currentShetWithTimeRow, 15].Clear();
+                        sheetWithPercentage.Cells[currentShetPercentageTimeRow, 1, currentShetWithTimeRow, 15].Clear();
+                        currentShetWithTimeRow--;
+                        currentShetPercentageTimeRow--;
+                    }
+                    currentShetWithTimeRow++;
+                    currentShetPercentageTimeRow++;
+                    #endregion
 
                     foreach (Process process in processes)
                     {
+                        if (process.Block_Id == 0) //общее управление отображено отдельно
+                            continue;
                         currentSheetWithTimeCol = 6;
                         currentSheetWithPercentageCol = 6;
                         sheetWithTime.Cells[currentShetWithTimeRow, 1].Value = currentUnit.Name;
@@ -270,12 +332,30 @@ namespace TimeSheetApp.Model.Reports
                     { TREASURY,         0 }
                 }
             });
+            #region ДФМ
+            //ДФМ разделен на маленькие подразделения
+            //exportValue.Add(new MVZ
+            //{
+            //    Name = "Р5Г",
+            //    UnitName = "Дирекция финансового мониторинга",
+            //    Analytics = new List<Analytic>(analytics.Where(analytic => analytic.DirectionId == 1 &&
+            //    analytic.OtdelId!=16 && analytic.OtdelId != 10 && analytic.OtdelId != 17 && analytic.OtdelId != 11 && analytic.OtdelId != 20)),
+            //    AllocationRules = new Dictionary<int, int>
+            //    {
+            //        { RETAIL_BUSINESS,  1 },
+            //        { A_CLUB,           0 },
+            //        { MASS_BUSINESS,    1 },
+            //        { MEDIUM_BUSINESS,  1 },
+            //        { BIG_BUSINESS,     1 },
+            //        { DIGITAL_BUSINESS, 0 },
+            //        { TREASURY,         0 }
+            //    }
+            //});
             exportValue.Add(new MVZ
             {
                 Name = "Р5Г",
-                UnitName = "Дирекция финансового мониторинга",
-                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.DirectionId == 1 &&
-                analytic.OtdelId!=16 && analytic.OtdelId != 10 && analytic.OtdelId != 17 && analytic.OtdelId != 11 && analytic.OtdelId != 20)),
+                UnitName = "ОМО",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.OtdelId == 43)),
                 AllocationRules = new Dictionary<int, int>
                 {
                     { RETAIL_BUSINESS,  1 },
@@ -287,6 +367,103 @@ namespace TimeSheetApp.Model.Reports
                     { TREASURY,         0 }
                 }
             });
+            exportValue.Add(new MVZ
+            {
+                Name = "Р5Г",
+                UnitName = "ОНТиЭ",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.OtdelId == 9)),
+                AllocationRules = new Dictionary<int, int>
+                {
+                    { RETAIL_BUSINESS,  1 },
+                    { A_CLUB,           0 },
+                    { MASS_BUSINESS,    1 },
+                    { MEDIUM_BUSINESS,  1 },
+                    { BIG_BUSINESS,     1 },
+                    { DIGITAL_BUSINESS, 0 },
+                    { TREASURY,         0 }
+                }
+            });
+            exportValue.Add(new MVZ
+            {
+                Name = "Р5Г",
+                UnitName = "ОКОФЛ",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.OtdelId == 14)),
+                AllocationRules = new Dictionary<int, int>
+                {
+                    { RETAIL_BUSINESS,  1 },
+                    { A_CLUB,           0 },
+                    { MASS_BUSINESS,    1 },
+                    { MEDIUM_BUSINESS,  1 },
+                    { BIG_BUSINESS,     1 },
+                    { DIGITAL_BUSINESS, 0 },
+                    { TREASURY,         0 }
+                }
+            });
+            exportValue.Add(new MVZ
+            {
+                Name = "Р5Г",
+                UnitName = "ОФМА",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.OtdelId == 13)),
+                AllocationRules = new Dictionary<int, int>
+                {
+                    { RETAIL_BUSINESS,  1 },
+                    { A_CLUB,           0 },
+                    { MASS_BUSINESS,    1 },
+                    { MEDIUM_BUSINESS,  1 },
+                    { BIG_BUSINESS,     1 },
+                    { DIGITAL_BUSINESS, 0 },
+                    { TREASURY,         0 }
+                }
+            });
+            exportValue.Add(new MVZ
+            {
+                Name = "Р5Г",
+                UnitName = "ОСМВУО",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.OtdelId == 15)),
+                AllocationRules = new Dictionary<int, int>
+                {
+                    { RETAIL_BUSINESS,  1 },
+                    { A_CLUB,           0 },
+                    { MASS_BUSINESS,    1 },
+                    { MEDIUM_BUSINESS,  1 },
+                    { BIG_BUSINESS,     1 },
+                    { DIGITAL_BUSINESS, 0 },
+                    { TREASURY,         0 }
+                }
+            });
+            exportValue.Add(new MVZ
+            {
+                Name = "Р5Г",
+                UnitName = "ОФКО",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.OtdelId == 12)),
+                AllocationRules = new Dictionary<int, int>
+                {
+                    { RETAIL_BUSINESS,  1 },
+                    { A_CLUB,           0 },
+                    { MASS_BUSINESS,    1 },
+                    { MEDIUM_BUSINESS,  1 },
+                    { BIG_BUSINESS,     1 },
+                    { DIGITAL_BUSINESS, 0 },
+                    { TREASURY,         0 }
+                }
+            });
+            exportValue.Add(new MVZ
+            {
+                Name = "Р5Г",
+                UnitName = "Руководство",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.DirectionId == 1 && analytic.OtdelId == 19)),
+                AllocationRules = new Dictionary<int, int>
+                {
+                    { RETAIL_BUSINESS,  1 },
+                    { A_CLUB,           0 },
+                    { MASS_BUSINESS,    1 },
+                    { MEDIUM_BUSINESS,  1 },
+                    { BIG_BUSINESS,     1 },
+                    { DIGITAL_BUSINESS, 0 },
+                    { TREASURY,         0 }
+                }
+            });
+            #endregion
             exportValue.Add(new MVZ
             {
                 Name = "Р5Д",
@@ -303,11 +480,29 @@ namespace TimeSheetApp.Model.Reports
                     { TREASURY,         1 }
                 }
             });
+            #region УКПБП
+            //УКПБП было разложено на подразделения
+            //exportValue.Add(new MVZ
+            //{
+            //    Name = "Р5Е",
+            //    UnitName = "Управление комплаенс-поддержки бизнес-процессов",
+            //    Analytics = new List<Analytic>(analytics.Where(analytic => analytic.UpravlenieId == 1)),
+            //    AllocationRules = new Dictionary<int, int>
+            //    {
+            //        { RETAIL_BUSINESS,  1 },
+            //        { A_CLUB,           0 },
+            //        { MASS_BUSINESS,    1 },
+            //        { MEDIUM_BUSINESS,  1 },
+            //        { BIG_BUSINESS,     1 },
+            //        { DIGITAL_BUSINESS, 1 },
+            //        { TREASURY,         0 }
+            //    }
+            //});
             exportValue.Add(new MVZ
             {
                 Name = "Р5Е",
-                UnitName = "Управление комплаенс-поддержки бизнес-процессов",
-                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.UpravlenieId == 1)),
+                UnitName = "ОКЭБП",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.OtdelId == 6)),
                 AllocationRules = new Dictionary<int, int>
                 {
                     { RETAIL_BUSINESS,  1 },
@@ -321,9 +516,128 @@ namespace TimeSheetApp.Model.Reports
             });
             exportValue.Add(new MVZ
             {
+                Name = "Р5Е",
+                UnitName = "ОУРКД",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.OtdelId == 8)),
+                AllocationRules = new Dictionary<int, int>
+                {
+                    { RETAIL_BUSINESS,  1 },
+                    { A_CLUB,           0 },
+                    { MASS_BUSINESS,    1 },
+                    { MEDIUM_BUSINESS,  1 },
+                    { BIG_BUSINESS,     1 },
+                    { DIGITAL_BUSINESS, 1 },
+                    { TREASURY,         0 }
+                }
+            });
+            exportValue.Add(new MVZ
+            {
+                Name = "Р5Е",
+                UnitName = "Руководство",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.UpravlenieId == 1 && analytic.OtdelId == 19)),
+                AllocationRules = new Dictionary<int, int>
+                {
+                    { RETAIL_BUSINESS,  1 },
+                    { A_CLUB,           0 },
+                    { MASS_BUSINESS,    1 },
+                    { MEDIUM_BUSINESS,  1 },
+                    { BIG_BUSINESS,     1 },
+                    { DIGITAL_BUSINESS, 1 },
+                    { TREASURY,         0 }
+                }
+            });
+
+            #endregion
+            #region УМК
+            //УМК было декомпозировано
+            //exportValue.Add(new MVZ
+            //{
+            //    Name = "Р5Ж",
+            //    UnitName = "Управление международного комплаенса",
+            //    Analytics = new List<Analytic>(analytics.Where(analytic => analytic.UpravlenieId == 2)),
+            //    AllocationRules = new Dictionary<int, int>
+            //    {
+            //        { RETAIL_BUSINESS,  1 },
+            //        { A_CLUB,           1 },
+            //        { MASS_BUSINESS,    1 },
+            //        { MEDIUM_BUSINESS,  1 },
+            //        { BIG_BUSINESS,     1 },
+            //        { DIGITAL_BUSINESS, 1 },
+            //        { TREASURY,         1 }
+            //    }
+            //});
+            exportValue.Add(new MVZ
+            {
                 Name = "Р5Ж",
-                UnitName = "Управление международного комплаенса",
-                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.UpravlenieId == 2)),
+                UnitName = "ОКВО",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.OtdelId == 5)),
+                AllocationRules = new Dictionary<int, int>
+                {
+                    { RETAIL_BUSINESS,  1 },
+                    { A_CLUB,           1 },
+                    { MASS_BUSINESS,    1 },
+                    { MEDIUM_BUSINESS,  1 },
+                    { BIG_BUSINESS,     1 },
+                    { DIGITAL_BUSINESS, 1 },
+                    { TREASURY,         1 }
+                }
+            });
+            exportValue.Add(new MVZ
+            {
+                Name = "Р5Ж",
+                UnitName = "ОМК",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.OtdelId == 2)),
+                AllocationRules = new Dictionary<int, int>
+                {
+                    { RETAIL_BUSINESS,  1 },
+                    { A_CLUB,           1 },
+                    { MASS_BUSINESS,    1 },
+                    { MEDIUM_BUSINESS,  1 },
+                    { BIG_BUSINESS,     1 },
+                    { DIGITAL_BUSINESS, 1 },
+                    { TREASURY,         1 }
+                }
+            });
+            exportValue.Add(new MVZ
+            {
+                Name = "Р5Ж",
+                UnitName = "Руководство",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.UpravlenieId == 2 && analytic.OtdelId == 19)),
+                AllocationRules = new Dictionary<int, int>
+                {
+                    { RETAIL_BUSINESS,  1 },
+                    { A_CLUB,           1 },
+                    { MASS_BUSINESS,    1 },
+                    { MEDIUM_BUSINESS,  1 },
+                    { BIG_BUSINESS,     1 },
+                    { DIGITAL_BUSINESS, 1 },
+                    { TREASURY,         1 }
+                }
+            });
+            #endregion
+            #region УСП
+            //УСП было декомпозировано
+            //exportValue.Add(new MVZ
+            //{
+            //    Name = "Р5И",
+            //    UnitName = "Управление специальных проектов",
+            //    Analytics = new List<Analytic>(analytics.Where(analytic => analytic.UpravlenieId == 3)),
+            //    AllocationRules = new Dictionary<int, int>
+            //    {
+            //        { RETAIL_BUSINESS,  1 },
+            //        { A_CLUB,           1 },
+            //        { MASS_BUSINESS,    1 },
+            //        { MEDIUM_BUSINESS,  1 },
+            //        { BIG_BUSINESS,     1 },
+            //        { DIGITAL_BUSINESS, 1 },
+            //        { TREASURY,         1 }
+            //    }
+            //});
+            exportValue.Add(new MVZ
+            {
+                Name = "Р5И",
+                UnitName = "ОРИНР",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.OtdelId == 3)),
                 AllocationRules = new Dictionary<int, int>
                 {
                     { RETAIL_BUSINESS,  1 },
@@ -338,8 +652,8 @@ namespace TimeSheetApp.Model.Reports
             exportValue.Add(new MVZ
             {
                 Name = "Р5И",
-                UnitName = "Управление специальных проектов",
-                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.UpravlenieId == 3)),
+                UnitName = "ОЭКО",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.OtdelId == 4)),
                 AllocationRules = new Dictionary<int, int>
                 {
                     { RETAIL_BUSINESS,  1 },
@@ -351,6 +665,23 @@ namespace TimeSheetApp.Model.Reports
                     { TREASURY,         1 }
                 }
             });
+            exportValue.Add(new MVZ
+            {
+                Name = "Р5И",
+                UnitName = "Руководство",
+                Analytics = new List<Analytic>(analytics.Where(analytic => analytic.UpravlenieId == 3 && analytic.OtdelId == 3)),
+                AllocationRules = new Dictionary<int, int>
+                {
+                    { RETAIL_BUSINESS,  1 },
+                    { A_CLUB,           1 },
+                    { MASS_BUSINESS,    1 },
+                    { MEDIUM_BUSINESS,  1 },
+                    { BIG_BUSINESS,     1 },
+                    { DIGITAL_BUSINESS, 1 },
+                    { TREASURY,         1 }
+                }
+            });
+            #endregion
             exportValue.Add(new MVZ
             {
                 Name = "Р82",
