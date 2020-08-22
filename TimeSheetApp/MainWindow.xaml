@@ -17,13 +17,11 @@
         <local:DateTimeConverter x:Key="DateTimeConverter"/>
     </Window.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="661*"/>
-            <ColumnDefinition Width="432*"/>
-        </Grid.ColumnDefinitions>
+
         <Button Name="HelpBtn" HorizontalAlignment="Right" VerticalAlignment="Top" Width="25" Height="25" Click="HelpBtn_Click" Background="AliceBlue" Grid.Column="1">
             <Image Source="Resource/Help.png"/>
         </Button>
+        
         <TabControl Grid.ColumnSpan="2">
             <TabItem Header="Учет времени">
                 <Grid>
@@ -474,6 +472,7 @@
                     </Grid>
                 </Grid>
             </TabItem>
+            
         </TabControl>
 
 
