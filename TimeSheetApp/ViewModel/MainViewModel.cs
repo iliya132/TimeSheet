@@ -22,86 +22,33 @@ namespace TimeSheetApp.ViewModel
         #region DataCollections
 
         #region Список процессов для выбора
-        /// <summary>
-        /// Список процессов, доступных для выбора
-        /// </summary>
-        private static ObservableCollection<Process> _processes;
-        public ObservableCollection<Process> Processes { get => _processes; set => _processes = value; }
-        /// <summary>
-        /// Список отфильтрованных процессов. К этой коллекции привязан лист ProcessList
-        /// </summary>
-        private ObservableCollection<Process> _processesFiltered = new ObservableCollection<Process>();
-        public ObservableCollection<Process> ProcessFiltered { get => _processesFiltered; set => _processesFiltered = value; }
+        public ObservableCollection<Process> AllProcesses { get; set; }
+        public ObservableCollection<Process> UserFilteredProcesses { get; set; }
         #endregion
 
-        #region ComboBox Collections
-        /// <summary>
-        /// Бизнес блоки, доступные для выбора
-        /// </summary>
-        private BusinessBlock[] _BusinessBlock;
-        public BusinessBlock[] BusinessBlock { get => _BusinessBlock; set => _BusinessBlock = value; }
-        /// <summary>
-        /// Support's доступные для выбора
-        /// </summary>
-        private Supports[] _supportsArr;
-        public Supports[] SupportsArr { get => _supportsArr; set => _supportsArr = value; }
-        /// <summary>
-        /// Клиентские пути, доступные для выбора
-        /// </summary>
-        private ClientWays[] _clientWays;
-        public ClientWays[] ClientWays { get => _clientWays; set => _clientWays = value; }
-        /// <summary>
-        /// Форматы доступные для выбора
-        /// </summary>
-        private Formats[] _formatList;
-        public Formats[] FormatList { get => _formatList; set => _formatList = value; }
-        /// <summary>
-        /// Риски, доступные для выбора
-        /// </summary>
-        private Risk[] _riskCol;
-        public Risk[] RiskCol { get => _riskCol; set => _riskCol = value; }
-        /// <summary>
-        /// Эскалации, доступные для выбора
-        /// </summary>
-        private Escalation[] _escalations;
-        public Escalation[] Escalations { get => _escalations; set => _escalations = value; }
+        #region Аллокации для выбора
+        public List<BusinessBlock> BusinessBlocks { get; set; }
+        public List<Supports> Supports { get; set; }
+        public List<ClientWays> ClientWays { get; set; }
+        public List<Formats> Formats { get; set; }
+        public List<Risk> Risks { get; set; }
+        public List<Escalation> Escalations { get; set; }
         #endregion
 
         #region Исторические записи
-        /// <summary>
-        /// Исторические записи из БД. (Лист TimeSpanListView)
-        /// </summary>
-        private ObservableCollection<TimeSheetTable> _historyRecords = new ObservableCollection<TimeSheetTable>();
-        public ObservableCollection<TimeSheetTable> HistoryRecords { get => _historyRecords; set => _historyRecords = value; }
+        private ObservableCollection<TimeSheetTable> _todayRecords = new ObservableCollection<TimeSheetTable>();
+        public ObservableCollection<TimeSheetTable> TodayRecords { get => _todayRecords; set => _todayRecords = value; }
         #endregion
 
         #region Список сотрудников в подчинении
-        /// <summary>
-        /// Список сотрудников в подчинении у текущего пользователя
-        /// </summary>
-        private ObservableCollection<Analytic> _subordinateEmployees = new ObservableCollection<Analytic>();
-        public ObservableCollection<Analytic> SubordinateEmployees
-        {
-            get { return _subordinateEmployees; }
-            set { _subordinateEmployees = value; }
-        }
-        private ObservableCollection<AnalyticOrdered> subordinatedOrdered = new ObservableCollection<AnalyticOrdered>();
-
-        public ObservableCollection<AnalyticOrdered> SubordinatedOrdered
-        {
-            get { return subordinatedOrdered; }
-            set { subordinatedOrdered = value; }
-        }
-
-        private ObservableCollection<Node> nodes = new ObservableCollection<Node>();
-        public ObservableCollection<Node> NodesCollection { get => nodes; set => nodes = value; }
-
-        private List<string> categories = new List<string>();
+        public ObservableCollection<StructuredAnalytic> SubordinatedAnalytics { get; set; }
+        public ObservableCollection<Node> SubordinatedAnalyticNodes { get; set; }
         #endregion
 
         #endregion
 
         #region CurrentValues
+
         #region editForm multiChoice
         private ObservableCollection<Risk> riskChoiceCollection = new ObservableCollection<Risk>();
         public ObservableCollection<Risk> RiskChoiceCollection { get => riskChoiceCollection; set => riskChoiceCollection = value; }
@@ -294,7 +241,7 @@ namespace TimeSheetApp.ViewModel
             get
             {
                 TimeSpan totalSpan = new TimeSpan();
-                foreach (TimeSheetTable record in HistoryRecords)
+                foreach (TimeSheetTable record in TodayRecords)
                 {
                     totalSpan += record.TimeEnd - record.TimeStart;
                 }
@@ -305,20 +252,13 @@ namespace TimeSheetApp.ViewModel
         public DateTime CurrentDate { get => _currentDate; set => _currentDate = value; }
         private Analytic _currentUser = new Analytic();
         public Analytic CurrentUser { get => _currentUser; set => _currentUser = value; }
-        private string _currentUserFullName;
         public string CurrentUserFullName
         {
             get
             {
-                return _currentUserFullName;
-            }
-            set
-            {
-                _currentUserFullName = value;
-                RaisePropertyChanged(nameof(CurrentUserFullName));
+                return $"{CurrentUser.LastName} {CurrentUser.FirstName} {CurrentUser.FatherName}";
             }
         }
-        private bool isEditState = false;
         private ObservableCollection<CalendarItem> _calendarItems = new ObservableCollection<CalendarItem>();
 
         public ObservableCollection<CalendarItem> CalendarItems
@@ -341,8 +281,8 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand ReloadHistoryRecords { get; }
         public RelayCommand CheckTimeForIntersection { get; }
         public RelayCommand GetReport { get; }
-        public RelayCommand<AnalyticOrdered> SelectAnalytic { get; }
-        public RelayCommand<AnalyticOrdered> UnselectAnalytic { get; }
+        public RelayCommand<StructuredAnalytic> SelectAnalytic { get; }
+        public RelayCommand<StructuredAnalytic> UnselectAnalytic { get; }
         public RelayCommand ReportSelectionStore { get; }
         public RelayCommand SelectCalendarItem { get; }
         public RelayCommand<string> FinilizeEditUserName { get; }
@@ -362,19 +302,19 @@ namespace TimeSheetApp.ViewModel
                 EFDataProvider = dataProvider;
 
                 FillDataCollections();
-                updateSubjectHints();
+                UpdateSubjectsHints();
                 AddProcess = new RelayCommand<TimeSheetTable>(AddRecordMethod);
                 EditProcess = new RelayCommand<TimeSheetTable>(EditHistoryProcess);
                 DeleteProcess = new RelayCommand<TimeSheetTable>(DeleteHistoryRecord);
                 ReloadTimeSheet = new RelayCommand(UpdateTimeSpan);
                 CheckTimeForIntersection = new RelayCommand(CheckTimeForIntesectionMethod);
-                LoadSelectionForSelectedProcess = new RelayCommand<Process>(LoadSelection);
+                LoadSelectionForSelectedProcess = new RelayCommand<Process>(SetupSelectionAsLastTime);
                 FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
                 GetReport = new RelayCommand(GetReportMethod);
                 ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
-                ReportSelectionStore = new RelayCommand(ReportSelectionUpdate);
-                SelectAnalytic = new RelayCommand<AnalyticOrdered>(SelectAnalyticMethod);
-                UnselectAnalytic = new RelayCommand<AnalyticOrdered>(UnselectAnalyticMethod);
+                ReportSelectionStore = new RelayCommand(OnAnalyticSelectionChanged);
+                SelectAnalytic = new RelayCommand<StructuredAnalytic>(SelectAnalyticMethod);
+                UnselectAnalytic = new RelayCommand<StructuredAnalytic>(UnselectAnalyticMethod);
                 SelectCalendarItem = new RelayCommand(SelectCalendarItemMethod);
                 FinilizeEditUserName = new RelayCommand<string>(FinishEditingUserName);
                 NewRecord.Analytic = CurrentUser;
@@ -386,14 +326,8 @@ namespace TimeSheetApp.ViewModel
             }
             catch(Exception ex)
             {
-                if(MessageBox.Show($"{ex.Message}. {ex.InnerException}. {ex.StackTrace}", "ОШИБКА", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
-                {
-                    Environment.Exit(0);
-                }
-                else
-                {
-                    Environment.Exit(0);
-                }
+                MessageBox.Show($"{ex.Message}. {ex.InnerException}. {ex.StackTrace}", "ОШИБКА", MessageBoxButton.OK, MessageBoxImage.Error);
+                Environment.Exit(0);
             }
         }
 
@@ -411,8 +345,9 @@ namespace TimeSheetApp.ViewModel
                 CurrentUser.FirstName = UserNameSplited[1];
                 CurrentUser.FatherName = UserNameSplited[2];
                 EFDataProvider.Commit();
+
             }
-            
+            RaisePropertyChanged(nameof(CurrentUserFullName));
         }
 
         private void QuitIfStartedFromServer()
@@ -458,130 +393,99 @@ namespace TimeSheetApp.ViewModel
             RaisePropertyChanged(nameof(NewRecord));
         }
 
-        private void SelectAnalyticMethod(AnalyticOrdered analytic)
+        private void SelectAnalyticMethod(StructuredAnalytic analytic)
         {
             analytic.Selected = true;
-            ReportSelectionUpdate();
+            OnAnalyticSelectionChanged();
         }
-        private void UnselectAnalyticMethod(AnalyticOrdered analytic)
+        private void UnselectAnalyticMethod(StructuredAnalytic analytic)
         {
             analytic.Selected = false;
-            ReportSelectionUpdate();
+            OnAnalyticSelectionChanged();
         }
 
-        private void ReportSelectionUpdate()
+        private void OnAnalyticSelectionChanged()
         {
             SelectedAnalytics.Clear();
-            foreach (AnalyticOrdered analytic in SubordinatedOrdered)
-            {
-                if (analytic.Selected)
-                {
-                    SelectedAnalytics.Add(analytic.Analytic);
-                }
-            }
-
+            SubordinatedAnalytics.
+                Where(analytic=>analytic.Selected).
+                    Select(analytic=>analytic.Analytic).
+                        ToList().
+                            ForEach(SelectedAnalytics.Add);
         }
 
         private void GenerateNodes()
         {
+            SubordinatedAnalyticNodes = new ObservableCollection<Node>();
 
-            foreach (AnalyticOrdered analytic in SubordinatedOrdered)
+            foreach (StructuredAnalytic analytic in SubordinatedAnalytics)
             {
-                
                 #region initialize
-                if (NodesCollection.Count < 1)
-                    NodesCollection.Add(new Node(analytic.FirstStructure));
+                if (SubordinatedAnalyticNodes.Count < 1)
+                    SubordinatedAnalyticNodes.Add(new Node(analytic.FirstStructure));
                 #endregion
                 #region Generate Ierarhial
-                foreach (Node node in NodesCollection)
+                foreach (Node node in SubordinatedAnalyticNodes)
                 {
                     #region 1stGen
-                    if (string.IsNullOrEmpty(analytic.FirstStructure)) break;
-
-                    Node firstGen = Node.FindNode(analytic.FirstStructure, NodesCollection);
+                    Node firstGen = Node.FindNode(analytic.FirstStructure, SubordinatedAnalyticNodes);
                     if (firstGen == null)
                     {
                         firstGen = new Node(analytic.FirstStructure);
-                        NodesCollection.Add(firstGen);
+                        SubordinatedAnalyticNodes.Add(firstGen);
                     }
                     #endregion
 
                     #region 2ndGen
-
                     if (string.IsNullOrEmpty(analytic.SecondStructure) || analytic.SecondStructure.Equals("Отсутствует"))
                     {
                         firstGen.Analytics.Add(analytic);
                         break;
                     }
-
-                    Node secondGen = Node.FindNode(analytic.SecondStructure, NodesCollection);
+                    Node secondGen = Node.FindNode(analytic.SecondStructure, SubordinatedAnalyticNodes);
                     if (secondGen == null)
                     {
                         firstGen.AddChild(new Node(analytic.SecondStructure));
-                        secondGen = Node.FindNode(analytic.SecondStructure, NodesCollection);
+                        secondGen = Node.FindNode(analytic.SecondStructure, SubordinatedAnalyticNodes);
                     }
-
                     #endregion
 
                     #region 3ndGen
-
                     if (string.IsNullOrEmpty(analytic.ThirdStructure) || analytic.ThirdStructure.Equals("Отсутствует"))
                     {
                         secondGen.Analytics.Add(analytic);
                         break;
                     }
-
-                    Node thirdGen = Node.FindNode(analytic.ThirdStructure, NodesCollection);
+                    Node thirdGen = Node.FindNode(analytic.ThirdStructure, SubordinatedAnalyticNodes);
                     if (thirdGen == null)
                     {
                         secondGen.AddChild(new Node(analytic.ThirdStructure));
-                        thirdGen = Node.FindNode(analytic.ThirdStructure, NodesCollection);
+                        thirdGen = Node.FindNode(analytic.ThirdStructure, SubordinatedAnalyticNodes);
                     }
-
                     #endregion
 
                     #region 4thGen
-
                     if (string.IsNullOrEmpty(analytic.FourStructure) || analytic.FourStructure.Equals("Отсутствует"))
                     {
                         thirdGen.Analytics.Add(analytic);
                         break;
                     }
 
-                    Node fourGen = Node.FindNode(analytic.FourStructure, NodesCollection);
+                    Node fourGen = Node.FindNode(analytic.FourStructure, SubordinatedAnalyticNodes);
                     if (fourGen == null)
                     {
                         thirdGen.AddChild(new Node(analytic.FourStructure));
-                        fourGen = Node.FindNode(analytic.FourStructure, NodesCollection);
+                        fourGen = Node.FindNode(analytic.FourStructure, SubordinatedAnalyticNodes);
                     }
                     fourGen.Analytics.Add(analytic);
                     #endregion
-
-
                 }
                 #endregion
-
-
             }
-            foreach (Node node1 in NodesCollection)
+
+            foreach (Node node1 in SubordinatedAnalyticNodes)
             {
                 node1.CountAnalytics(node1);
-            }
-        }
-
-        private void updateSubjectHints()
-        {
-            subjectsFromDB = EFDataProvider.GetSubjectHints(NewRecord.Process);
-
-            SubjectHints.Clear();
-            int itemsCount = subjectsFromDB.Count;
-
-            for (int i = itemsCount-1; i > 0 && SubjectHints.Count < 11; i--)
-            {
-                if (subjectsFromDB.Count > 0 && !SubjectHints.Any(subj=> subj.Equals(subjectsFromDB[i])))
-                {
-                    SubjectHints.Add(subjectsFromDB[i]);
-                }
             }
         }
 
@@ -616,7 +520,7 @@ namespace TimeSheetApp.ViewModel
             RaisePropertyChanged(nameof(IsTimeCorrect));
         }
 
-        private void LoadSelection(Process selectedProcess)
+        private void SetupSelectionAsLastTime(Process selectedProcess)
         {
             BusinessBlockChoiceCollection.Clear();
             SupportsChoiceCollection.Clear();
@@ -624,31 +528,35 @@ namespace TimeSheetApp.ViewModel
             RiskChoiceCollection.Clear();
             if (selectedProcess != null)
             {
-                TimeSheetTable lastRecord = EFDataProvider.GetLastActivityWithSameProcess(selectedProcess, CurrentUser);
-                if (lastRecord != null) { 
-                    foreach(BusinessBlockNew item in lastRecord.BusinessBlocks)
-                    {
-                        BusinessBlockChoiceCollection.Add(item.BusinessBlock);
-                    }
-                    foreach(SupportNew item in lastRecord.Supports)
-                    {
-                        SupportsChoiceCollection.Add(item.Supports);
-                    }
-                    foreach(EscalationNew item in lastRecord.Escalations)
-                    {
-                        EscalationsChoiceCollection.Add(item.Escalation);
-                    }
-                    foreach(RiskNew item in lastRecord.Risks)
-                    {
-                        RiskChoiceCollection.Add(item.Risk);
-                    }
+                TimeSheetTable lastRecord = EFDataProvider.GetLastRecordWithSameProcess(selectedProcess, CurrentUser);
+                if (lastRecord != null) {
+                    lastRecord.BusinessBlocks.Select(i=>i.BusinessBlock).ToList().ForEach(BusinessBlockChoiceCollection.Add);
+                    lastRecord.Supports.Select(i=>i.Supports).ToList().ForEach(SupportsChoiceCollection.Add);
+                    lastRecord.Escalations.Select(i=>i.Escalation).ToList().ForEach(EscalationsChoiceCollection.Add);
+                    lastRecord.Risks.Select(i=>i.Risk).ToList().ForEach(RiskChoiceCollection.Add);
 
                     NewRecord.ClientWays = lastRecord.ClientWays;
                     NewRecord.Formats = lastRecord.Formats;
                 }
                 RaisePropertyChanged(nameof(NewRecord));
             }
-            updateSubjectHints();
+            UpdateSubjectsHints();
+        }
+
+        private void UpdateSubjectsHints()
+        {
+            subjectsFromDB = EFDataProvider.GetSubjectHints(NewRecord.Process);
+
+            SubjectHints.Clear();
+            int itemsCount = subjectsFromDB.Count;
+
+            for (int i = itemsCount - 1; i > 0 && SubjectHints.Count < 11; i--)
+            {
+                if (subjectsFromDB.Count > 0 && !SubjectHints.Any(subj => subj.Equals(subjectsFromDB[i])))
+                {
+                    SubjectHints.Add(subjectsFromDB[i]);
+                }
+            }
         }
 
         private void DeleteHistoryRecord(TimeSheetTable record)
@@ -663,26 +571,23 @@ namespace TimeSheetApp.ViewModel
         private void FillDataCollections()
         {
             CurrentUser = EFDataProvider.LoadAnalyticData();
-            CurrentUserFullName = $"{CurrentUser.LastName} {CurrentUser.FirstName} {CurrentUser.FatherName}";
-            Processes = EFDataProvider.GetProcesses();
-            BusinessBlock = EFDataProvider.GetBusinessBlocks();
-            SupportsArr = EFDataProvider.GetSupports();
-            ClientWays = EFDataProvider.GetClientWays();
-            FormatList = EFDataProvider.GetFormat();
-            Escalations = EFDataProvider.GetEscalation();
-            RiskCol = EFDataProvider.GetRisks();
+            AllProcesses = EFDataProvider.GetProcesses();
+            BusinessBlocks = EFDataProvider.GetBusinessBlocks().ToList();
+            Supports = EFDataProvider.GetSupports().ToList();
+            ClientWays = EFDataProvider.GetClientWays().ToList();
+            Formats = EFDataProvider.GetFormat().ToList();
+            Escalations = EFDataProvider.GetEscalation().ToList();
+            Risks = EFDataProvider.GetRisks().ToList();
             FilterProcessesMethod(string.Empty);
-            SubordinateEmployees = EFDataProvider.GetMyAnalyticsData(CurrentUser);
-            SubordinatedOrdered = GetAnalyticOrdereds(SubordinateEmployees);
-            
+            SubordinatedAnalytics = ConvertToStructuredAnalytics(EFDataProvider.GetMyAnalyticsData(CurrentUser));
         }
 
-        private ObservableCollection<AnalyticOrdered> GetAnalyticOrdereds(IEnumerable<Analytic> analytics)
+        private ObservableCollection<StructuredAnalytic> ConvertToStructuredAnalytics(IEnumerable<Analytic> analytics)
         {
-            ObservableCollection<AnalyticOrdered> exportVal = new ObservableCollection<AnalyticOrdered>();
+            ObservableCollection<StructuredAnalytic> exportVal = new ObservableCollection<StructuredAnalytic>();
             foreach (Analytic analytic in analytics)
             {
-                AnalyticOrdered ordered = new AnalyticOrdered(analytic);
+                StructuredAnalytic ordered = new StructuredAnalytic(analytic);
                 ordered.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(Ordered_PropertyChanged);
                 exportVal.Add(ordered);
             }
@@ -693,54 +598,32 @@ namespace TimeSheetApp.ViewModel
         {
             if (e.PropertyName.Equals("Selected"))
             {
-                ReportSelectionUpdate();
+                OnAnalyticSelectionChanged();
             }
         }
 
         private void UpdateTimeSpan()
         {
             UpdateCalendarItemsMethod();
-            HistoryRecords.Clear();
-            foreach (TimeSheetTable record in EFDataProvider.LoadTimeSheetRecords(CurrentDate, CurrentUser))
-            {
-                HistoryRecords.Add(record);
-            }
+            TodayRecords.Clear();
+            EFDataProvider.LoadTimeSheetRecords(CurrentDate, CurrentUser).ForEach(TodayRecords.Add);
             RaisePropertyChanged(nameof(TotalDurationInMinutes));
         }
 
-        private async void FilterProcessesMethod(string filterText)
+        private void FilterProcessesMethod(string userSearchInput)
         {
-            ProcessFiltered?.Clear();
-            Dictionary<Process, int> orderedProcesses = new Dictionary<Process, int>();
-            List<Process> processes = EFDataProvider.GetProcesses().ToList();
-
-
-
-            if (!string.IsNullOrWhiteSpace(filterText))
-            {
-                processes = processes.Where(rec => rec.ProcName.ToLower().IndexOf(filterText.ToLower()) > -1 ||
-                rec.Comment?.ToLower().IndexOf(filterText.ToLower()) > -1 || 
-                rec.Id.ToString().Equals(filterText)).ToList();
-                foreach(Process process in processes)
-                {
-                    orderedProcesses.Add(process, 1);
-                }
-            }
-            else
-            {
-                List<TimeSheetTable> currentAnalyticRecords = EFDataProvider.GetTimeSheetRecordsForAnalytic(CurrentUser);
-                foreach(Process process in processes)
-                {
-                    int currentProcCount = currentAnalyticRecords.Where(i => i.Process_id == process.Id).Count();
-                    orderedProcesses.Add(process, currentProcCount);
-                }
-            }
-
-
-            foreach (KeyValuePair<Process, int> keyValue in orderedProcesses.OrderByDescending(i => i.Value))
-            {
-                ProcessFiltered.Add(keyValue.Key);
-            }
+            if (UserFilteredProcesses == null)
+                UserFilteredProcesses = new ObservableCollection<Process>();
+            UserFilteredProcesses.Clear();
+            List<Process> processes = AllProcesses.ToList();
+            List<TimeSheetTable> currentAnalyticRecords = EFDataProvider.GetTimeSheetRecordsForAnalytic(CurrentUser);
+            processes = !string.IsNullOrWhiteSpace(userSearchInput) ?
+            processes.Where(rec => rec.ProcName.ToLower().IndexOf(userSearchInput.ToLower()) > -1 ||
+                rec.Comment?.ToLower().IndexOf(userSearchInput.ToLower()) > -1 ||
+                rec.Id.ToString().Equals(userSearchInput)).ToList()
+            : processes;
+            processes = processes.OrderByDescending(proc => currentAnalyticRecords.Where(i => i.Process_id == proc.Id).Count()).ThenBy(proc=>proc.Id).ToList();
+            processes.ForEach(UserFilteredProcesses.Add);
         }
 
         private void AddRecordMethod(TimeSheetTable newItem)
@@ -790,7 +673,7 @@ namespace TimeSheetApp.ViewModel
             #region Обновление представления
             UpdateTimeSpan();
             RaisePropertyChanged(nameof(TotalDurationInMinutes));
-            updateSubjectHints();
+            UpdateSubjectsHints();
             RaisePropertyChanged("subjectHints");
             newItem.TimeStart = newItem.TimeEnd;
             newItem.TimeEnd = newItem.TimeEnd.AddMinutes(15);
@@ -834,7 +717,6 @@ namespace TimeSheetApp.ViewModel
             };
             initalTimeStart = Record.TimeStart;
             initalTimeEnd = Record.TimeEnd;
-            isEditState = true;
 
             #region LoadSelection
             BusinessBlockChoiceCollection.Clear();
@@ -877,8 +759,6 @@ namespace TimeSheetApp.ViewModel
                 EFDataProvider.UpdateProcess(Record, EditedRecord);
                 UpdateTimeSpan();
             }
-            isEditState = false;
-
         }
 
         private ObservableCollection<CalendarItem> GetDominoCalendar(DateTime date)

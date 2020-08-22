@@ -15,15 +15,15 @@ namespace TimeSheetApp.Model.Reports
     /// </summary>
     public class Report_03 : IReport
     {
-        private readonly List<AnalyticOrdered> analyticsOrdered;
+        private readonly List<StructuredAnalytic> analyticsOrdered;
         private readonly TimeSheetContext dataBase;
 
         public Report_03(IEnumerable<Analytic> analytics, TimeSheetContext _dataBase)
         {
-            analyticsOrdered = new List<AnalyticOrdered>();
+            analyticsOrdered = new List<StructuredAnalytic>();
             foreach (Analytic analytic in analytics)
             {
-                analyticsOrdered.Add(new AnalyticOrdered(analytic));
+                analyticsOrdered.Add(new StructuredAnalytic(analytic));
             }
             dataBase = _dataBase;
         }
@@ -39,7 +39,7 @@ namespace TimeSheetApp.Model.Reports
 
             #region Создание списка подразделений
 
-            foreach (AnalyticOrdered analytic in analyticsOrdered)
+            foreach (StructuredAnalytic analytic in analyticsOrdered)
             {
                 if (analytic.Analytic.FirstName.Equals("null") || analytic.Analytic.FirstName.Equals("NotSet"))
                     continue;
@@ -85,7 +85,7 @@ namespace TimeSheetApp.Model.Reports
                         int timeSpent = 0; //Время потраченное в рамках одного процесса
                         int timeSpentTotal = 0; //Время потраченное на все процессы
 
-                        foreach (AnalyticOrdered analytic in structure.analytics)
+                        foreach (StructuredAnalytic analytic in structure.analytics)
                         {
                             if (TimeSheetTableDB.Any(i => i.AnalyticId == analytic.Analytic.Id &&
                             i.TimeStart > start &&
@@ -182,7 +182,7 @@ namespace TimeSheetApp.Model.Reports
         {
             internal string structName { get; set; }
             internal Dictionary<string, double> processValues = new Dictionary<string, double>();
-            internal List<AnalyticOrdered> analytics = new List<AnalyticOrdered>();
+            internal List<StructuredAnalytic> analytics = new List<StructuredAnalytic>();
         }
 
     }

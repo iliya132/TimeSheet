@@ -199,6 +199,7 @@
     <Compile Include="Controls\HintTextBox.xaml.cs">
       <DependentUpon>HintTextBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\AnalyticToFullNameConverter.cs" />
     <Compile Include="EditForm.xaml.cs">
       <DependentUpon>EditForm.xaml</DependentUpon>
     </Compile>
@@ -366,17 +367,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="Domino">
-      <Guid>{29131520-2EED-1069-BF5D-00DD011186B7}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>2</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resource\calendar.png">

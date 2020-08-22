@@ -15,75 +15,54 @@ namespace TimeSheetApp.Model
     class EFDataProvider : IEFDataProvider
     {
         TimeSheetContext _dbContext = new TimeSheetContext();
+        Analytic _currentAnalytic;
+        const int DEPARTMENT_HEAD = 1;
+        const int DIRECTION_HEAD = 2;
+        const int UPRAVLENIE_HEAD = 3;
+        const int OTDEL_HEAD = 4;
+        const int ADMIN = 5;
+        const int USER = 6;
 
         /// <summary>
-        /// Получить подсказки для поля тема
+        /// Получить подсказки для поля "Тема"
         /// </summary>
         /// <param name="process">Процесс, к которому нужно подобрать подсказки</param>
         /// <returns>Стек тем, введенных ранее пользователем</returns>
         public List<string> GetSubjectHints(Process process)
         {
-            List<string> subjects = new List<string>();
             if (process != null)
             {
-                int CurrentAnalyticId = _dbContext.AnalyticSet.
-                    FirstOrDefault(i => i.UserName.ToLower().Equals(Environment.UserName.ToLower())).Id;
-            
-                subjects = _dbContext.TimeSheetTableSet.
-                    Where(i => i.AnalyticId == CurrentAnalyticId &&
+                return _dbContext.TimeSheetTableSet.
+                    Where(i => i.AnalyticId == _currentAnalytic.Id &&
                         i.Subject.Length > 0 &&
-                        i.Process_id == process.Id).OrderBy(i => i.TimeStart).
-                    Select(i => i.Subject).ToList();
+                        i.Process_id == process.Id).
+                    OrderBy(i => i.TimeStart).
+                    Select(i => i.Subject).
+                    Distinct().
+                    ToList();
             }
-
-            
-            return subjects;
+            return new List<string>();
         }
-
-        public int GetProcessCountForAnalytic(Process process, Analytic analytic)
-        {
-            return _dbContext.TimeSheetTableSet.Where(record => record.Process_id == process.Id && analytic.Id == record.AnalyticId).Count();
-        }
-
-        /// <summary>
-        /// Получить расшифровку кода процесса
-        /// </summary>
-        /// <param name="process"></param>
-        /// <returns>Строка, содержащая имена: Блок-Подблок-Процесс</returns>
-        public string GetCodeDescription(Process process) => $"{process.Block.BlockName}\r\n{process.SubBlock.SubblockName}\r\n{process.ProcName}";
 
         /// <summary>
         /// Получить список всех существующих процессов
         /// </summary>
         /// <returns>ObservableCollection</returns>
-        public ObservableCollection<Process> GetProcesses()
-        {
-            ObservableCollection<Process> processes;
-
-            processes = new ObservableCollection<Process>(_dbContext.ProcessSet);
-
-            return processes;
-        }
+        public ObservableCollection<Process> GetProcesses() => new ObservableCollection<Process>(_dbContext.ProcessSet);
 
         /// <summary>
         /// Получить список всех БизнесПодразделений
         /// </summary>
         /// <returns>OBservableCollection</returns>
-        public BusinessBlock[] GetBusinessBlocks()
-        {
-            BusinessBlock[] businessBlocks;
-            businessBlocks = _dbContext.BusinessBlockSet.ToArray();
-            return businessBlocks;
-        }
+        public List<BusinessBlock> GetBusinessBlocks() => _dbContext.BusinessBlockSet.ToList();
 
         /// Добавить запись в TimeSheetTable
         /// </summary>
         /// <param name="activity">Процесс</param>
-        public void AddActivity(TimeSheetTable activity)
+        public void AddActivity(TimeSheetTable newRecord)
         {
-            TimeSpan span = activity.TimeEnd - activity.TimeStart;
-            activity.TimeSpent = (int)span.TotalMinutes;
-            _dbContext.TimeSheetTableSet.Add(activity);
+            newRecord.TimeSpent = (int)(newRecord.TimeEnd - newRecord.TimeStart).TotalMinutes;
+            _dbContext.TimeSheetTableSet.Add(newRecord);
             _dbContext.SaveChanges();
         }
 
@@ -110,45 +89,25 @@ namespace TimeSheetApp.Model
         /// Возвращает названия всех блоков
         /// </summary>
         /// <returns></returns>
-        public List<string> GetBlocksList()
-        {
-            List<string> BlocksList;
-            BlocksList = new List<string>(_dbContext.BlockSet.Select(i => i.BlockName).ToArray());
-            return BlocksList;
-        }
+        public List<string> GetProcessBlocks() => _dbContext.BlockSet.Select(i => i.BlockName).ToList();
 
         /// <summary>
         /// Получить список всех клиентских путей
         /// </summary>
         /// <returns></returns>
-        public ClientWays[] GetClientWays()
-        {
-            ClientWays[] clientWays;
-            clientWays = _dbContext.ClientWaysSet.ToArray();
-            return clientWays;
-        }
+        public List<ClientWays> GetClientWays() => _dbContext.ClientWaysSet.ToList();
 
         /// <summary>
         /// Получить список всех Эскалаций
         /// </summary>
         /// <returns></returns>
-        public Escalation[] GetEscalation()
-        {
-            Escalation[] escalations;
-            escalations = _dbContext.EscalationsSet.ToArray();
-            return escalations;
-        }
+        public List<Escalation> GetEscalation() => _dbContext.EscalationsSet.ToList();
 
         /// <summary>
         /// Получить список всех форматов
         /// </summary>
         /// <returns></returns>
-        public Formats[] GetFormat()
-        {
-            Formats[] formats;
-            formats = _dbContext.FormatsSet.ToArray();
-            return formats;
-        }
+        public List<Formats> GetFormat() => _dbContext.FormatsSet.ToList();
 
         /// <summary>
         /// Получить список сотрудников в подчинении
@@ -160,23 +119,23 @@ namespace TimeSheetApp.Model
             ObservableCollection<Analytic> analytics = new ObservableCollection<Analytic>();
             switch (currentUser.RoleTableId)
             {
-                case (1):
+                case (DEPARTMENT_HEAD):
                     analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.DepartmentId == currentUser.DepartmentId).ToArray());
                     break;
-                case (2):
+                case (DIRECTION_HEAD):
                     analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.DirectionId == currentUser.DirectionId));
                     break;
-                case (3):
+                case (UPRAVLENIE_HEAD):
                     analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.UpravlenieId == currentUser.UpravlenieId));
                     break;
-                case (4):
+                case (OTDEL_HEAD):
                     analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.OtdelId == currentUser.OtdelId).ToArray());
                     break;
-                case (5):
+                case (ADMIN):
                     analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.ToArray());
                     break;
-                default:
-                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.Id == currentUser.Id).ToArray());
+                case (USER):
+                    analytics = new ObservableCollection<Analytic>(_dbContext.AnalyticSet.Where(i => i.Id == currentUser.Id || i.HeadFuncId == currentUser.Id).ToArray());
                     break;
             }
             return analytics;
@@ -191,72 +150,50 @@ namespace TimeSheetApp.Model
         /// <param name="end"></param>
         public void GetReport(int ReportType, Analytic[] analytics, DateTime start, DateTime end)
         {
-            IReport report;
+            IReport report = null;
             switch (ReportType)
             {
                 case (0):
+                    //TODO Переписать метод как объект типа Report
                     ExcelWorker.ExportDataTableToExcel(GetAnalyticsReport(analytics, start, end));
-                    break;
+                    return;
                 case (1):
                     report = new Report_02(_dbContext, analytics);
-                    report.Generate(start, end);
                     break;
                 case (2):
                     report = new Report_03(analytics, _dbContext);
-                    report.Generate(start, end);
                     break;
                 case (3):
                     report = new Report_Allocations(_dbContext, analytics);
-                    report.Generate(start, end);
                     break;
             }
+            report.Generate(start, end);
         }
 
         /// <summary>
         /// Получить список всех рисков
         /// </summary>
         /// <returns></returns>
-        public Risk[] GetRisks()
-        {
-            Risk[] risks;
-            risks = _dbContext.RiskSet.ToArray();
-            return risks;
-        }
+        public List<Risk> GetRisks() => _dbContext.RiskSet.ToList();
 
         /// <summary>
-        /// Получить лист подблоков
+        /// Получить список названий подблоков
         /// </summary>
         /// <returns></returns>
-        public List<string> GetSubBlocksList()
-        {
-            List<string> SubBlockNames;
-            SubBlockNames = new List<string>(_dbContext.SubBlockSet.Select(i => i.SubblockName).ToArray());
-            return SubBlockNames;
-        }
+        public List<string> GetSubBlocksNames() => _dbContext.SubBlockSet.Select(i => i.SubblockName).ToList();
 
         /// <summary>
         /// Получить массив всех саппортов
         /// </summary>
         /// <returns></returns>
-        public Supports[] GetSupports()
-        {
-            Supports[] supports;
-            supports = _dbContext.SupportsSet.ToArray();
-            return supports;
-        }
+        public List<Supports> GetSupports() => _dbContext.SupportsSet.ToList();
 
         /// <summary>
         /// Метод устанавливает свойство видимости вкладки "Кабинет руководителя"
         /// </summary>
         /// <param name="currentUser">Текущий пользователь</param>
         /// <returns></returns>
-        public Visibility IsAnalyticHasAccess(Analytic currentUser)
-        {
-            if (currentUser.Role.Id < 6)
-                return Visibility.Visible;
-            else return Visibility.Hidden;
-        }
-
+        public Visibility IsAnalyticHasAccess(Analytic currentUser) => currentUser.Role.Id < 6 ? Visibility.Visible : Visibility.Hidden;
 
         /// <summary>
         /// Получает информацию о текущем аналитике, и если запись в БД не существует - создаёт новую
@@ -264,17 +201,15 @@ namespace TimeSheetApp.Model
         /// <returns></returns>
         public Analytic LoadAnalyticData()
         {
-            string user = Environment.UserName;
-            Analytic analytic = new Analytic();
-
-            if (_dbContext.AnalyticSet.Any(i => i.UserName.ToLower().Equals(user.ToLower())))
-            {
-                analytic = _dbContext.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(user.ToLower()));
-            }
-            else
+            //string user = Environment.UserName.ToLower();
+            string user = "U_m0x0c";
+            Analytic analytic;
+            analytic = _dbContext.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(user));
+            if(analytic == null)
             {
                 analytic = new Analytic()
                 {
+                    //TODO доработать загрузку данных из БД Oracle
                     UserName = user,
                     DepartmentId = 1,
                     DirectionId = 1,
@@ -288,9 +223,9 @@ namespace TimeSheetApp.Model
                 };
                 _dbContext.AnalyticSet.Add(analytic);
                 _dbContext.SaveChanges();
-                analytic = _dbContext.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(Environment.UserName.ToLower()));
+                analytic = _dbContext.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(user));
             }
-
+            _currentAnalytic = analytic;
             return analytic;
         }
 
@@ -484,7 +419,7 @@ namespace TimeSheetApp.Model
             return dataTable;
         }
 
-        public TimeSheetTable GetLastActivityWithSameProcess(Process process, Analytic user)
+        public TimeSheetTable GetLastRecordWithSameProcess(Process process, Analytic user)
         {
             return _dbContext.TimeSheetTableSet.Include("BusinessBlocks").
                 Include("Risks").

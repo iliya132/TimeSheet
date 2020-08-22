@@ -13,6 +13,12 @@ namespace TimeSheetApp.Model
         public TimeSheetContext() : base("TimeSheetDBEntities")
         { }
 
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Analytic>().HasOptional(c => c.AdminHead).WithMany().HasForeignKey(c => c.HeadAdmId);
+            modelBuilder.Entity<Analytic>().HasOptional(c => c.FunctionHead).WithMany().HasForeignKey(c => c.HeadFuncId);
+        }
         public DbSet<Analytic> AnalyticSet { get; set; }
         public DbSet<Block> BlockSet { get; set; }
         public DbSet<BusinessBlock> BusinessBlockSet { get; set; }

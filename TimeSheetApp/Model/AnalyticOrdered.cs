@@ -8,7 +8,7 @@ using TimeSheetApp.Model.EntitiesBase;
 
 namespace TimeSheetApp.Model
 {
-    public class AnalyticOrdered : INotifyPropertyChanged
+    public class StructuredAnalytic : INotifyPropertyChanged
     {
         public Analytic Analytic;
 
@@ -37,7 +37,7 @@ namespace TimeSheetApp.Model
         public string SecondStructure { get; set; }
         public string ThirdStructure { get; set; }
         public string FourStructure { get; set; }
-        public AnalyticOrdered(Analytic _analytic)
+        public StructuredAnalytic(Analytic _analytic)
         {
             Analytic = _analytic;
 

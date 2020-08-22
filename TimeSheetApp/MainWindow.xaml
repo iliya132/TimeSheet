@@ -15,6 +15,7 @@
         <local:CodeFullConverter x:Key="CodeFullConverter"/>
         <local:CodeDescriptionConverter x:Key="CodeDescriptionConverter"/>
         <local:DateTimeConverter x:Key="DateTimeConverter"/>
+        <local:AnalyticToFullNameConverter x:Key="AnalyticToFullNameConverter"/>
     </Window.Resources>
     <Grid>
 
@@ -50,7 +51,7 @@
                             </TextBox>
 
                         </StackPanel>
-                        <ListView Name = "ProcessList" ItemsSource="{Binding ProcessFiltered}" SelectedItem="{Binding NewRecord.Process}" Margin="0,0,10,0" Grid.Row="1" SelectedIndex="0">
+                        <ListView Name = "ProcessList" ItemsSource="{Binding UserFilteredProcesses}" SelectedItem="{Binding NewRecord.Process}" Margin="0,0,10,0" Grid.Row="1" SelectedIndex="0">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="SelectionChanged">
                                     <mvvm:EventToCommand Command="{Binding LoadSelectionForSelectedProcess}"
@@ -192,10 +193,10 @@
                         </StackPanel>
                         <StackPanel Grid.Row="2" Margin="0,10,0,0" DataContext="{Binding Main, Source={StaticResource Locator}}">
                             <Label Content="Бизнес подразделение" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="businessCombo" Height="30" DisplayMemberPath="BusinessBlockName"  ItemsSource="{Binding BusinessBlock}" SelectedItemsOverride="{Binding BusinessBlockChoiceCollection}" Delimiter=", " IsSelectAllActive="True" IsTextSearchCaseSensitive="True">
+                            <xctk:CheckComboBox Name="businessCombo" Height="30" DisplayMemberPath="BusinessBlockName"  ItemsSource="{Binding BusinessBlocks}" SelectedItemsOverride="{Binding BusinessBlockChoiceCollection}" Delimiter=", " IsSelectAllActive="True" IsTextSearchCaseSensitive="True">
                             </xctk:CheckComboBox>
                             <Label Content="Support" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Height="30" Name="supportCombo" DisplayMemberPath="Name" ItemsSource="{Binding SupportsArr}" SelectedItemsOverride="{Binding SupportsChoiceCollection}" IsSelectAllActive="True">
+                            <xctk:CheckComboBox Height="30" Name="supportCombo" DisplayMemberPath="Name" ItemsSource="{Binding Supports}" SelectedItemsOverride="{Binding SupportsChoiceCollection}" IsSelectAllActive="True">
                             </xctk:CheckComboBox>
                             <Label Content="Клиентские пути" FontWeight="Bold"/>
                             <ComboBox Name="clientWaysCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding ClientWays}" SelectedItem="{Binding NewRecord.ClientWays}" SelectedIndex="0"/>
@@ -203,9 +204,9 @@
                             <xctk:CheckComboBox Name="escalationCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding Escalations}" SelectedItemsOverride="{Binding EscalationsChoiceCollection}" IsSelectAllActive="True">
                             </xctk:CheckComboBox>
                             <Label Content="Формат" FontWeight="Bold"/>
-                            <ComboBox Name="formatCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding FormatList}" SelectedItem="{Binding NewRecord.Formats}" SelectedIndex="0"/>
+                            <ComboBox Name="formatCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding Formats}" SelectedItem="{Binding NewRecord.Formats}" SelectedIndex="0"/>
                             <Label Content="Риск" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="riskCombo" Height="30" ItemsSource="{Binding RiskCol}" DisplayMemberPath="RiskName" SelectedItemsOverride="{Binding RiskChoiceCollection}" IsSelectAllActive="True">
+                            <xctk:CheckComboBox Name="riskCombo" Height="30" ItemsSource="{Binding Risks}" DisplayMemberPath="RiskName" SelectedItemsOverride="{Binding RiskChoiceCollection}" IsSelectAllActive="True">
                             </xctk:CheckComboBox>
 
                             <Button Name="Add" Height="35" Margin="0,10,0,0" 
@@ -241,8 +242,8 @@
                             <RowDefinition Height="10*"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        
-                        <ListView Name="TimeSpanListView"  ItemsSource="{Binding HistoryRecords}" Margin="10,0,0,0" Grid.Row="0">
+
+                        <ListView Name="TimeSpanListView"  ItemsSource="{Binding TodayRecords}" Margin="10,0,0,0" Grid.Row="0">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseDoubleClick">
                                     <mvvm:EventToCommand Command="{Binding Main.EditProcess, Source={StaticResource Locator}}"
@@ -315,8 +316,8 @@
                         <StackPanel Orientation="Horizontal" Margin="10,5">
                             <Image Source="Resource/User.png" Width="50"/>
                             <TextBlock Text="ФИО: " VerticalAlignment="Center" MaxWidth="215" TextWrapping="WrapWithOverflow"/>
-                            <TextBlock Name="UserNameLabel" Text="{Binding Source={StaticResource Locator}, Path=Main.CurrentUserFullName}" VerticalAlignment="Center" MaxWidth="215" TextWrapping="WrapWithOverflow" Visibility="Visible"/>
-                            <TextBox Name="EditUserName" LostFocus="EditUserName_LostFocus" KeyDown="EditUserName_KeyDown" Text="{Binding Source={StaticResource Locator}, Path=Main.CurrentUserFullName}" 
+                            <TextBlock Name="UserNameLabel" Text="{Binding Source={StaticResource Locator}, Path=Main.CurrentUserFullName, Mode=OneWay}" VerticalAlignment="Center" MaxWidth="215" TextWrapping="WrapWithOverflow" Visibility="Visible"/>
+                            <TextBox Name="EditUserName" LostFocus="EditUserName_LostFocus" KeyDown="EditUserName_KeyDown" Text="{Binding Source={StaticResource Locator}, Path=Main.CurrentUserFullName, Mode=OneWay}" 
                                      VerticalAlignment="Center" BorderBrush="{x:Null}" MaxWidth="215" TextWrapping="WrapWithOverflow" 
                                      Visibility="Collapsed">
                                 <i:Interaction.Triggers>
@@ -332,10 +333,30 @@
                         </StackPanel>
                         <GroupBox Margin="10,5" Header="Подразделение" FontSize="10" Foreground="#FF686868">
                             <StackPanel>
-                                <TextBlock Text="Департамент: Департамент Комплаенс контроля" Foreground="#FF1E1E1E"/>
-                                <TextBlock Text="Дирекция: Отсутствует" Foreground="#FF1E1E1E"/>
-                                <TextBlock Text="Управление: Отсутствует" Foreground="#FF1E1E1E"/>
-                                <TextBlock Text="Отдел: ОРППА" Foreground="#FF1E1E1E"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Департамент: " Foreground="#FF1E1E1E"/>
+                                    <TextBlock Text="{Binding CurrentUser.Departments.Name}" Foreground="#FF1E1E1E"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Дирекция: " Foreground="#FF1E1E1E"/>
+                                    <TextBlock Text="{Binding CurrentUser.Directions.Name}" Foreground="#FF1E1E1E"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Управление: " Foreground="#FF1E1E1E"/>
+                                    <TextBlock Text="{Binding CurrentUser.Upravlenie.Name}" Foreground="#FF1E1E1E"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Отдел: " Foreground="#FF1E1E1E"/>
+                                    <TextBlock Text="{Binding CurrentUser.Otdel.Name}" Foreground="#FF1E1E1E"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Административный руководитель: " Foreground="#FF1E1E1E"/>
+                                    <TextBlock Text="{Binding CurrentUser.AdminHead, Converter={StaticResource AnalyticToFullNameConverter}}" Foreground="#FF1E1E1E"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Функциональный руководитель: " Foreground="#FF1E1E1E"/>
+                                    <TextBlock Text="{Binding CurrentUser.FunctionHead, Converter={StaticResource AnalyticToFullNameConverter}}" Foreground="#FF1E1E1E"/>
+                                </StackPanel>
                             </StackPanel>
                         </GroupBox>
                         <GroupBox Margin="10,5" Header="Доступы"  FontSize="10" Foreground="#FF686868">
@@ -380,7 +401,7 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             <TextBlock Text="Сотрудники:" FontSize="16" VerticalAlignment="Center"/>
-                            <TreeView x:Name="treeView1" ItemsSource="{Binding NodesCollection}" Grid.Row="1" AlternationCount="1" OverridesDefaultStyle="True">
+                            <TreeView x:Name="treeView1" ItemsSource="{Binding SubordinatedAnalyticNodes}" Grid.Row="1" AlternationCount="1" OverridesDefaultStyle="True">
                                 <TreeView.Style>
                                     <Style TargetType="{x:Type TreeView}">
                                         <Setter Property="Background" Value="White"/>
