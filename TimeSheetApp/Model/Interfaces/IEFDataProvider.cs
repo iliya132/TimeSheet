@@ -35,5 +35,8 @@ namespace TimeSheetApp.Model
         void RemoveSelection(TimeSheetTable record);
         List<TimeSheetTable> GetTimeSheetRecordsForAnalytic(Analytic currentUser);
         void Commit();
+        double GetTimeSpent(Analytic analytic, DateTime start, DateTime end);
+        int GetDaysWorkedCount(Analytic currentUser, DateTime lastMonthFirstDay, DateTime lastMonthLastDay);
+        List<Analytic> GetTeam(Analytic analytic);
     }
 }

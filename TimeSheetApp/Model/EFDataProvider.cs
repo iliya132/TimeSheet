@@ -201,8 +201,16 @@ namespace TimeSheetApp.Model
         /// <returns></returns>
         public Analytic LoadAnalyticData()
         {
-            //string user = Environment.UserName.ToLower();
-            string user = "U_m0x0c";
+            string user;
+            if (Environment.UserName.ToLower().Equals("iliya")) //DEV at home
+            {
+                user = "u_m0x0c";
+            }
+            else
+            {
+                user = Environment.UserName.ToLower();
+            }
+            
             Analytic analytic;
             analytic = _dbContext.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(user));
             if(analytic == null)
@@ -305,13 +313,9 @@ namespace TimeSheetApp.Model
         /// <returns></returns>
         private bool isInInterval(DateTime start, DateTime end, DateTime start2, DateTime end2)
         {
-            if ((start >= start2 && start < end2) || //начальная дата в интервале
+            return (start >= start2 && start < end2) || //начальная дата в интервале
                 (end > start2 && end <= end2) || //конечная дата в интервале
-                (start <= start2 && end >= end2)) //промежуток времени между датами включает интервал
-            {
-                return true;
-            }
-            return false;
+                (start <= start2 && end >= end2); //промежуток времени между датами включает интервал
         }
 
         /// <summary>
@@ -438,5 +442,29 @@ namespace TimeSheetApp.Model
         {
             _dbContext.SaveChanges();
         }
+
+        public double GetTimeSpent(Analytic analytic, DateTime start, DateTime end)
+        {
+            return _dbContext.TimeSheetTableSet.
+                Where(record => record.AnalyticId == analytic.Id && record.TimeStart >= start && record.TimeEnd <= end).
+                Select(record => (double?)record.TimeSpent / 60).
+                Sum() ?? 0;
+        }
+
+        public int GetDaysWorkedCount(Analytic analytic, DateTime start, DateTime end)
+        {
+            return _dbContext.TimeSheetTableSet.
+                Where(record => record.AnalyticId == analytic.Id && record.TimeStart >= start && record.TimeEnd <= end).
+                GroupBy(record => DbFunctions.TruncateTime(record.TimeStart)).
+                Count();
+        }
+        public List<Analytic> GetTeam(Analytic analytic) => _dbContext.AnalyticSet.
+            Where(a => 
+            a.HeadFuncId == analytic.HeadFuncId && (a.OtdelId == analytic.Id || a.UpravlenieId == analytic.UpravlenieId || analytic.DirectionId == a.DirectionId) || 
+            a.Id == analytic.HeadFuncId || 
+            a.Id== analytic.HeadAdmId ||
+            a.HeadFuncId == analytic.Id).
+            ToList();
+        
     }
 }

@@ -21,6 +21,7 @@ namespace TimeSheetApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        bool hightligthing = false;
         //Что бы программа не реагировала на изменение значений при инициализации (highlightControl метод)
         private bool isInitialized = false;
         public MainWindow()
@@ -113,7 +114,7 @@ namespace TimeSheetApp
                 }
             }
 
-            if (!(sender as TimePicker).IsFocused && isInitialized)
+            if (!(sender as TimePicker).IsFocused && isInitialized && !hightligthing)
             {
                 highlightControl(sender as Control);
             }
@@ -182,16 +183,9 @@ namespace TimeSheetApp
             sc.ShowDialog();
         }
 
-        private void Subject_TextChangedEvent()
-        {
-            if (!Subject.textField.IsFocused)
-            {
-                highlightControl(Subject.textField);
-            }
-        }
-
         private async void highlightControl(Control control)
         {
+            hightligthing = true;
             await Task.Run(() =>
             {
                 for (byte i = 125; i > 0; i--)
@@ -219,6 +213,7 @@ namespace TimeSheetApp
                     control.Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
                 });
             });
+            hightligthing = false;
         }
 
         private void SelectTimeAfterClick(object sender, RoutedEventArgs e)
@@ -300,6 +295,19 @@ namespace TimeSheetApp
             editUserNameBtn.Visibility = Visibility.Visible;
         }
 
+        private void PrevDate_Click(object sender, RoutedEventArgs e)
+        {
+            DateBox.SelectedDate = DateBox.SelectedDate.Value.AddDays(-1);
+        }
 
+        private void SelectToday_Click(object sender, RoutedEventArgs e)
+        {
+            DateBox.SelectedDate = DateTime.Today;
+        }
+
+        private void NextDate_Click(object sender, RoutedEventArgs e)
+        {
+            DateBox.SelectedDate = DateBox.SelectedDate.Value.AddDays(1);
+        }
     }
 }

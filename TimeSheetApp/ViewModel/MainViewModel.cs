@@ -3,6 +3,7 @@ using GalaSoft.MvvmLight.Command;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -12,6 +13,8 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using TimeSheetApp.Model;
 using TimeSheetApp.Model.EntitiesBase;
+
+using Process = TimeSheetApp.Model.EntitiesBase.Process;
 
 namespace TimeSheetApp.ViewModel
 {
@@ -43,11 +46,31 @@ namespace TimeSheetApp.ViewModel
         #region Список сотрудников в подчинении
         public ObservableCollection<StructuredAnalytic> SubordinatedAnalytics { get; set; }
         public ObservableCollection<Node> SubordinatedAnalyticNodes { get; set; }
+        public ObservableCollection<Analytic> CurrentUserTeam { get; set; }
         #endregion
 
         #endregion
 
         #region CurrentValues
+        List<TimeSheetTable> SelectedRecords = new List<TimeSheetTable>();
+        List<TimeSheetTable> CopiedRecords = new List<TimeSheetTable>();
+        public TimeSpan TimeSelectorMin
+        {
+            set
+            {
+                NewRecord.TimeStart = new DateTime(NewRecord.TimeStart.Year, NewRecord.TimeStart.Month, NewRecord.TimeStart.Day, value.Hours, value.Minutes, value.Seconds);
+                RaisePropertyChanged("NewRecord.TimeStart");
+            }
+        }
+
+        public TimeSpan TimeSelectorMax
+        {
+            set
+            {
+                NewRecord.TimeEnd = new DateTime(NewRecord.TimeEnd.Year, NewRecord.TimeEnd.Month, NewRecord.TimeEnd.Day, value.Hours, value.Minutes, value.Seconds);
+                RaisePropertyChanged("NewRecord");
+            }
+        }
 
         #region editForm multiChoice
         private ObservableCollection<Risk> riskChoiceCollection = new ObservableCollection<Risk>();
@@ -86,6 +109,48 @@ namespace TimeSheetApp.ViewModel
             }
         }
         Dispatcher currentDispatcher = Dispatcher.CurrentDispatcher;
+
+        public double LastMonthTimeSpent 
+        { 
+            get
+            {
+                DateTime thisMonthFirstDay = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                DateTime thisMonthLastDay = thisMonthFirstDay.AddMonths(1).AddDays(-1);
+                DateTime lastMonthFirstDay = thisMonthFirstDay.AddMonths(-1);
+                DateTime lastMonthLastDay = thisMonthLastDay.AddMonths(-1);
+                return EFDataProvider.GetTimeSpent(CurrentUser, lastMonthFirstDay, lastMonthLastDay);
+            } 
+        }
+
+        public int LastMonthDaysWorked
+        {
+            get
+            {
+                DateTime thisMonthFirstDay = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                DateTime thisMonthLastDay = thisMonthFirstDay.AddMonths(1).AddDays(-1);
+                DateTime lastMonthFirstDay = thisMonthFirstDay.AddMonths(-1);
+                DateTime lastMonthLastDay = thisMonthLastDay.AddMonths(-1);
+                return EFDataProvider.GetDaysWorkedCount(CurrentUser, lastMonthFirstDay, lastMonthLastDay);
+            }
+        }
+
+        public double LastWeekTimeSpent
+        {
+            get
+            {
+                DateTime thisWeekFirstDay = DateTime.Now.AddDays(-7);
+                return EFDataProvider.GetTimeSpent(CurrentUser, thisWeekFirstDay, DateTime.Now);
+            }
+        }
+
+        public double LastWeekDaysWorked
+        {
+            get
+            {
+                DateTime thisWeekFirstDay = DateTime.Now.AddDays(-7);
+                return EFDataProvider.GetDaysWorkedCount(CurrentUser, thisWeekFirstDay, DateTime.Now);
+            }
+        }
 
         public bool IgnoreSubjectTextChange { get; set; }
         /// <summary>
@@ -207,10 +272,10 @@ namespace TimeSheetApp.ViewModel
         #region Формирование отчета
         private List<string> _reportsAvailable = new List<string>()
         {
-            "Отчет по активности аналитиков",
+            "Активность аналитиков",
             "Ресурсный план",
-            "Процессы по отделам",
-            "Аллокации"
+            "Распределение по процессам",
+            "Распределение аллокаций"
         };
 
         public List<string> ReportsAvailable
@@ -272,20 +337,23 @@ namespace TimeSheetApp.ViewModel
         #endregion
 
         #region Commands
-        public RelayCommand<TimeSheetTable> AddProcess { get; }
-        public RelayCommand<TimeSheetTable> EditProcess { get; }
-        public RelayCommand<TimeSheetTable> DeleteProcess { get; }
-        public RelayCommand ReloadTimeSheet { get; }
-        public RelayCommand<string> FilterProcesses { get; }
-        public RelayCommand<Process> LoadSelectionForSelectedProcess { get; }
-        public RelayCommand ReloadHistoryRecords { get; }
-        public RelayCommand CheckTimeForIntersection { get; }
-        public RelayCommand GetReport { get; }
-        public RelayCommand<StructuredAnalytic> SelectAnalytic { get; }
-        public RelayCommand<StructuredAnalytic> UnselectAnalytic { get; }
-        public RelayCommand ReportSelectionStore { get; }
-        public RelayCommand SelectCalendarItem { get; }
-        public RelayCommand<string> FinilizeEditUserName { get; }
+        public RelayCommand<TimeSheetTable> AddProcess { get; set; }
+        public RelayCommand<TimeSheetTable> EditProcess { get; set; }
+        public RelayCommand<TimeSheetTable> DeleteProcess { get; set; }
+        public RelayCommand ReloadTimeSheet { get; set; }
+        public RelayCommand<string> FilterProcesses { get; set; }
+        public RelayCommand<Process> LoadSelectionForSelectedProcess { get; set; }
+        public RelayCommand ReloadHistoryRecords { get; set; }
+        public RelayCommand CheckTimeForIntersection { get; set; }
+        public RelayCommand GetReport { get; set; }
+        public RelayCommand<StructuredAnalytic> SelectAnalytic { get; set; }
+        public RelayCommand<StructuredAnalytic> UnselectAnalytic { get; set; }
+        public RelayCommand ReportSelectionStore { get; set; }
+        public RelayCommand SelectCalendarItem { get; set; }
+        public RelayCommand<string> FinilizeEditUserName { get; set; }
+        public RelayCommand<object> StoreSelectedRecords { get; set; }
+        public RelayCommand CopyRecords { get; set; }
+        public RelayCommand PasteRecords { get; set; }
 
 
         #endregion
@@ -298,25 +366,10 @@ namespace TimeSheetApp.ViewModel
                 IsReady = false;
                 Title = "TimeSheet";
                 QuitIfStartedFromServer();
-
                 EFDataProvider = dataProvider;
-
                 FillDataCollections();
                 UpdateSubjectsHints();
-                AddProcess = new RelayCommand<TimeSheetTable>(AddRecordMethod);
-                EditProcess = new RelayCommand<TimeSheetTable>(EditHistoryProcess);
-                DeleteProcess = new RelayCommand<TimeSheetTable>(DeleteHistoryRecord);
-                ReloadTimeSheet = new RelayCommand(UpdateTimeSpan);
-                CheckTimeForIntersection = new RelayCommand(CheckTimeForIntesectionMethod);
-                LoadSelectionForSelectedProcess = new RelayCommand<Process>(SetupSelectionAsLastTime);
-                FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
-                GetReport = new RelayCommand(GetReportMethod);
-                ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
-                ReportSelectionStore = new RelayCommand(OnAnalyticSelectionChanged);
-                SelectAnalytic = new RelayCommand<StructuredAnalytic>(SelectAnalyticMethod);
-                UnselectAnalytic = new RelayCommand<StructuredAnalytic>(UnselectAnalyticMethod);
-                SelectCalendarItem = new RelayCommand(SelectCalendarItemMethod);
-                FinilizeEditUserName = new RelayCommand<string>(FinishEditingUserName);
+                InitializeCommads();
                 NewRecord.Analytic = CurrentUser;
                 NewRecord.AnalyticId = CurrentUser.Id;
                 GenerateNodes();
@@ -327,11 +380,70 @@ namespace TimeSheetApp.ViewModel
             catch(Exception ex)
             {
                 MessageBox.Show($"{ex.Message}. {ex.InnerException}. {ex.StackTrace}", "ОШИБКА", MessageBoxButton.OK, MessageBoxImage.Error);
+                Thread.Sleep(5000);
                 Environment.Exit(0);
             }
         }
 
-        private void FinishEditingUserName(string newName)
+        private void InitializeCommads()
+        {
+            AddProcess = new RelayCommand<TimeSheetTable>(AddRecordMethod);
+            EditProcess = new RelayCommand<TimeSheetTable>(EditHistoryProcess);
+            DeleteProcess = new RelayCommand<TimeSheetTable>(DeleteHistoryRecord);
+            ReloadTimeSheet = new RelayCommand(UpdateTimeSpan);
+            CheckTimeForIntersection = new RelayCommand(CheckTimeForIntesectionMethod);
+            LoadSelectionForSelectedProcess = new RelayCommand<Process>(SetupSelectionAsLastTime);
+            FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
+            GetReport = new RelayCommand(GetReportMethod);
+            ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
+            ReportSelectionStore = new RelayCommand(OnAnalyticSelectionChanged);
+            SelectAnalytic = new RelayCommand<StructuredAnalytic>(SelectAnalyticMethod);
+            UnselectAnalytic = new RelayCommand<StructuredAnalytic>(UnselectAnalyticMethod);
+            SelectCalendarItem = new RelayCommand(SelectCalendarItemMethod);
+            FinilizeEditUserName = new RelayCommand<string>(EditUserName);
+            StoreSelectedRecords = new RelayCommand<object>(StoreSelectedRecordsMethod);
+            CopyRecords = new RelayCommand(CopyRecordsMethod);
+            PasteRecords = new RelayCommand(PasteRecordsMethod);
+        }
+
+        private void PasteRecordsMethod()
+        {
+            return;
+            if (CopiedRecords.Count < 1)
+                return;
+            foreach(TimeSheetTable record in CopiedRecords)
+            {
+                TimeSheetTable copiedRecord = new TimeSheetTable()
+                {
+                    Analytic = record.Analytic,
+                    AnalyticId = record.AnalyticId,
+                    Subject = record.Subject,
+                    Comment = record.Comment,
+                    Process = record.Process,
+                    TimeStart = new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, record.TimeStart.Hour, record.TimeStart.Minute, record.TimeStart.Second),
+                    TimeEnd = new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, record.TimeEnd.Hour, record.TimeEnd.Minute, record.TimeEnd.Second),
+                    TimeSpent = record.TimeSpent,
+                    ClientWays = record.ClientWays,
+                    Formats = record.Formats,
+                };
+            }
+        }
+
+        private void CopyRecordsMethod()
+        {
+            CopiedRecords.Clear();
+            CopiedRecords.AddRange(SelectedRecords);
+        }
+
+        private void StoreSelectedRecordsMethod(object records)
+        {
+            System.Collections.IList items = (System.Collections.IList)records;
+            IEnumerable<TimeSheetTable> collection = items.Cast<TimeSheetTable>();
+            SelectedRecords.Clear();
+            SelectedRecords.AddRange(collection);
+        }
+
+        private void EditUserName(string newName)
         {
             string[] UserNameSplited = newName.Split(' ');
             if(UserNameSplited.Length < 3)
@@ -580,6 +692,7 @@ namespace TimeSheetApp.ViewModel
             Risks = EFDataProvider.GetRisks().ToList();
             FilterProcessesMethod(string.Empty);
             SubordinatedAnalytics = ConvertToStructuredAnalytics(EFDataProvider.GetMyAnalyticsData(CurrentUser));
+            CurrentUserTeam = EFDataProvider.GetMyAnalyticsData(CurrentUser);
         }
 
         private ObservableCollection<StructuredAnalytic> ConvertToStructuredAnalytics(IEnumerable<Analytic> analytics)
