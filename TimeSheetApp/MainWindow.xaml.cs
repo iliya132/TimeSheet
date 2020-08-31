@@ -111,6 +111,7 @@ namespace TimeSheetApp
                 if ((sender as TimePicker).Value.Value.Day != date.Day)
                 {
                     (sender as TimePicker).Value = new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, 0);
+                    
                 }
             }
 

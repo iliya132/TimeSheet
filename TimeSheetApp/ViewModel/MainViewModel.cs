@@ -40,7 +40,11 @@ namespace TimeSheetApp.ViewModel
 
         #region Исторические записи
         private ObservableCollection<TimeSheetTable> _todayRecords = new ObservableCollection<TimeSheetTable>();
-        public ObservableCollection<TimeSheetTable> TodayRecords { get => _todayRecords; set => _todayRecords = value; }
+        public ObservableCollection<TimeSheetTable> TodayRecords 
+        {
+            get => _todayRecords;
+            set => _todayRecords = value;
+        }
         #endregion
 
         #region Список сотрудников в подчинении
@@ -52,19 +56,28 @@ namespace TimeSheetApp.ViewModel
         #endregion
 
         #region CurrentValues
+        
         List<TimeSheetTable> SelectedRecords = new List<TimeSheetTable>();
         List<TimeSheetTable> CopiedRecords = new List<TimeSheetTable>();
         public TimeSpan TimeSelectorMin
         {
+            get
+            {
+                return NewRecord.TimeStart.TimeOfDay;
+            }
             set
             {
                 NewRecord.TimeStart = new DateTime(NewRecord.TimeStart.Year, NewRecord.TimeStart.Month, NewRecord.TimeStart.Day, value.Hours, value.Minutes, value.Seconds);
-                RaisePropertyChanged("NewRecord.TimeStart");
+                RaisePropertyChanged("NewRecord");
             }
         }
 
         public TimeSpan TimeSelectorMax
         {
+            get
+            {
+                return NewRecord.TimeEnd.TimeOfDay;
+            }
             set
             {
                 NewRecord.TimeEnd = new DateTime(NewRecord.TimeEnd.Year, NewRecord.TimeEnd.Month, NewRecord.TimeEnd.Day, value.Hours, value.Minutes, value.Seconds);
@@ -138,8 +151,8 @@ namespace TimeSheetApp.ViewModel
         {
             get
             {
-                DateTime thisWeekFirstDay = DateTime.Now.AddDays(-7);
-                return EFDataProvider.GetTimeSpent(CurrentUser, thisWeekFirstDay, DateTime.Now);
+                DateTime thisWeekFirstDay = DateTime.Today.AddDays(-7);
+                return EFDataProvider.GetTimeSpent(CurrentUser, thisWeekFirstDay, DateTime.Today);
             }
         }
 
@@ -206,7 +219,7 @@ namespace TimeSheetApp.ViewModel
         }
        
 
-        DominoWorker worker = new DominoWorker();
+        DominoWorker worker;
         private CalendarItem _currentCalendarItem = new CalendarItem();
         public CalendarItem CurrentCalendarItem { get => _currentCalendarItem; set => _currentCalendarItem = value; }
         private int _calendarItemsCount;
@@ -332,6 +345,18 @@ namespace TimeSheetApp.ViewModel
             set { _calendarItems = value; }
         }
 
+        public List<(TimeSpan, TimeSpan)> BusyTime
+        {
+            get{
+                List<(TimeSpan, TimeSpan)> exportValue = new List<(TimeSpan, TimeSpan)>();
+                foreach(TimeSheetTable record in TodayRecords)
+                {
+                    exportValue.Add((record.TimeStart.TimeOfDay, record.TimeEnd.TimeOfDay));
+                }
+                return exportValue;
+            } 
+        }
+
         Timer loadCalendarTimer;
 
         #endregion
@@ -354,6 +379,7 @@ namespace TimeSheetApp.ViewModel
         public RelayCommand<object> StoreSelectedRecords { get; set; }
         public RelayCommand CopyRecords { get; set; }
         public RelayCommand PasteRecords { get; set; }
+        public RelayCommand TimeSelected { get; set; }
 
 
         #endregion
@@ -367,11 +393,13 @@ namespace TimeSheetApp.ViewModel
                 Title = "TimeSheet";
                 QuitIfStartedFromServer();
                 EFDataProvider = dataProvider;
+                
                 FillDataCollections();
                 UpdateSubjectsHints();
                 InitializeCommads();
                 NewRecord.Analytic = CurrentUser;
                 NewRecord.AnalyticId = CurrentUser.Id;
+                
                 GenerateNodes();
                 loadCalendarTimer = new Timer(timerTick, null, 0, Timeout.Infinite);
                 UpdateTimeSpan();
@@ -404,11 +432,21 @@ namespace TimeSheetApp.ViewModel
             StoreSelectedRecords = new RelayCommand<object>(StoreSelectedRecordsMethod);
             CopyRecords = new RelayCommand(CopyRecordsMethod);
             PasteRecords = new RelayCommand(PasteRecordsMethod);
+            TimeSelected = new RelayCommand(TimeChanged);
+        }
+
+        private void TimeChanged()
+        {
+            RaisePropertyChanged(nameof(TimeSelectorMin));
+            RaisePropertyChanged(nameof(TimeSelectorMax));
+            RaisePropertyChanged(nameof(TotalDurationInMinutes));
+            RaisePropertyChanged(nameof(BusyTime));
+
         }
 
         private void PasteRecordsMethod()
         {
-            return;
+            throw new NotImplementedException();
             if (CopiedRecords.Count < 1)
                 return;
             foreach(TimeSheetTable record in CopiedRecords)
@@ -476,8 +514,15 @@ namespace TimeSheetApp.ViewModel
         {
             UpdateCalendarItemsMethod();
         }
-        private void UpdateCalendarItemsMethod()
+        private async void UpdateCalendarItemsMethod()
         {
+            if(worker == null)
+            {
+                await Task.Run(() =>
+                {
+                    currentDispatcher.Invoke(() => worker = new DominoWorker());
+                });
+            }
             DateTime date = CurrentDate;
             currentDispatcher.Invoke(() =>
             {
@@ -486,15 +531,15 @@ namespace TimeSheetApp.ViewModel
                 CalendarItemsCount = 0;
                 IsCalendarLoading = true;
             });
-
-            Task task = new Task(() =>
+            await Task.Run(() =>
             {
-                CalendarItems = GetDominoCalendar(date);
-                IsCalendarLoading = false;
+                List<CalendarItem> calendarItems = GetDominoCalendar(CurrentDate);
+                currentDispatcher.Invoke(()=> {
+                    CalendarItems.Clear();
+                    calendarItems.ForEach(CalendarItems.Add);
+                    IsCalendarLoading = false;
+                    });
             });
-            
-            task.Start();
-
         }
 
         private void SelectCalendarItemMethod()
@@ -662,7 +707,7 @@ namespace TimeSheetApp.ViewModel
             SubjectHints.Clear();
             int itemsCount = subjectsFromDB.Count;
 
-            for (int i = itemsCount - 1; i > 0 && SubjectHints.Count < 11; i--)
+            for (int i = itemsCount - 1; i >= 0 && SubjectHints.Count < 11; i--)
             {
                 if (subjectsFromDB.Count > 0 && !SubjectHints.Any(subj => subj.Equals(subjectsFromDB[i])))
                 {
@@ -717,10 +762,12 @@ namespace TimeSheetApp.ViewModel
 
         private void UpdateTimeSpan()
         {
+
             UpdateCalendarItemsMethod();
             TodayRecords.Clear();
             EFDataProvider.LoadTimeSheetRecords(CurrentDate, CurrentUser).ForEach(TodayRecords.Add);
             RaisePropertyChanged(nameof(TotalDurationInMinutes));
+            RaisePropertyChanged(nameof(BusyTime));
         }
 
         private void FilterProcessesMethod(string userSearchInput)
@@ -874,9 +921,9 @@ namespace TimeSheetApp.ViewModel
             }
         }
 
-        private ObservableCollection<CalendarItem> GetDominoCalendar(DateTime date)
+        private List<CalendarItem> GetDominoCalendar(DateTime date)
         {
-            var items = new ObservableCollection<CalendarItem>(worker.GetCalendarRecords(date));
+            var items = worker.GetCalendarRecords(date);
             CalendarItemsCount = items.Count;
             return items;
         }

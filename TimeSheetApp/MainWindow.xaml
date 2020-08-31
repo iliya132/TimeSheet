@@ -170,7 +170,15 @@
                                                  MouseWheelActiveTrigger="Focused" 
                                                  FormatString="HH:mm" 
                                                  ButtonSpinnerLocation="Left" 
-                                                 Format="Custom"/>
+                                                 Format="Custom"
+                                                 
+                                                 >
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="ValueChanged">
+                                            <mvvm:EventToCommand Command="{Binding TimeSelected}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </xctk:TimePicker>
                             </StackPanel>
                             <StackPanel>
                                 <Button Style="{StaticResource SelectableImage}" HorizontalAlignment="Center" Width="50" Height="50" Name="EndIcon" Click="TimeIcon_MouseDown">
@@ -195,7 +203,14 @@
                                                  MouseWheelActiveTrigger="Focused" 
                                                  Format="Custom" 
                                                  FormatString="HH:mm" 
-                                                 ButtonSpinnerLocation="Left"/>
+                                                 ButtonSpinnerLocation="Left">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="ValueChanged">
+                                            <mvvm:EventToCommand Command="{Binding TimeSelected}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </xctk:TimePicker>
+                                
                             </StackPanel>
                             <Button
                             Click="SelectCalendarItem_BtnClick"
@@ -222,9 +237,10 @@
                         </StackPanel>
                         <StackPanel Name="StackPanel2" Grid.Row="2" Margin="0,10,0,0" DataContext="{Binding Main, Source={StaticResource Locator}}">
                             <Line X1="0" X2="{Binding ElementName=StackPanel2, Path=ActualWidth}" Stroke="Black" StrokeThickness="1"/>
-                            <lebedevcontrols:TimeSelector StartTime="07:00:00" EndTime="19:15" 
-                                                          MinTimeSelected="{Binding TimeSelectorMin, Mode=OneWayToSource}"
-                                                          MaxTimeSelected="{Binding TimeSelectorMax, Mode=OneWayToSource}"/>
+                            <lebedevcontrols:TimeSelector Min="07:00:00" Max="19:15" 
+                                                          MinTimeSelected="{Binding TimeSelectorMin, Mode=TwoWay}"
+                                                          MaxTimeSelected="{Binding TimeSelectorMax, Mode=TwoWay}"
+                                                          BusyTime="{Binding Source={StaticResource Locator}, Path=Main.BusyTime, Mode=OneWay}"/>
                             <Line X1="0" X2="{Binding ElementName=StackPanel2, Path=ActualWidth}" Stroke="Black" StrokeThickness="1"/>
                             <Label Content="Бизнес подразделение" FontWeight="Bold"/>
                             <xctk:CheckComboBox Name="businessCombo" Height="30" DisplayMemberPath="BusinessBlockName"  ItemsSource="{Binding BusinessBlocks}" SelectedItemsOverride="{Binding BusinessBlockChoiceCollection}" Delimiter=", " IsSelectAllActive="True" IsTextSearchCaseSensitive="True">

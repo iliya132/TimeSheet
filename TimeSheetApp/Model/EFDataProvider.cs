@@ -9,6 +9,8 @@ using TimeSheetApp.Model.EntitiesBase;
 using TimeSheetApp.Model.Reports;
 using System.Text;
 using TimeSheetApp.Model.Interfaces;
+using System.Diagnostics;
+using Process = TimeSheetApp.Model.EntitiesBase.Process;
 
 namespace TimeSheetApp.Model
 {
@@ -36,9 +38,8 @@ namespace TimeSheetApp.Model
                     Where(i => i.AnalyticId == _currentAnalytic.Id &&
                         i.Subject.Length > 0 &&
                         i.Process_id == process.Id).
-                    OrderBy(i => i.TimeStart).
-                    Select(i => i.Subject).
-                    Distinct().
+                    GroupBy(i => i.Subject).
+                    OrderBy(i=>i.Count()).Select(i=>i.Key).
                     ToList();
             }
             return new List<string>();
@@ -446,9 +447,9 @@ namespace TimeSheetApp.Model
         public double GetTimeSpent(Analytic analytic, DateTime start, DateTime end)
         {
             return _dbContext.TimeSheetTableSet.
-                Where(record => record.AnalyticId == analytic.Id && record.TimeStart >= start && record.TimeEnd <= end).
-                Select(record => (double?)record.TimeSpent / 60).
-                Sum() ?? 0;
+                Where(record => record.AnalyticId == analytic.Id && record.TimeStart >= start && record.TimeEnd <= end && record.Process_id != 62 && record.Process_id!=63).
+                Select(record => (double?)record.TimeSpent).
+                Sum() / 60 ?? 0;
         }
 
         public int GetDaysWorkedCount(Analytic analytic, DateTime start, DateTime end)
