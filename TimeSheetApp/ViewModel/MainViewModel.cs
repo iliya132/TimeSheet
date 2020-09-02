@@ -447,24 +447,25 @@ namespace TimeSheetApp.ViewModel
         private void PasteRecordsMethod()
         {
             throw new NotImplementedException();
-            if (CopiedRecords.Count < 1)
-                return;
-            foreach(TimeSheetTable record in CopiedRecords)
-            {
-                TimeSheetTable copiedRecord = new TimeSheetTable()
-                {
-                    Analytic = record.Analytic,
-                    AnalyticId = record.AnalyticId,
-                    Subject = record.Subject,
-                    Comment = record.Comment,
-                    Process = record.Process,
-                    TimeStart = new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, record.TimeStart.Hour, record.TimeStart.Minute, record.TimeStart.Second),
-                    TimeEnd = new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, record.TimeEnd.Hour, record.TimeEnd.Minute, record.TimeEnd.Second),
-                    TimeSpent = record.TimeSpent,
-                    ClientWays = record.ClientWays,
-                    Formats = record.Formats,
-                };
-            }
+
+            //if (CopiedRecords.Count < 1)
+            //    return;
+            //foreach(TimeSheetTable record in CopiedRecords)
+            //{
+            //    TimeSheetTable copiedRecord = new TimeSheetTable()
+            //    {
+            //        Analytic = record.Analytic,
+            //        AnalyticId = record.AnalyticId,
+            //        Subject = record.Subject,
+            //        Comment = record.Comment,
+            //        Process = record.Process,
+            //        TimeStart = new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, record.TimeStart.Hour, record.TimeStart.Minute, record.TimeStart.Second),
+            //        TimeEnd = new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, record.TimeEnd.Hour, record.TimeEnd.Minute, record.TimeEnd.Second),
+            //        TimeSpent = record.TimeSpent,
+            //        ClientWays = record.ClientWays,
+            //        Formats = record.Formats,
+            //    };
+            //}
         }
 
         private void CopyRecordsMethod()

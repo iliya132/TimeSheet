@@ -307,7 +307,7 @@
                             </i:Interaction.Triggers>
                             <ListView.Resources>
                                 <ContextMenu x:Key="ItemContextMenu">
-                                    <MenuItem Header="Копировать" Command="{Binding Source={StaticResource Locator}, Path=Main}"/>
+                                    <!--TODO реализовать<MenuItem Header="Копировать" Command="{Binding Source={StaticResource Locator}, Path=Main}"/>-->
                                     <MenuItem Header="Выбрать время до" Click="SelectTimeBeforeClick"/>
                                     <MenuItem Header="Выбрать время после" Click="SelectTimeAfterClick"/>
                                 </ContextMenu>
@@ -319,7 +319,7 @@
                             </ListView.ItemContainerStyle>
                             <ListView.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="Вставить" Click="SelectTimeBeforeClick"/>
+                                    <!--TODO Реализовать<MenuItem Header="Вставить" Click="SelectTimeBeforeClick"/>-->
                                 </ContextMenu>
                             </ListView.ContextMenu>
                             <ListView.View>
