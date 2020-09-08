@@ -9,7 +9,7 @@ using TimeSheetApp.Model.EntitiesBase;
 
 namespace TimeSheetApp.Model
 {
-    public interface IEFDataProvider
+    public interface IDataProvider
     {
         List<string> GetSubjectHints(Process process);
         bool ForcedToQuit();

@@ -13,7 +13,7 @@ namespace TimeSheetApp.ViewModel
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
             SimpleIoc.Default.Register<MainViewModel>();
             
-            SimpleIoc.Default.Register<Model.IEFDataProvider, Model.EFDataProvider>();
+            SimpleIoc.Default.Register<Model.IDataProvider, Model.EFDataProvider>();
         }
 
         public MainViewModel Main

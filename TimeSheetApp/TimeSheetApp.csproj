@@ -219,15 +219,13 @@
     <Compile Include="EditForm.xaml.cs">
       <DependentUpon>EditForm.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Model\AnalyticOrdered.cs" />
-    <Compile Include="Model\BusinessBlockNew.cs" />
+    <Compile Include="Model\EntitiesBase\AnalyticOrdered.cs" />
+    <Compile Include="Model\EntitiesBase\BusinessBlockNew.cs" />
     <Compile Include="Model\CalendarItem.cs" />
     <Compile Include="Model\CodeFullConverter.cs" />
-    <Compile Include="Model\DashboardContext.cs" />
-    <Compile Include="Model\DashboardRecord.cs" />
-    <Compile Include="Model\DashboardUnit.cs" />
+    <Compile Include="Model\EntitiesBase\DashboardUnit.cs" />
     <Compile Include="Model\DominoWorker.cs" />
-    <Compile Include="Model\EFDataProvider.cs" />
+    <Compile Include="Model\Implementations\EFDataProvider.cs" />
     <Compile Include="Model\EntitiesBase\Analytic.cs" />
     <Compile Include="Model\EntitiesBase\Block.cs" />
     <Compile Include="Model\EntitiesBase\BusinessBlock.cs" />
@@ -247,17 +245,17 @@
     <Compile Include="Model\EntitiesBase\Supports.cs" />
     <Compile Include="Model\EntitiesBase\TimeSheetTable.cs" />
     <Compile Include="Model\EntitiesBase\Upravlenie.cs" />
-    <Compile Include="Model\EscalationNew.cs" />
+    <Compile Include="Model\EntitiesBase\EscalationNew.cs" />
     <Compile Include="Model\Excel.cs" />
-    <Compile Include="Model\Interfaces\IEFDataProvider.cs" />
+    <Compile Include="Model\Interfaces\IDataProvider.cs" />
     <Compile Include="Model\Interfaces\IReport.cs" />
     <Compile Include="Model\Node.cs" />
     <Compile Include="Model\Reports\Report_02.cs" />
     <Compile Include="Model\Reports\Report_03.cs" />
     <Compile Include="Model\Reports\Report_Allocation\MVZ.cs" />
     <Compile Include="Model\Reports\Report_Allocations.cs" />
-    <Compile Include="Model\RiskNew.cs" />
-    <Compile Include="Model\SupportNew.cs" />
+    <Compile Include="Model\EntitiesBase\RiskNew.cs" />
+    <Compile Include="Model\EntitiesBase\SupportNew.cs" />
     <Compile Include="Model\TimeSheetContext.cs" />
     <Compile Include="SelectCalendarItems.xaml.cs">
       <DependentUpon>SelectCalendarItems.xaml</DependentUpon>

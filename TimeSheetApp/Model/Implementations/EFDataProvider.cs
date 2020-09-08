@@ -14,7 +14,7 @@ using Process = TimeSheetApp.Model.EntitiesBase.Process;
 
 namespace TimeSheetApp.Model
 {
-    class EFDataProvider : IEFDataProvider
+    class EFDataProvider : IDataProvider
     {
         TimeSheetContext _dbContext = new TimeSheetContext();
         Analytic _currentAnalytic;
@@ -37,10 +37,7 @@ namespace TimeSheetApp.Model
                 return _dbContext.TimeSheetTableSet.
                     Where(i => i.AnalyticId == _currentAnalytic.Id &&
                         i.Subject.Length > 0 &&
-                        i.Process_id == process.Id).
-                    GroupBy(i => i.Subject).
-                    OrderBy(i=>i.Count()).Select(i=>i.Key).
-                    ToList();
+                        i.Process_id == process.Id).OrderBy(i => i.TimeStart).Select(i => i.Subject).ToList();
             }
             return new List<string>();
         }

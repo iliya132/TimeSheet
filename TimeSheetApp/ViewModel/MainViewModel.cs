@@ -20,7 +20,7 @@ namespace TimeSheetApp.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-        public IEFDataProvider EFDataProvider;
+        public IDataProvider EFDataProvider;
 
         #region DataCollections
 
@@ -40,7 +40,7 @@ namespace TimeSheetApp.ViewModel
 
         #region Исторические записи
         private ObservableCollection<TimeSheetTable> _todayRecords = new ObservableCollection<TimeSheetTable>();
-        public ObservableCollection<TimeSheetTable> TodayRecords 
+        public ObservableCollection<TimeSheetTable> TodayRecords
         {
             get => _todayRecords;
             set => _todayRecords = value;
@@ -56,7 +56,7 @@ namespace TimeSheetApp.ViewModel
         #endregion
 
         #region CurrentValues
-        
+
         List<TimeSheetTable> SelectedRecords = new List<TimeSheetTable>();
         List<TimeSheetTable> CopiedRecords = new List<TimeSheetTable>();
         public TimeSpan TimeSelectorMin
@@ -98,7 +98,7 @@ namespace TimeSheetApp.ViewModel
         private bool _isReady = true;
         public bool IsReady
         {
-            get 
+            get
             {
                 return _isReady;
             }
@@ -123,8 +123,8 @@ namespace TimeSheetApp.ViewModel
         }
         Dispatcher currentDispatcher = Dispatcher.CurrentDispatcher;
 
-        public double LastMonthTimeSpent 
-        { 
+        public double LastMonthTimeSpent
+        {
             get
             {
                 DateTime thisMonthFirstDay = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
@@ -132,7 +132,7 @@ namespace TimeSheetApp.ViewModel
                 DateTime lastMonthFirstDay = thisMonthFirstDay.AddMonths(-1);
                 DateTime lastMonthLastDay = thisMonthLastDay.AddMonths(-1);
                 return EFDataProvider.GetTimeSpent(CurrentUser, lastMonthFirstDay, lastMonthLastDay);
-            } 
+            }
         }
 
         public int LastMonthDaysWorked
@@ -195,7 +195,7 @@ namespace TimeSheetApp.ViewModel
             get { return _editedRecord; }
             set { _editedRecord = value; }
         }
-       
+
         private ClientWays _currentClientWays = new ClientWays();
         public ClientWays CurrentClientWays
         {
@@ -206,7 +206,7 @@ namespace TimeSheetApp.ViewModel
                 _currentClientWays = value;
             }
         }
-       
+
         private Formats _currentFormat = new Formats();
         public Formats CurrentFormat
         {
@@ -217,7 +217,7 @@ namespace TimeSheetApp.ViewModel
                 _currentFormat = value;
             }
         }
-       
+
 
         DominoWorker worker;
         private CalendarItem _currentCalendarItem = new CalendarItem();
@@ -227,7 +227,9 @@ namespace TimeSheetApp.ViewModel
         public int CalendarItemsCount
         {
             get { return _calendarItemsCount; }
-            set { _calendarItemsCount = value;
+            set
+            {
+                _calendarItemsCount = value;
                 RaisePropertyChanged("CalendarItemsCount");
             }
         }
@@ -235,7 +237,8 @@ namespace TimeSheetApp.ViewModel
         public bool IsCalendarLoading
         {
             get => isCalendarLoading;
-            set { 
+            set
+            {
                 isCalendarLoading = value;
                 RaisePropertyChanged("LoadingVisibilityInverted");
                 RaisePropertyChanged("LoadingVisibility");
@@ -347,14 +350,15 @@ namespace TimeSheetApp.ViewModel
 
         public List<(TimeSpan, TimeSpan)> BusyTime
         {
-            get{
+            get
+            {
                 List<(TimeSpan, TimeSpan)> exportValue = new List<(TimeSpan, TimeSpan)>();
-                foreach(TimeSheetTable record in TodayRecords)
+                foreach (TimeSheetTable record in TodayRecords)
                 {
                     exportValue.Add((record.TimeStart.TimeOfDay, record.TimeEnd.TimeOfDay));
                 }
                 return exportValue;
-            } 
+            }
         }
 
         Timer loadCalendarTimer;
@@ -385,7 +389,7 @@ namespace TimeSheetApp.ViewModel
         #endregion
 
 
-        public MainViewModel(IEFDataProvider dataProvider)
+        public MainViewModel(IDataProvider dataProvider)
         {
             try
             {
@@ -393,19 +397,19 @@ namespace TimeSheetApp.ViewModel
                 Title = "TimeSheet";
                 QuitIfStartedFromServer();
                 EFDataProvider = dataProvider;
-                
+
                 FillDataCollections();
                 UpdateSubjectsHints();
                 InitializeCommads();
                 NewRecord.Analytic = CurrentUser;
                 NewRecord.AnalyticId = CurrentUser.Id;
-                
+
                 GenerateNodes();
                 loadCalendarTimer = new Timer(timerTick, null, 0, Timeout.Infinite);
                 UpdateTimeSpan();
                 IsReady = true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show($"{ex.Message}. {ex.InnerException}. {ex.StackTrace}", "ОШИБКА", MessageBoxButton.OK, MessageBoxImage.Error);
                 Thread.Sleep(5000);
@@ -485,7 +489,7 @@ namespace TimeSheetApp.ViewModel
         private void EditUserName(string newName)
         {
             string[] UserNameSplited = newName.Split(' ');
-            if(UserNameSplited.Length < 3)
+            if (UserNameSplited.Length < 3)
             {
                 MessageBox.Show("Указано некорректное ФИО", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
@@ -503,7 +507,7 @@ namespace TimeSheetApp.ViewModel
 
         private void QuitIfStartedFromServer()
         {
-            if(Directory.GetCurrentDirectory().ToLower().
+            if (Directory.GetCurrentDirectory().ToLower().
                 IndexOf("орппа", 0) > -1)
             {
                 Environment.Exit(0);
@@ -517,7 +521,7 @@ namespace TimeSheetApp.ViewModel
         }
         private async void UpdateCalendarItemsMethod()
         {
-            if(worker == null)
+            if (worker == null)
             {
                 await Task.Run(() =>
                 {
@@ -535,11 +539,12 @@ namespace TimeSheetApp.ViewModel
             await Task.Run(() =>
             {
                 List<CalendarItem> calendarItems = GetDominoCalendar(CurrentDate);
-                currentDispatcher.Invoke(()=> {
+                currentDispatcher.Invoke(() =>
+                {
                     CalendarItems.Clear();
                     calendarItems.ForEach(CalendarItems.Add);
                     IsCalendarLoading = false;
-                    });
+                });
             });
         }
 
@@ -566,8 +571,8 @@ namespace TimeSheetApp.ViewModel
         {
             SelectedAnalytics.Clear();
             SubordinatedAnalytics.
-                Where(analytic=>analytic.Selected).
-                    Select(analytic=>analytic.Analytic).
+                Where(analytic => analytic.Selected).
+                    Select(analytic => analytic.Analytic).
                         ToList().
                             ForEach(SelectedAnalytics.Add);
         }
@@ -687,11 +692,12 @@ namespace TimeSheetApp.ViewModel
             if (selectedProcess != null)
             {
                 TimeSheetTable lastRecord = EFDataProvider.GetLastRecordWithSameProcess(selectedProcess, CurrentUser);
-                if (lastRecord != null) {
-                    lastRecord.BusinessBlocks.Select(i=>i.BusinessBlock).ToList().ForEach(BusinessBlockChoiceCollection.Add);
-                    lastRecord.Supports.Select(i=>i.Supports).ToList().ForEach(SupportsChoiceCollection.Add);
-                    lastRecord.Escalations.Select(i=>i.Escalation).ToList().ForEach(EscalationsChoiceCollection.Add);
-                    lastRecord.Risks.Select(i=>i.Risk).ToList().ForEach(RiskChoiceCollection.Add);
+                if (lastRecord != null)
+                {
+                    lastRecord.BusinessBlocks.Select(i => i.BusinessBlock).ToList().ForEach(BusinessBlockChoiceCollection.Add);
+                    lastRecord.Supports.Select(i => i.Supports).ToList().ForEach(SupportsChoiceCollection.Add);
+                    lastRecord.Escalations.Select(i => i.Escalation).ToList().ForEach(EscalationsChoiceCollection.Add);
+                    lastRecord.Risks.Select(i => i.Risk).ToList().ForEach(RiskChoiceCollection.Add);
 
                     NewRecord.ClientWays = lastRecord.ClientWays;
                     NewRecord.Formats = lastRecord.Formats;
@@ -781,9 +787,9 @@ namespace TimeSheetApp.ViewModel
             processes = !string.IsNullOrWhiteSpace(userSearchInput) ?
             processes.Where(rec => rec.ProcName.ToLower().IndexOf(userSearchInput.ToLower()) > -1 ||
                 rec.Comment?.ToLower().IndexOf(userSearchInput.ToLower()) > -1 ||
-                rec.Id.ToString().Equals(userSearchInput)).ToList()
+                $"{rec.Block_Id}.{rec.SubBlock_Id}.{rec.Id}".IndexOf(userSearchInput) > -1).ToList()
             : processes;
-            processes = processes.OrderByDescending(proc => currentAnalyticRecords.Where(i => i.Process_id == proc.Id).Count()).ThenBy(proc=>proc.Id).ToList();
+            processes = processes.OrderByDescending(proc => currentAnalyticRecords.Where(i => i.Process_id == proc.Id).Count()).ThenBy(proc => proc.Id).ToList();
             processes.ForEach(UserFilteredProcesses.Add);
         }
 
@@ -804,7 +810,8 @@ namespace TimeSheetApp.ViewModel
             {
                 MessageBox.Show("Время начала больше времени окончания. Укажите корректное время", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
-            } else if (BusinessBlockChoiceCollection.Count == 0)
+            }
+            else if (BusinessBlockChoiceCollection.Count == 0)
             {
                 MessageBox.Show("Не указан ни один бизнес блок. Укажите хотя бы один", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
@@ -829,7 +836,7 @@ namespace TimeSheetApp.ViewModel
             };
 
 
-            EFDataProvider.AddActivity(newRec) ;
+            EFDataProvider.AddActivity(newRec);
 
             #region Обновление представления
             UpdateTimeSpan();
