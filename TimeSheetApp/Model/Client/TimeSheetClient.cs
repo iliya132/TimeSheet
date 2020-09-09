@@ -2,6 +2,7 @@
 
 using Newtonsoft.Json;
 
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -190,17 +191,20 @@ namespace TimeSheetApp.Model.Client
 
         public double GetTimeSpent(string userName, DateTime start, DateTime end)
         {
-            throw new NotImplementedException();
+            string url = GenerateUrl(nameof(GetTimeSpent), $"?userName={userName};start={start:dd.MM.yyyy};end={end:dd.MM.yyyy}");
+            return Get<double>(url);
         }
 
         public int GetDaysWorkedCount(Analytic currentUser, DateTime lastMonthFirstDay, DateTime lastMonthLastDay)
         {
-            throw new NotImplementedException();
+            string url = GenerateUrl(nameof(GetDaysWorkedCount), $"?userName={currentUser.UserName};lastMonthFirstDay={lastMonthFirstDay:dd.MM.yyyy};lastMonthLastDay={lastMonthLastDay:dd.MM.yyyy}");
+            return Get<int>(url);
         }
 
         public IEnumerable<Analytic> GetTeam(Analytic analytic)
         {
-            throw new NotImplementedException();
+            string url = GenerateUrl(nameof(GetTeam), $"?userName={analytic.UserName}");
+            return Get<List<Analytic>>(url);
         }
 
         private string GenerateUrl(string senderName, params string[] parameters)
