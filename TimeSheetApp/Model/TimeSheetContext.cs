@@ -10,7 +10,12 @@ namespace TimeSheetApp.Model
 {
     public class TimeSheetContext :DbContext
     {
-        public TimeSheetContext() : base("TimeSheetDBEntities")
+#if DevAtHome
+        const string CONNECTION_STRING_NAME = "TimeSheetAtHome";
+#else
+        const string CONNECTION_STRING_NAME = "TimeSheetDBEntities";
+#endif
+        public TimeSheetContext() : base(CONNECTION_STRING_NAME)
         { }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

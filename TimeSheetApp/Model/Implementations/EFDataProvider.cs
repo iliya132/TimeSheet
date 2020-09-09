@@ -30,7 +30,7 @@ namespace TimeSheetApp.Model
         /// </summary>
         /// <param name="process">Процесс, к которому нужно подобрать подсказки</param>
         /// <returns>Стек тем, введенных ранее пользователем</returns>
-        public List<string> GetSubjectHints(Process process)
+        public IEnumerable<string> GetSubjectHints(Process process)
         {
             if (process != null)
             {
@@ -46,13 +46,13 @@ namespace TimeSheetApp.Model
         /// Получить список всех существующих процессов
         /// </summary>
         /// <returns>ObservableCollection</returns>
-        public ObservableCollection<Process> GetProcesses() => new ObservableCollection<Process>(_dbContext.ProcessSet);
+        public IEnumerable<Process> GetProcesses() => new ObservableCollection<Process>(_dbContext.ProcessSet);
 
         /// <summary>
         /// Получить список всех БизнесПодразделений
         /// </summary>
         /// <returns>OBservableCollection</returns>
-        public List<BusinessBlock> GetBusinessBlocks() => _dbContext.BusinessBlockSet.ToList();
+        public IEnumerable<BusinessBlock> GetBusinessBlocks() => _dbContext.BusinessBlockSet.ToList();
 
         /// Добавить запись в TimeSheetTable
         /// </summary>
@@ -68,8 +68,9 @@ namespace TimeSheetApp.Model
         /// Удалить запись из БД
         /// </summary>
         /// <param name="record"></param>
-        public void DeleteRecord(TimeSheetTable record)
+        public void DeleteRecord(int record_id)
         {
+            TimeSheetTable record = _dbContext.TimeSheetTableSet.FirstOrDefault(i => i.Id == record_id);
             _dbContext.TimeSheetTableSet.Remove(record);
             _dbContext.SaveChanges();
         }
@@ -87,32 +88,32 @@ namespace TimeSheetApp.Model
         /// Возвращает названия всех блоков
         /// </summary>
         /// <returns></returns>
-        public List<string> GetProcessBlocks() => _dbContext.BlockSet.Select(i => i.BlockName).ToList();
+        public IEnumerable<string> GetProcessBlocks() => _dbContext.BlockSet.Select(i => i.BlockName).ToList();
 
         /// <summary>
         /// Получить список всех клиентских путей
         /// </summary>
         /// <returns></returns>
-        public List<ClientWays> GetClientWays() => _dbContext.ClientWaysSet.ToList();
+        public IEnumerable<ClientWays> GetClientWays() => _dbContext.ClientWaysSet.ToList();
 
         /// <summary>
         /// Получить список всех Эскалаций
         /// </summary>
         /// <returns></returns>
-        public List<Escalation> GetEscalation() => _dbContext.EscalationsSet.ToList();
+        public IEnumerable<Escalation> GetEscalation() => _dbContext.EscalationsSet.ToList();
 
         /// <summary>
         /// Получить список всех форматов
         /// </summary>
         /// <returns></returns>
-        public List<Formats> GetFormat() => _dbContext.FormatsSet.ToList();
+        public IEnumerable<Formats> GetFormat() => _dbContext.FormatsSet.ToList();
 
         /// <summary>
         /// Получить список сотрудников в подчинении
         /// </summary>
         /// <param name="currentUser"></param>
         /// <returns></returns>
-        public ObservableCollection<Analytic> GetMyAnalyticsData(Analytic currentUser)
+        public IEnumerable<Analytic> GetMyAnalyticsData(Analytic currentUser)
         {
             ObservableCollection<Analytic> analytics = new ObservableCollection<Analytic>();
             switch (currentUser.RoleTableId)
@@ -172,51 +173,44 @@ namespace TimeSheetApp.Model
         /// Получить список всех рисков
         /// </summary>
         /// <returns></returns>
-        public List<Risk> GetRisks() => _dbContext.RiskSet.ToList();
+        public IEnumerable<Risk> GetRisks() => _dbContext.RiskSet.ToList();
 
         /// <summary>
         /// Получить список названий подблоков
         /// </summary>
         /// <returns></returns>
-        public List<string> GetSubBlocksNames() => _dbContext.SubBlockSet.Select(i => i.SubblockName).ToList();
+        public IEnumerable<string> GetSubBlocksNames() => _dbContext.SubBlockSet.Select(i => i.SubblockName).ToList();
 
         /// <summary>
         /// Получить массив всех саппортов
         /// </summary>
         /// <returns></returns>
-        public List<Supports> GetSupports() => _dbContext.SupportsSet.ToList();
+        public IEnumerable<Supports> GetSupports() => _dbContext.SupportsSet.ToList();
 
         /// <summary>
         /// Метод устанавливает свойство видимости вкладки "Кабинет руководителя"
         /// </summary>
         /// <param name="currentUser">Текущий пользователь</param>
         /// <returns></returns>
-        public Visibility IsAnalyticHasAccess(Analytic currentUser) => currentUser.Role.Id < 6 ? Visibility.Visible : Visibility.Hidden;
+        public bool IsAnalyticHasAccess(string userName) => _dbContext.AnalyticSet.
+            FirstOrDefault(a=>a.UserName.ToLower().Equals(userName.ToLower())).Role.Id < 6 ? 
+            true : 
+            false;
 
         /// <summary>
         /// Получает информацию о текущем аналитике, и если запись в БД не существует - создаёт новую
         /// </summary>
         /// <returns></returns>
-        public Analytic LoadAnalyticData()
+        public Analytic LoadAnalyticData(string userName)
         {
-            string user;
-            if (Environment.UserName.ToLower().Equals("iliya")) //DEV at home
-            {
-                user = "u_m0x0c";
-            }
-            else
-            {
-                user = Environment.UserName.ToLower();
-            }
-            
             Analytic analytic;
-            analytic = _dbContext.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(user));
+            analytic = _dbContext.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(userName));
             if(analytic == null)
             {
                 analytic = new Analytic()
                 {
                     //TODO доработать загрузку данных из БД Oracle
-                    UserName = user,
+                    UserName = userName,
                     DepartmentId = 1,
                     DirectionId = 1,
                     FirstName = "NotSet",
@@ -229,7 +223,7 @@ namespace TimeSheetApp.Model
                 };
                 _dbContext.AnalyticSet.Add(analytic);
                 _dbContext.SaveChanges();
-                analytic = _dbContext.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(user));
+                analytic = _dbContext.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(userName));
             }
             _currentAnalytic = analytic;
             return analytic;
@@ -241,8 +235,9 @@ namespace TimeSheetApp.Model
         /// <param name="date"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public List<TimeSheetTable> LoadTimeSheetRecords(DateTime date, Analytic user)
+        public IEnumerable<TimeSheetTable> LoadTimeSheetRecords(DateTime date, string userName)
         {
+            Analytic user = _dbContext.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(userName.ToLower()));
             List<TimeSheetTable> timeSheetTables;
             timeSheetTables = _dbContext.TimeSheetTableSet.Include("BusinessBlocks").
                 Include("Risks").
@@ -271,8 +266,9 @@ namespace TimeSheetApp.Model
             _dbContext.SaveChanges();
         }
 
-        public void RemoveSelection(TimeSheetTable record)
+        public void RemoveSelection(int record_id)
         {
+            TimeSheetTable record = _dbContext.TimeSheetTableSet.FirstOrDefault(i => i.Id == record_id);
             List<BusinessBlockNew> businessBlocksToDelete = _dbContext.NewBusinessBlockSet.Where(rec => rec.TimeSheetTableId == record.Id).ToList();
             List<EscalationNew> escalationsToDelete = _dbContext.NewEscalations.Where(rec => rec.TimeSheetTableId == record.Id).ToList();
             List<SupportNew> supportsToDelete = _dbContext.NewSupportsSet.Where(rec => rec.TimeSheetTableId == record.Id).ToList();
@@ -421,8 +417,10 @@ namespace TimeSheetApp.Model
             return dataTable;
         }
 
-        public TimeSheetTable GetLastRecordWithSameProcess(Process process, Analytic user)
+        public TimeSheetTable GetLastRecordWithSameProcess(int process_id, string userName)
         {
+            Process process = _dbContext.ProcessSet.FirstOrDefault(proc => proc.Id == process_id);
+            Analytic user = _dbContext.AnalyticSet.FirstOrDefault(i => i.UserName.ToLower().Equals(userName.ToLower()));
             return _dbContext.TimeSheetTableSet.Include("BusinessBlocks").
                 Include("Risks").
                 Include("Escalations").
@@ -431,9 +429,9 @@ namespace TimeSheetApp.Model
                 FirstOrDefault(rec=>rec.Process_id == process.Id && rec.AnalyticId == user.Id);
         }
 
-        public List<TimeSheetTable> GetTimeSheetRecordsForAnalytic(Analytic currentUser)
+        public IEnumerable<TimeSheetTable> GetTimeSheetRecordsForAnalytic(string userName)
         {
-            return _dbContext.TimeSheetTableSet.Where(i => i.AnalyticId == currentUser.Id).ToList();
+            return _dbContext.TimeSheetTableSet.Where(i => i.Analytic.UserName.ToLower().Equals(userName.ToLower())).ToList();
         }
 
         public void Commit()
@@ -441,10 +439,10 @@ namespace TimeSheetApp.Model
             _dbContext.SaveChanges();
         }
 
-        public double GetTimeSpent(Analytic analytic, DateTime start, DateTime end)
+        public double GetTimeSpent(string userName, DateTime start, DateTime end)
         {
             return _dbContext.TimeSheetTableSet.
-                Where(record => record.AnalyticId == analytic.Id && record.TimeStart >= start && record.TimeEnd <= end && record.Process_id != 62 && record.Process_id!=63).
+                Where(record => record.Analytic.UserName.ToLower().Equals(userName.ToLower()) && record.TimeStart >= start && record.TimeEnd <= end && record.Process_id != 62 && record.Process_id!=63).
                 Select(record => (double?)record.TimeSpent).
                 Sum() / 60 ?? 0;
         }
@@ -456,7 +454,7 @@ namespace TimeSheetApp.Model
                 GroupBy(record => DbFunctions.TruncateTime(record.TimeStart)).
                 Count();
         }
-        public List<Analytic> GetTeam(Analytic analytic) => _dbContext.AnalyticSet.
+        public IEnumerable<Analytic> GetTeam(Analytic analytic) => _dbContext.AnalyticSet.
             Where(a => 
             a.HeadFuncId == analytic.HeadFuncId && (a.OtdelId == analytic.Id || a.UpravlenieId == analytic.UpravlenieId || analytic.DirectionId == a.DirectionId) || 
             a.Id == analytic.HeadFuncId || 

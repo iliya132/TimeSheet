@@ -21,6 +21,7 @@ namespace TimeSheetApp.Services
 
         public static void CheckForUpdate()
         {
+#if !DevAtHome
             double.TryParse(Assembly.GetExecutingAssembly().GetName().Version.ToString().Replace(".", ""), out currentVer);
             FileVersionInfo ServerFileVersion = FileVersionInfo.GetVersionInfo($"{ROOT_PATH}\\{APP_NAME}");
             double.TryParse(ServerFileVersion.FileVersion.Replace(".", string.Empty), out targetVer);
@@ -51,6 +52,7 @@ namespace TimeSheetApp.Services
                 updateText.Add(APP_NAME);
                 Process.Start("updaterForm.exe", string.Join(" ", updateText.ToArray()));
             }
+#endif
         }
     }
 }

@@ -7,12 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+#if !DevAtHome
 using Domino;
+#endif
 
 namespace TimeSheetApp.Model
 {
     public class DominoWorker
     {
+#if !DevAtHome
         NotesDatabase notesDB;
         NotesDocument notesDoc;
         NotesSession notesSession;
@@ -20,21 +23,28 @@ namespace TimeSheetApp.Model
         NotesDbDirectory notesDir;
         List<CalendarItem> _calendarItems = new List<CalendarItem>();
         List<CalendarItem> CalendarItems = new List<CalendarItem>();
-
+#endif
         private void write(string msg)
         {
+#if !DevAtHome
             using (StreamWriter writer = new StreamWriter("DominoLog.txt", true))
             {
                 writer.WriteLine(msg);
             }
+#endif
         }
+
         public DominoWorker()
         {
+#if !DevAtHome
             Init();
+#endif
         }
+
 
         public List<CalendarItem> GetCalendarRecords(DateTime date)
         {
+#if !DevAtHome
             CalendarItems.Clear();
             _calendarItems.Where(i => i.StartTime.Day == date.Day &&
                                 i.StartTime.Month == date.Month &&
@@ -42,10 +52,15 @@ namespace TimeSheetApp.Model
                             .Distinct()
                             .ToList().ForEach(CalendarItems.Add);
             return CalendarItems;
+#else
+            return new List<CalendarItem>();
+#endif
         }
 
+#if !DevAtHome
         private void Init()
         {
+
             try
             {
                 notesSession = new NotesSession();
@@ -56,7 +71,7 @@ namespace TimeSheetApp.Model
                 {
                     notesDB.Open();
                 }
-                #region loading last month records
+#region loading last month records
                 notesView = notesDB.GetView("($Calendar)");
                 notesDoc = notesView.GetLastDocument();
                 DateTime start = DateTime.Now;
@@ -97,13 +112,16 @@ namespace TimeSheetApp.Model
                     };
                     _calendarItems.Add(newItem);
                 }
-                #endregion
+#endregion
                 
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
-        }
+
+    }
+#endif
+
     }
 }

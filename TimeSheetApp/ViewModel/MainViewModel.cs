@@ -691,7 +691,7 @@ namespace TimeSheetApp.ViewModel
             RiskChoiceCollection.Clear();
             if (selectedProcess != null)
             {
-                TimeSheetTable lastRecord = EFDataProvider.GetLastRecordWithSameProcess(selectedProcess, CurrentUser);
+                TimeSheetTable lastRecord = EFDataProvider.GetLastRecordWithSameProcess(selectedProcess.Id, CurrentUser.UserName);
                 if (lastRecord != null)
                 {
                     lastRecord.BusinessBlocks.Select(i => i.BusinessBlock).ToList().ForEach(BusinessBlockChoiceCollection.Add);
@@ -709,7 +709,7 @@ namespace TimeSheetApp.ViewModel
 
         private void UpdateSubjectsHints()
         {
-            subjectsFromDB = EFDataProvider.GetSubjectHints(NewRecord.Process);
+            subjectsFromDB = EFDataProvider.GetSubjectHints(NewRecord.Process).ToList();
 
             SubjectHints.Clear();
             int itemsCount = subjectsFromDB.Count;
@@ -725,7 +725,7 @@ namespace TimeSheetApp.ViewModel
 
         private void DeleteHistoryRecord(TimeSheetTable record)
         {
-            EFDataProvider.DeleteRecord(record);
+            EFDataProvider.DeleteRecord(record.Id);
             UpdateTimeSpan();
         }
 
@@ -734,8 +734,12 @@ namespace TimeSheetApp.ViewModel
         /// </summary>
         private void FillDataCollections()
         {
-            CurrentUser = EFDataProvider.LoadAnalyticData();
-            AllProcesses = EFDataProvider.GetProcesses();
+            string userName = Environment.UserName;
+#if DevAtHome
+            userName = "u_m0x0c";
+#endif
+            CurrentUser = EFDataProvider.LoadAnalyticData(userName);
+            AllProcesses = new ObservableCollection<Process>(EFDataProvider.GetProcesses());
             BusinessBlocks = EFDataProvider.GetBusinessBlocks().ToList();
             Supports = EFDataProvider.GetSupports().ToList();
             ClientWays = EFDataProvider.GetClientWays().ToList();
@@ -744,7 +748,7 @@ namespace TimeSheetApp.ViewModel
             Risks = EFDataProvider.GetRisks().ToList();
             FilterProcessesMethod(string.Empty);
             SubordinatedAnalytics = ConvertToStructuredAnalytics(EFDataProvider.GetMyAnalyticsData(CurrentUser));
-            CurrentUserTeam = EFDataProvider.GetMyAnalyticsData(CurrentUser);
+            CurrentUserTeam = new ObservableCollection<Analytic>(EFDataProvider.GetMyAnalyticsData(CurrentUser));
         }
 
         private ObservableCollection<StructuredAnalytic> ConvertToStructuredAnalytics(IEnumerable<Analytic> analytics)
@@ -772,7 +776,7 @@ namespace TimeSheetApp.ViewModel
 
             UpdateCalendarItemsMethod();
             TodayRecords.Clear();
-            EFDataProvider.LoadTimeSheetRecords(CurrentDate, CurrentUser).ForEach(TodayRecords.Add);
+            EFDataProvider.LoadTimeSheetRecords(CurrentDate, CurrentUser.UserName).ToList().ForEach(TodayRecords.Add);
             RaisePropertyChanged(nameof(TotalDurationInMinutes));
             RaisePropertyChanged(nameof(BusyTime));
         }
@@ -783,7 +787,7 @@ namespace TimeSheetApp.ViewModel
                 UserFilteredProcesses = new ObservableCollection<Process>();
             UserFilteredProcesses.Clear();
             List<Process> processes = AllProcesses.ToList();
-            List<TimeSheetTable> currentAnalyticRecords = EFDataProvider.GetTimeSheetRecordsForAnalytic(CurrentUser);
+            List<TimeSheetTable> currentAnalyticRecords = EFDataProvider.GetTimeSheetRecordsForAnalytic(CurrentUser).ToList();
             processes = !string.IsNullOrWhiteSpace(userSearchInput) ?
             processes.Where(rec => rec.ProcName.ToLower().IndexOf(userSearchInput.ToLower()) > -1 ||
                 rec.Comment?.ToLower().IndexOf(userSearchInput.ToLower()) > -1 ||

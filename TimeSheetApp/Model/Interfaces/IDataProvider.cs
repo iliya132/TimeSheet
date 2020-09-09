@@ -11,32 +11,32 @@ namespace TimeSheetApp.Model
 {
     public interface IDataProvider
     {
-        List<string> GetSubjectHints(Process process);
+        IEnumerable<string> GetSubjectHints(Process process);
         bool ForcedToQuit();
-        ObservableCollection<Process> GetProcesses();
-        List<BusinessBlock> GetBusinessBlocks();
-        List<Supports> GetSupports();
-        List<ClientWays> GetClientWays();
-        List<Escalation> GetEscalation();
-        List<Formats> GetFormat();
-        List<Risk> GetRisks();
-        ObservableCollection<Analytic> GetMyAnalyticsData(Analytic currentUser);
-        List<string> GetProcessBlocks();
-        List<string> GetSubBlocksNames();
+        IEnumerable<Process> GetProcesses();
+        IEnumerable<BusinessBlock> GetBusinessBlocks();
+        IEnumerable<Supports> GetSupports();
+        IEnumerable<ClientWays> GetClientWays();
+        IEnumerable<Escalation> GetEscalation();
+        IEnumerable<Formats> GetFormat();
+        IEnumerable<Risk> GetRisks();
+        IEnumerable<Analytic> GetMyAnalyticsData(Analytic currentUser);
+        IEnumerable<string> GetProcessBlocks();
+        IEnumerable<string> GetSubBlocksNames();
         void AddActivity(TimeSheetTable activity);
-        Analytic LoadAnalyticData();
+        Analytic LoadAnalyticData(string userName);
         void UpdateProcess(TimeSheetTable oldProcess, TimeSheetTable newProcess);
-        void DeleteRecord(TimeSheetTable record);
-        List<TimeSheetTable> LoadTimeSheetRecords(DateTime date, Analytic user);
+        void DeleteRecord(int record_id);
+        IEnumerable<TimeSheetTable> LoadTimeSheetRecords(DateTime date, string userName);
         void GetReport(int ReportType, Analytic[] analytics, DateTime start, DateTime end);
         bool IsCollisionedWithOtherRecords(TimeSheetTable record);
-        Visibility IsAnalyticHasAccess(Analytic currentUser);
-        TimeSheetTable GetLastRecordWithSameProcess(Process process, Analytic user);
-        void RemoveSelection(TimeSheetTable record);
-        List<TimeSheetTable> GetTimeSheetRecordsForAnalytic(Analytic currentUser);
+        bool IsAnalyticHasAccess(string userName);
+        TimeSheetTable GetLastRecordWithSameProcess(int process_id, string userName);
+        void RemoveSelection(int record_id);
+        IEnumerable<TimeSheetTable> GetTimeSheetRecordsForAnalytic(string userName);
         void Commit();
-        double GetTimeSpent(Analytic analytic, DateTime start, DateTime end);
+        double GetTimeSpent(string userName, DateTime start, DateTime end);
         int GetDaysWorkedCount(Analytic currentUser, DateTime lastMonthFirstDay, DateTime lastMonthLastDay);
-        List<Analytic> GetTeam(Analytic analytic);
+        IEnumerable<Analytic> GetTeam(Analytic analytic);
     }
 }

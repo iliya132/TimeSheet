@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace TimeSheetApp.Model.Client.Base
 {
@@ -35,6 +36,12 @@ namespace TimeSheetApp.Model.Client.Base
             }
             return result;
         }
+
+        protected void Get(string url)
+        {
+            _ = Client.GetAsync(url).Result;
+        }
+
         protected async Task<T> GetAsync<T>(string url) where T : new()
         {
             var list = new T();
