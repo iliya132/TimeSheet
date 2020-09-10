@@ -19,5 +19,13 @@ namespace TimeSheetApp.Model
         public virtual BusinessBlock BusinessBlock { get; set; }
         [ForeignKey(nameof(TimeSheetTableId))]
         public virtual TimeSheetTable TimeSheetTable { get; set; }
+        public override bool Equals(object obj)
+        {
+            if (obj is BusinessBlockNew && (obj as BusinessBlockNew).Id == this.Id)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

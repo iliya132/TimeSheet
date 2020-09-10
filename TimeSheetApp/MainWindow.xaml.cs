@@ -155,7 +155,11 @@ namespace TimeSheetApp
                 Timeout.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, 0);
             }
         }
-
+#if !DevAtHome
+        string helpFilePath = "\\\\moscow\\hdfs\\WORK\\Архив необычных операций\\ОРППА\\Timesheet\\Data\\Help\\TimeSheetHelp.chm";
+#else
+        string helpFilePath = @"C:\Users\iliya\Source\Repos\iliya132\TimeSheet\TimeSheetApp\bin\Debug\Help\TimeSheetHelp.chm";
+#endif
         private void HelpBtn_Click(object sender, RoutedEventArgs e)
         {
 
@@ -163,7 +167,7 @@ namespace TimeSheetApp
             {
                 Directory.CreateDirectory($"{Environment.ExpandEnvironmentVariables("%appdata%")}\\TimeSheet");
             }
-            File.Copy("\\\\moscow\\hdfs\\WORK\\Архив необычных операций\\ОРППА\\Timesheet\\Data\\Help\\TimeSheetHelp.chm", $"{Environment.ExpandEnvironmentVariables("%appdata%")}\\TimeSheet\\TimeSheetHelp.chm", true);
+            File.Copy(helpFilePath, $"{Environment.ExpandEnvironmentVariables("%appdata%")}\\TimeSheet\\TimeSheetHelp.chm", true);
             System.Diagnostics.Process.Start($"{Environment.ExpandEnvironmentVariables("%appdata%")}\\TimeSheet\\TimeSheetHelp.chm");
         }
 

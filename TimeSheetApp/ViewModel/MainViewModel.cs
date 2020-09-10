@@ -131,7 +131,7 @@ namespace TimeSheetApp.ViewModel
                 DateTime thisMonthLastDay = thisMonthFirstDay.AddMonths(1).AddDays(-1);
                 DateTime lastMonthFirstDay = thisMonthFirstDay.AddMonths(-1);
                 DateTime lastMonthLastDay = thisMonthLastDay.AddMonths(-1);
-                return EFDataProvider.GetTimeSpent(CurrentUser, lastMonthFirstDay, lastMonthLastDay);
+                return EFDataProvider.GetTimeSpent(CurrentUser.UserName, lastMonthFirstDay, lastMonthLastDay);
             }
         }
 
@@ -152,7 +152,7 @@ namespace TimeSheetApp.ViewModel
             get
             {
                 DateTime thisWeekFirstDay = DateTime.Today.AddDays(-7);
-                return EFDataProvider.GetTimeSpent(CurrentUser, thisWeekFirstDay, DateTime.Today);
+                return EFDataProvider.GetTimeSpent(CurrentUser.UserName, thisWeekFirstDay, DateTime.Today);
             }
         }
 
@@ -391,6 +391,7 @@ namespace TimeSheetApp.ViewModel
 
         public MainViewModel(IDataProvider dataProvider)
         {
+
             try
             {
                 IsReady = false;
@@ -694,7 +695,12 @@ namespace TimeSheetApp.ViewModel
                 TimeSheetTable lastRecord = EFDataProvider.GetLastRecordWithSameProcess(selectedProcess.Id, CurrentUser.UserName);
                 if (lastRecord != null)
                 {
-                    lastRecord.BusinessBlocks.Select(i => i.BusinessBlock).ToList().ForEach(BusinessBlockChoiceCollection.Add);
+                    List<BusinessBlock> blocks = lastRecord.BusinessBlocks.Select(i => i.BusinessBlock).ToList();
+                    foreach(BusinessBlock block in blocks)
+                    {
+                        BusinessBlockChoiceCollection.Add(block);
+                    }
+                    blocks.ForEach(BusinessBlockChoiceCollection.Add);
                     lastRecord.Supports.Select(i => i.Supports).ToList().ForEach(SupportsChoiceCollection.Add);
                     lastRecord.Escalations.Select(i => i.Escalation).ToList().ForEach(EscalationsChoiceCollection.Add);
                     lastRecord.Risks.Select(i => i.Risk).ToList().ForEach(RiskChoiceCollection.Add);
@@ -787,7 +793,7 @@ namespace TimeSheetApp.ViewModel
                 UserFilteredProcesses = new ObservableCollection<Process>();
             UserFilteredProcesses.Clear();
             List<Process> processes = AllProcesses.ToList();
-            List<TimeSheetTable> currentAnalyticRecords = EFDataProvider.GetTimeSheetRecordsForAnalytic(CurrentUser).ToList();
+            List<TimeSheetTable> currentAnalyticRecords = EFDataProvider.GetTimeSheetRecordsForAnalytic(CurrentUser.UserName).ToList();
             processes = !string.IsNullOrWhiteSpace(userSearchInput) ?
             processes.Where(rec => rec.ProcName.ToLower().IndexOf(userSearchInput.ToLower()) > -1 ||
                 rec.Comment?.ToLower().IndexOf(userSearchInput.ToLower()) > -1 ||
@@ -918,15 +924,18 @@ namespace TimeSheetApp.ViewModel
             if (form.ShowDialog() == true)
             {
                 CheckTimeForIntesectionMethod();
-                EFDataProvider.RemoveSelection(Record);
-                Record.Risks.Clear();
-                Record.BusinessBlocks.Clear();
-                Record.Supports.Clear();
-                Record.Escalations.Clear();
-                Record.Risks.AddRange(RiskChoiceCollection.Select(item => new RiskNew { TimeSheetTableId = Record.Id, RiskId = item.Id }));
-                Record.BusinessBlocks.AddRange(BusinessBlockChoiceCollection.Select(item => new BusinessBlockNew { TimeSheetTableId = Record.Id, BusinessBlockId = item.Id }));
-                Record.Supports.AddRange(SupportsChoiceCollection.Select(item => new SupportNew { TimeSheetTableId = Record.Id, SupportId = item.Id }));
-                Record.Escalations.AddRange(EscalationsChoiceCollection.Select(item => new EscalationNew { TimeSheetTableId = Record.Id, EscalationId = item.Id }));
+                EFDataProvider.RemoveSelection(Record.Id);
+                EditedRecord.Risks.Clear();
+                EditedRecord.Process_id = EditedRecord.Process.Id;
+                EditedRecord.ClientWaysId = EditedRecord.ClientWays.Id;
+                EditedRecord.FormatsId = EditedRecord.Formats.Id;
+                EditedRecord.BusinessBlocks.Clear();
+                EditedRecord.Supports.Clear();
+                EditedRecord.Escalations.Clear();
+                EditedRecord.Risks.AddRange(RiskChoiceCollection.Select(item => new RiskNew { TimeSheetTableId = Record.Id, RiskId = item.Id }));
+                EditedRecord.BusinessBlocks.AddRange(BusinessBlockChoiceCollection.Select(item => new BusinessBlockNew { TimeSheetTableId = Record.Id, BusinessBlockId = item.Id }));
+                EditedRecord.Supports.AddRange(SupportsChoiceCollection.Select(item => new SupportNew { TimeSheetTableId = Record.Id, SupportId = item.Id }));
+                EditedRecord.Escalations.AddRange(EscalationsChoiceCollection.Select(item => new EscalationNew { TimeSheetTableId = Record.Id, EscalationId = item.Id }));
 
                 EFDataProvider.UpdateProcess(Record, EditedRecord);
                 UpdateTimeSpan();

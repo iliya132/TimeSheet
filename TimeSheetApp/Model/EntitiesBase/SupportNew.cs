@@ -16,5 +16,12 @@ namespace TimeSheetApp.Model
 
         [ForeignKey(nameof(TimeSheetTableId))]
         public TimeSheetTable TimeSheetTable { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is SupportNew && (obj as SupportNew).Id == this.Id)
+                return true;
+            return false;
+        }
     }
 }

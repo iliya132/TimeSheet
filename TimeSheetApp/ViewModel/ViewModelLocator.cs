@@ -2,6 +2,9 @@
 using CommonServiceLocator;
 using GalaSoft.MvvmLight.Ioc;
 
+using TimeSheetApp.Model;
+using TimeSheetApp.Model.Client;
+
 namespace TimeSheetApp.ViewModel
 {
 
@@ -13,7 +16,7 @@ namespace TimeSheetApp.ViewModel
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
             SimpleIoc.Default.Register<MainViewModel>();
             
-            SimpleIoc.Default.Register<Model.IDataProvider, Model.EFDataProvider>();
+            SimpleIoc.Default.Register<Model.IDataProvider, TimeSheetClient>();
         }
 
         public MainViewModel Main

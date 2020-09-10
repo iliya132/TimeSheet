@@ -19,5 +19,13 @@ namespace TimeSheetApp.Model
         public virtual Escalation Escalation { get; set; }
         [ForeignKey(nameof(TimeSheetTableId))]
         public virtual TimeSheetTable TimeSheetTable { get; set; }
+        public override bool Equals(object obj)
+        {
+            if (obj is EscalationNew && (obj as EscalationNew).Id == this.Id)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

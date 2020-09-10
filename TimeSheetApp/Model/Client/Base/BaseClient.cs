@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
+
+using Newtonsoft.Json;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +19,9 @@ namespace TimeSheetApp.Model.Client.Base
 
         protected abstract string ServiceAddress { get; set; }
 
-        protected BaseClient(IConfiguration configuration)
+        protected BaseClient()
         {
-            Client = new HttpClient
-            {
-                BaseAddress = new Uri(configuration["ClientAdress"])
-            };
+            Client = new HttpClient();
             Client.DefaultRequestHeaders.Accept.Clear();
             Client.DefaultRequestHeaders.Accept.Add(new
                 MediaTypeWithQualityHeaderValue("application/json"));
@@ -32,7 +32,7 @@ namespace TimeSheetApp.Model.Client.Base
             var response = Client.GetAsync(url).Result;
             if (response.IsSuccessStatusCode)
             {
-                result = response.Content.ReadAsAsync<T>().Result;
+                result = JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
             }
             return result;
         }

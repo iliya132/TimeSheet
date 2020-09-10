@@ -14,7 +14,7 @@ using Process = TimeSheetApp.Model.EntitiesBase.Process;
 
 namespace TimeSheetApp.Model
 {
-    class EFDataProvider : IDataProvider
+    public class EFDataProvider : IDataProvider
     {
         TimeSheetContext _dbContext = new TimeSheetContext();
         Analytic _currentAnalytic;
@@ -46,7 +46,7 @@ namespace TimeSheetApp.Model
         /// Получить список всех существующих процессов
         /// </summary>
         /// <returns>ObservableCollection</returns>
-        public IEnumerable<Process> GetProcesses() => new ObservableCollection<Process>(_dbContext.ProcessSet);
+        public IEnumerable<Process> GetProcesses() => new List<Process>(_dbContext.ProcessSet);
 
         /// <summary>
         /// Получить список всех БизнесПодразделений
@@ -70,7 +70,44 @@ namespace TimeSheetApp.Model
         /// <param name="record"></param>
         public void DeleteRecord(int record_id)
         {
-            TimeSheetTable record = _dbContext.TimeSheetTableSet.FirstOrDefault(i => i.Id == record_id);
+            TimeSheetTable record = _dbContext.TimeSheetTableSet
+                .Include("BusinessBlocks")
+                .Include("Supports")
+                .Include("Escalations")
+                .Include("Risks")
+                .FirstOrDefault(i => i.Id == record_id);
+            if (record.BusinessBlocks != null && record.BusinessBlocks.Count > 0)
+            {
+                while (record.BusinessBlocks.Count > 0)
+                {
+                    int id = record.BusinessBlocks[0].Id;
+                    _dbContext.NewBusinessBlockSet.Remove(_dbContext.NewBusinessBlockSet.First(o => o.Id == id));
+                }
+            }
+            if (record.Supports != null && record.Supports.Count > 0)
+            {
+                while (record.BusinessBlocks.Count > 0)
+                {
+                    int id = record.Supports[0].Id;
+                    _dbContext.NewSupportsSet.Remove(_dbContext.NewSupportsSet.First(o => o.Id == id));
+                }
+            }
+            if (record.Escalations != null && record.Escalations.Count > 0)
+            {
+                while (record.Escalations.Count > 0)
+                {
+                    int id = record.Escalations[0].Id;
+                    _dbContext.NewEscalations.Remove(_dbContext.NewEscalations.First(o => o.Id == id));
+                }
+            }
+            if (record.Risks != null && record.Risks.Count > 0)
+            {
+                while (record.Risks.Count > 0)
+                {
+                    int id = record.Risks[0].Id;
+                    _dbContext.NewRiskSet.Remove(_dbContext.NewRiskSet.First(o => o.Id == id));
+                }
+            }
             _dbContext.TimeSheetTableSet.Remove(record);
             _dbContext.SaveChanges();
         }
@@ -252,17 +289,30 @@ namespace TimeSheetApp.Model
         /// </summary>
         /// <param name="oldProcess"></param>
         /// <param name="newProcess"></param>
-        public void UpdateProcess(TimeSheetTable oldProcess, TimeSheetTable newProcess)
+        public void UpdateProcess(TimeSheetTable oldTimeSheet, TimeSheetTable newRecord)
         {
-            oldProcess.Process_id = newProcess.Process.Id;
-            oldProcess.Subject = newProcess.Subject;
-            oldProcess.TimeStart = newProcess.TimeStart;
-            oldProcess.TimeEnd = newProcess.TimeEnd;
-            oldProcess.Comment = newProcess.Comment;
-            oldProcess.TimeSpent = (int)(oldProcess.TimeEnd - oldProcess.TimeStart).TotalMinutes;
-            oldProcess.ClientWaysId = newProcess.ClientWays.Id;
-            oldProcess.FormatsId = newProcess.Formats.Id;
-
+            TimeSheetTable oldRecord = _dbContext.TimeSheetTableSet.FirstOrDefault(i => i.Id == oldTimeSheet.Id);
+            oldRecord.Process_id = newRecord.Process_id;
+            oldRecord.Subject = newRecord.Subject;
+            oldRecord.TimeStart = newRecord.TimeStart;
+            oldRecord.TimeEnd = newRecord.TimeEnd;
+            oldRecord.Comment = newRecord.Comment;
+            oldRecord.TimeSpent = (int)(oldRecord.TimeEnd - oldRecord.TimeStart).TotalMinutes;
+            oldRecord.ClientWaysId = newRecord.ClientWaysId;
+            oldRecord.FormatsId = newRecord.FormatsId;
+            _dbContext.NewBusinessBlockSet.RemoveRange(_dbContext.NewBusinessBlockSet.Where(i => i.TimeSheetTableId == oldRecord.Id));
+            _dbContext.NewEscalations.RemoveRange(_dbContext.NewEscalations.Where(i => i.TimeSheetTableId == oldRecord.Id));
+            _dbContext.NewRiskSet.RemoveRange(_dbContext.NewRiskSet.Where(i => i.TimeSheetTableId == oldRecord.Id));
+            _dbContext.NewSupportsSet.RemoveRange(_dbContext.NewSupportsSet.Where(i => i.TimeSheetTableId == oldRecord.Id));
+            oldRecord.Supports = new List<SupportNew>();
+            oldRecord.Escalations = new List<EscalationNew>();
+            oldRecord.Risks = new List<RiskNew>();
+            oldRecord.BusinessBlocks = new List<BusinessBlockNew>();
+            oldRecord.Supports.AddRange(newRecord.Supports);
+            oldRecord.Escalations.AddRange(newRecord.Escalations);
+            oldRecord.Risks.AddRange(newRecord.Risks);
+            oldRecord.BusinessBlocks.AddRange(newRecord.BusinessBlocks);
+            //TODO Перекидывать множественный выбор
             _dbContext.SaveChanges();
         }
 
@@ -461,6 +511,10 @@ namespace TimeSheetApp.Model
             a.Id== analytic.HeadAdmId ||
             a.HeadFuncId == analytic.Id).
             ToList();
-        
+
+        public Process GetTest()
+        {
+            return null;
+        }
     }
 }

@@ -14,7 +14,6 @@
         IsEnabled="{Binding Source={StaticResource Locator}, Path=Main.IsReady}" Icon="Resource/MainIco.ico" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" >
     <Window.Resources>
         <local:CodeFullConverter x:Key="CodeFullConverter"/>
-        <local:CodeDescriptionConverter x:Key="CodeDescriptionConverter"/>
         <local:DateTimeConverter x:Key="DateTimeConverter"/>
         <local:AnalyticToFullNameConverter x:Key="AnalyticToFullNameConverter"/>
     </Window.Resources>
@@ -70,7 +69,7 @@
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
-                                                    <TextBlock Text="{Binding Converter={StaticResource CodeFullConverter}}" ToolTip="{Binding Converter={StaticResource CodeDescriptionConverter}}"/>
+                                                    <TextBlock Text="{Binding CodeFull}" ToolTip="{Binding CodeFull}"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
@@ -330,7 +329,7 @@
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
-                                                    <TextBlock Text="{Binding Converter={StaticResource CodeFullConverter}}" ToolTip="{Binding Converter={StaticResource CodeDescriptionConverter}}"/>
+                                                    <TextBlock Text="{Binding Process.CodeFull}" ToolTip="{Binding Process.CodeFull}"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
