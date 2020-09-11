@@ -177,6 +177,10 @@
       <DependentUpon>SelectCalendarItems.xaml</DependentUpon>
     </Compile>
     <Compile Include="Services\UpdateService.cs" />
+    <Compile Include="ViewModel\CommandImplementation\TSCommand.cs" />
+    <Compile Include="ViewModel\CommandImplementation\TSCommandAsync.cs" />
+    <Compile Include="ViewModel\CommandImplementation\TSCommandT.cs" />
+    <Compile Include="ViewModel\CommandImplementation\TSCommandAsyncT.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="Controls\HintTextBox.xaml">

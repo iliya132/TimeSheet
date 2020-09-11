@@ -579,8 +579,8 @@ namespace TimeSheetTests
         public void LoadTimeSheetRecords()
         {
             int expectedCount = 6;
-            string expectedSubject = "WhistleBlowingLine";
-            DateTime date = new DateTime(2020, 09, 11);
+            string expectedSubject = "ТБСВК";
+            DateTime date = new DateTime(2020, 7, 21);
             List<TimeSheetTable> records = DataProvider.LoadTimeSheetRecords(date, TestUser).ToList();
             if(records.Count != expectedCount)
             {

@@ -11,18 +11,16 @@
         mc:Ignorable="d"
         Title="{Binding Source={StaticResource Locator}, Path=Main.Title}" Height="750" Width="1100"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
-        IsEnabled="{Binding Source={StaticResource Locator}, Path=Main.IsReady}" Icon="Resource/MainIco.ico" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" >
+         Icon="Resource/MainIco.ico" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" >
     <Window.Resources>
         <local:CodeFullConverter x:Key="CodeFullConverter"/>
         <local:DateTimeConverter x:Key="DateTimeConverter"/>
         <local:AnalyticToFullNameConverter x:Key="AnalyticToFullNameConverter"/>
     </Window.Resources>
     <Grid>
-
         <Button Name="HelpBtn" HorizontalAlignment="Right" VerticalAlignment="Top" Width="25" Height="25" Click="HelpBtn_Click" Background="AliceBlue" Grid.Column="1">
             <Image Source="Resource/Help.png"/>
         </Button>
-        
         <TabControl Grid.ColumnSpan="2">
             <TabItem Header="Учет времени">
                 <Grid>
@@ -140,7 +138,7 @@
                                 <DatePicker Name="DateBox" Grid.Row="0" HorizontalAlignment="Center" Width="100" Height="30" SelectedDateChanged="DateBox_SelectedDateChanged" SelectedDate="{Binding CurrentDate}">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="SelectedDateChanged">
-                                            <mvvm:EventToCommand Command="{Binding ReloadHistoryRecords}"/>
+                                            <i:InvokeCommandAction Command="{Binding ReloadHistoryRecords}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </DatePicker>
@@ -329,7 +327,7 @@
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
-                                                    <TextBlock Text="{Binding Process.CodeFull}" ToolTip="{Binding Process.CodeFull}"/>
+                                                    <TextBlock Text="{Binding Process_id}"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
@@ -547,7 +545,7 @@
                                 <Label Content="Конечная дата:"/>
                                 <DatePicker Name="EndDatePicker" SelectedDate="{Binding EndReportDate}" />
                             </StackPanel>
-                            <Button Name="GetReport" Content="Выгрузить отчет" Height="50" Margin="5,5,5,10" 
+                            <Button Name="GetReport" IsEnabled="{Binding Source={StaticResource Locator}, Path=Main.IsReady}" Content="{Binding ReportBtnName}" Height="50" Margin="5,5,5,10" 
                                     Command="{Binding GetReport}"/>
                             <TextBlock Text="Выбранные сотрудники:"/>
                             <ListView Name="SelectedAnalyticsTable" ItemsSource="{Binding SelectedAnalytics}" Height="400" SelectionMode="Single">
@@ -563,11 +561,7 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            
         </TabControl>
-
-
     </Grid>
-    
 </Window>
 

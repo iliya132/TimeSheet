@@ -1,24 +1,23 @@
 using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Threading;
 using TimeSheetApp.Model;
 using TimeSheetApp.Model.EntitiesBase;
+using TimeSheetApp.ViewModel.CommandImplementation;
 
 using Process = TimeSheetApp.Model.EntitiesBase.Process;
 
 namespace TimeSheetApp.ViewModel
 {
-    public class MainViewModel : ViewModelBase
+    public class MainViewModel :INotifyPropertyChanged
     {
         public IDataProvider EFDataProvider;
 
@@ -48,9 +47,44 @@ namespace TimeSheetApp.ViewModel
         #endregion
 
         #region Список сотрудников в подчинении
-        public ObservableCollection<StructuredAnalytic> SubordinatedAnalytics { get; set; }
-        public ObservableCollection<Node> SubordinatedAnalyticNodes { get; set; }
-        public ObservableCollection<Analytic> CurrentUserTeam { get; set; }
+        private ObservableCollection<StructuredAnalytic> _subordinatedAnalytics;
+        public ObservableCollection<StructuredAnalytic> SubordinatedAnalytics
+        {
+            get
+            {
+                return _subordinatedAnalytics;
+            }
+            set
+            {
+                _subordinatedAnalytics = value;
+                RaisePropertyChanged(nameof(SubordinatedAnalytics));
+            }
+        }
+        private ObservableCollection<Node> _subordinatedAnalyticsNodes = new ObservableCollection<Node>();
+        public ObservableCollection<Node> SubordinatedAnalyticNodes
+        {
+            get
+            {
+                return _subordinatedAnalyticsNodes;
+            }
+            set
+            {
+                _subordinatedAnalyticsNodes = value;
+            }
+        }
+        private ObservableCollection<Analytic> _currentUserTeam;
+        public ObservableCollection<Analytic> CurrentUserTeam
+        {
+            get
+            {
+                return _currentUserTeam;
+            }
+            set
+            {
+                _currentUserTeam = value;
+                RaisePropertyChanged(nameof(CurrentUserTeam));
+            }
+        }
         #endregion
 
         #endregion
@@ -108,6 +142,17 @@ namespace TimeSheetApp.ViewModel
                 RaisePropertyChanged(nameof(IsReady));
             }
         }
+        private string _ReportBtnName = "Выгрузить отчет";
+        public  string ReportBtnName
+        {
+            get => _ReportBtnName;
+            set
+            {
+                _ReportBtnName = value;
+                RaisePropertyChanged(nameof(ReportBtnName));
+            }
+        }
+
         private string _title = "TimeSheet";
         public string Title
         {
@@ -276,7 +321,7 @@ namespace TimeSheetApp.ViewModel
         public Process CurrentEditedRecord
         {
             get { return _currentEditedRecord; }
-            set { Set(ref _currentEditedRecord, value); }
+            set { _currentEditedRecord = value; }
         }
         private DateTime InitalTimeStart { get; set; }
         private DateTime InitalTimeEnd { get; set; }
@@ -287,13 +332,7 @@ namespace TimeSheetApp.ViewModel
         #endregion
 
         #region Формирование отчета
-        private List<string> _reportsAvailable = new List<string>()
-        {
-            "Активность аналитиков",
-            "Ресурсный план",
-            "Распределение по процессам",
-            "Распределение аллокаций"
-        };
+        private List<string> _reportsAvailable = new List<string>();
 
         public List<string> ReportsAvailable
         {
@@ -362,29 +401,35 @@ namespace TimeSheetApp.ViewModel
             }
         }
 
-        private readonly Timer loadCalendarTimer;
+        private Timer loadCalendarTimer;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         #endregion
 
         #region Commands
-        public RelayCommand<TimeSheetTable> AddProcess { get; set; }
-        public RelayCommand<TimeSheetTable> EditProcess { get; set; }
-        public RelayCommand<TimeSheetTable> DeleteProcess { get; set; }
-        public RelayCommand ReloadTimeSheet { get; set; }
-        public RelayCommand<string> FilterProcesses { get; set; }
-        public RelayCommand<Process> LoadSelectionForSelectedProcess { get; set; }
-        public RelayCommand ReloadHistoryRecords { get; set; }
-        public RelayCommand CheckTimeForIntersection { get; set; }
-        public RelayCommand GetReport { get; set; }
-        public RelayCommand<StructuredAnalytic> SelectAnalytic { get; set; }
-        public RelayCommand<StructuredAnalytic> UnselectAnalytic { get; set; }
-        public RelayCommand ReportSelectionStore { get; set; }
-        public RelayCommand SelectCalendarItem { get; set; }
-        public RelayCommand<string> FinilizeEditUserName { get; set; }
-        public RelayCommand<object> StoreSelectedRecords { get; set; }
-        public RelayCommand CopyRecords { get; set; }
-        public RelayCommand PasteRecords { get; set; }
-        public RelayCommand TimeSelected { get; set; }
+        public TSCommandAsync<TimeSheetTable> AddProcess { get; set; }
+        public TSCommandAsync<TimeSheetTable> EditProcess { get; set; }
+        public TSCommandAsync<TimeSheetTable> DeleteProcess { get; set; }
+        public TSCommandAsync ReloadTimeSheet { get; set; }
+        public TSCommandAsync<string> FilterProcesses { get; set; }
+        public TSCommandAsync<Process> LoadSelectionForSelectedProcess { get; set; }
+        public TSCommandAsync ReloadHistoryRecords { get; set; }
+        public TSCommandAsync CheckTimeForIntersection { get; set; }
+        public TSCommandAsync GetReport { get; set; }
+        public TSCommand<StructuredAnalytic> SelectAnalytic { get; set; }
+        public TSCommand<StructuredAnalytic> UnselectAnalytic { get; set; }
+        public TSCommand ReportSelectionStore { get; set; }
+        public TSCommand SelectCalendarItem { get; set; }
+        public TSCommandAsync<string> FinilizeEditUserName { get; set; }
+        public TSCommand<object> StoreSelectedRecords { get; set; }
+        public TSCommand CopyRecords { get; set; }
+        public TSCommand PasteRecords { get; set; }
+        public TSCommand TimeSelected { get; set; }
 
 
         #endregion
@@ -392,53 +437,58 @@ namespace TimeSheetApp.ViewModel
 
         public MainViewModel(IDataProvider dataProvider)
         {
+            EFDataProvider = dataProvider;
+            Initialize();
+            
+        }
 
-            try
-            {
-                IsReady = false;
-                Title = "TimeSheet";
-                QuitIfStartedFromServer();
-                EFDataProvider = dataProvider;
+        private async Task Initialize()
+        {
+            IsReady = false;
+            Title = "TimeSheet";
+            QuitIfStartedFromServer();
+            InitializeEvents();
+            InitializeCommads();
+            await FillDataCollectionsAsync();
+            NewRecord.Analytic = CurrentUser;
+            NewRecord.AnalyticId = CurrentUser.Id;
+            loadCalendarTimer = new Timer(TimerTick, null, 0, Timeout.Infinite);
+            GenerateNodes();
+            await UpdateTimeSpanAsync();
+            IsReady = true;
+        }
 
-                FillDataCollections();
-                UpdateSubjectsHints();
-                InitializeCommads();
-                NewRecord.Analytic = CurrentUser;
-                NewRecord.AnalyticId = CurrentUser.Id;
+        private void InitializeEvents()
+        {
+            TodayRecords.CollectionChanged += TodayRecords_CollectionChanged;
+        }
 
-                GenerateNodes();
-                loadCalendarTimer = new Timer(TimerTick, null, 0, Timeout.Infinite);
-                UpdateTimeSpan();
-                IsReady = true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"{ex.Message}. {ex.InnerException}. {ex.StackTrace}", "ОШИБКА", MessageBoxButton.OK, MessageBoxImage.Error);
-                Thread.Sleep(5000);
-                throw ex;
-            }
+        private void TodayRecords_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            RaisePropertyChanged(nameof(TotalDurationInMinutes));
+            RaisePropertyChanged(nameof(BusyTime));
         }
 
         private void InitializeCommads()
         {
-            AddProcess = new RelayCommand<TimeSheetTable>(AddRecordMethod);
-            EditProcess = new RelayCommand<TimeSheetTable>(EditHistoryProcess);
-            DeleteProcess = new RelayCommand<TimeSheetTable>(DeleteHistoryRecord);
-            ReloadTimeSheet = new RelayCommand(UpdateTimeSpan);
-            CheckTimeForIntersection = new RelayCommand(CheckTimeForIntesectionMethod);
-            LoadSelectionForSelectedProcess = new RelayCommand<Process>(SetupSelectionAsLastTime);
-            FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
-            GetReport = new RelayCommand(GetReportMethod);
-            ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
-            ReportSelectionStore = new RelayCommand(OnAnalyticSelectionChanged);
-            SelectAnalytic = new RelayCommand<StructuredAnalytic>(SelectAnalyticMethod);
-            UnselectAnalytic = new RelayCommand<StructuredAnalytic>(UnselectAnalyticMethod);
-            SelectCalendarItem = new RelayCommand(SelectCalendarItemMethod);
-            FinilizeEditUserName = new RelayCommand<string>(EditUserName);
-            StoreSelectedRecords = new RelayCommand<object>(StoreSelectedRecordsMethod);
-            CopyRecords = new RelayCommand(CopyRecordsMethod);
-            PasteRecords = new RelayCommand(PasteRecordsMethod);
-            TimeSelected = new RelayCommand(TimeChanged);
+            AddProcess = new TSCommandAsync<TimeSheetTable>(AddRecordMethod);
+            EditProcess = new TSCommandAsync<TimeSheetTable>(EditHistoryProcessAsync);
+            DeleteProcess = new TSCommandAsync<TimeSheetTable>(DeleteHistoryRecordAsync);
+            ReloadTimeSheet = new TSCommandAsync(UpdateTimeSpanAsync);
+            CheckTimeForIntersection = new TSCommandAsync(CheckTimeForIntesectionMethodAsync);
+            LoadSelectionForSelectedProcess = new TSCommandAsync<Process>(SetupSelectionAsLastTimeAsync);
+            FilterProcesses = new TSCommandAsync<string>(FilterProcessesMethodAsync);
+            GetReport = new TSCommandAsync(GetReportMethodAsync);
+            ReloadHistoryRecords = new TSCommandAsync(UpdateTimeSpanAsync);
+            ReportSelectionStore = new TSCommand(OnAnalyticSelectionChanged);
+            SelectAnalytic = new TSCommand<StructuredAnalytic>(SelectAnalyticMethod);
+            UnselectAnalytic = new TSCommand<StructuredAnalytic>(UnselectAnalyticMethod);
+            SelectCalendarItem = new TSCommand(SelectCalendarItemMethod);
+            FinilizeEditUserName = new TSCommandAsync<string>(EditUserNameAsync);
+            StoreSelectedRecords = new TSCommand<object>(StoreSelectedRecordsMethod);
+            CopyRecords = new TSCommand(CopyRecordsMethod);
+            PasteRecords = new TSCommand(PasteRecordsMethod);
+            TimeSelected = new TSCommand(TimeChanged);
         }
 
         private void TimeChanged()
@@ -488,7 +538,7 @@ namespace TimeSheetApp.ViewModel
             SelectedRecords.AddRange(collection);
         }
 
-        private void EditUserName(string newName)
+        private async Task EditUserNameAsync(string newName)
         {
             string[] UserNameSplited = newName.Split(' ');
             if (UserNameSplited.Length < 3)
@@ -501,8 +551,7 @@ namespace TimeSheetApp.ViewModel
                 CurrentUser.LastName = UserNameSplited[0];
                 CurrentUser.FirstName = UserNameSplited[1];
                 CurrentUser.FatherName = UserNameSplited[2];
-                EFDataProvider.Commit();
-
+                await EFDataProvider.CommitAsync();
             }
             RaisePropertyChanged(nameof(CurrentUserFullName));
         }
@@ -581,8 +630,6 @@ namespace TimeSheetApp.ViewModel
 
         private void GenerateNodes()
         {
-            SubordinatedAnalyticNodes = new ObservableCollection<Node>();
-
             foreach (StructuredAnalytic analytic in SubordinatedAnalytics)
             {
                 #region initialize
@@ -654,7 +701,7 @@ namespace TimeSheetApp.ViewModel
             }
         }
 
-        private void GetReportMethod()
+        private async Task GetReportMethodAsync()
         {
             if (SelectedAnalytics.Count() < 1)
             {
@@ -662,17 +709,17 @@ namespace TimeSheetApp.ViewModel
                 return;
             }
             IsReady = false;
-            Title = "TimeSheet (Выгружаю отчет...)";
-            EFDataProvider.GetReport(SelectedReport, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
-            Title = "TimeSheet";
+            ReportBtnName = "Выгружаю отчет";
+            await EFDataProvider.GetReportAsync(SelectedReport+1, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
+            ReportBtnName = "Выгрузить отчет";
             IsReady = true;
         }
 
-        private void CheckTimeForIntesectionMethod()
+        private async Task CheckTimeForIntesectionMethodAsync()
         {
             if (!(EditedRecord.TimeStart >= InitalTimeStart &&
                 EditedRecord.TimeStart < InitalTimeEnd) &&
-                EFDataProvider.IsCollisionedWithOtherRecords(EditedRecord) ||
+                await EFDataProvider.IsCollisionedWithOtherRecordsAsync(EditedRecord) ||
                 (EditedRecord.TimeStart == EditedRecord.TimeEnd ||
                 EditedRecord.TimeStart > EditedRecord.TimeEnd))
             {
@@ -685,7 +732,7 @@ namespace TimeSheetApp.ViewModel
             RaisePropertyChanged(nameof(IsTimeCorrect));
         }
 
-        private void SetupSelectionAsLastTime(Process selectedProcess)
+        private async Task SetupSelectionAsLastTimeAsync(Process selectedProcess)
         {
             BusinessBlockChoiceCollection.Clear();
             SupportsChoiceCollection.Clear();
@@ -693,7 +740,7 @@ namespace TimeSheetApp.ViewModel
             RiskChoiceCollection.Clear();
             if (selectedProcess != null)
             {
-                TimeSheetTable lastRecord = EFDataProvider.GetLastRecordWithSameProcess(selectedProcess.Id, CurrentUser.UserName);
+                TimeSheetTable lastRecord = await EFDataProvider.GetLastRecordWithSameProcessAsync(selectedProcess.Id, CurrentUser.UserName);
                 if (lastRecord != null)
                 {
                     List<BusinessBlock> blocks = lastRecord.BusinessBlocks.Select(i => i.BusinessBlock).ToList();
@@ -711,12 +758,13 @@ namespace TimeSheetApp.ViewModel
                 }
                 RaisePropertyChanged(nameof(NewRecord));
             }
-            UpdateSubjectsHints();
+            await UpdateSubjectsHintsAsync();
         }
 
-        private void UpdateSubjectsHints()
+        private async Task UpdateSubjectsHintsAsync()
         {
-            subjectsFromDB = EFDataProvider.GetSubjectHints(NewRecord.Process).ToList();
+            var result = await EFDataProvider.GetSubjectHintsAsync(NewRecord.Process);
+            subjectsFromDB = result.ToList();
 
             SubjectHints.Clear();
             int itemsCount = subjectsFromDB.Count;
@@ -730,32 +778,52 @@ namespace TimeSheetApp.ViewModel
             }
         }
 
-        private void DeleteHistoryRecord(TimeSheetTable record)
+        private async Task DeleteHistoryRecordAsync(TimeSheetTable record)
         {
-            EFDataProvider.DeleteRecord(record.Id);
-            UpdateTimeSpan();
+            TodayRecords.Remove(record);
+            await EFDataProvider.DeleteRecordAsync(record.Id);
         }
 
         /// <summary>
         /// Заполняет коллекции списков значениями из БД
         /// </summary>
-        private void FillDataCollections()
+        private async Task FillDataCollectionsAsync()
         {
             string userName = Environment.UserName;
 #if DevAtHome
             userName = "u_m0x0c";
 #endif
+
             CurrentUser = EFDataProvider.LoadAnalyticData(userName);
-            AllProcesses = new ObservableCollection<Process>(EFDataProvider.GetProcesses());
-            BusinessBlocks = EFDataProvider.GetBusinessBlocks().ToList();
-            Supports = EFDataProvider.GetSupports().ToList();
-            ClientWays = EFDataProvider.GetClientWays().ToList();
-            Formats = EFDataProvider.GetFormat().ToList();
-            Escalations = EFDataProvider.GetEscalation().ToList();
-            Risks = EFDataProvider.GetRisks().ToList();
-            FilterProcessesMethod(string.Empty);
-            SubordinatedAnalytics = ConvertToStructuredAnalytics(EFDataProvider.GetMyAnalyticsData(CurrentUser));
-            CurrentUserTeam = new ObservableCollection<Analytic>(EFDataProvider.GetMyAnalyticsData(CurrentUser));
+            IEnumerable<Process> processesResult = await EFDataProvider.GetProcessesAsync();
+            IEnumerable<BusinessBlock> bBlocksResult = await EFDataProvider.GetBusinessBlocksAsync();
+            IEnumerable<Supports> supportsResult = await EFDataProvider.GetSupportsAsync();
+            IEnumerable<ClientWays> clientWaysResult = await EFDataProvider.GetClientWaysAsync();
+            IEnumerable<Formats> formatsResult = await EFDataProvider.GetFormatAsync();
+            IEnumerable<Escalation> escalationsResult = await EFDataProvider.GetEscalationAsync();
+            IEnumerable<Risk> risksResult = await EFDataProvider.GetRisksAsync();
+            IEnumerable<string> reportsResult = await EFDataProvider.GetReportsAvailableAsync();
+            AllProcesses = new ObservableCollection<Process>(processesResult);
+            BusinessBlocks = bBlocksResult.ToList();
+            Supports = supportsResult.ToList();
+            ClientWays = clientWaysResult.ToList();
+            Formats = formatsResult.ToList();
+            Escalations = escalationsResult.ToList();
+            Risks = risksResult.ToList();
+            ReportsAvailable = reportsResult.ToList();
+            RaisePropertyChanged(nameof(BusinessBlocks));
+            RaisePropertyChanged(nameof(Supports));
+            RaisePropertyChanged(nameof(ClientWays));
+            RaisePropertyChanged(nameof(Formats));
+            RaisePropertyChanged(nameof(Escalations));
+            RaisePropertyChanged(nameof(Risks));
+            RaisePropertyChanged(nameof(ReportsAvailable));
+            await FilterProcessesMethodAsync(string.Empty);
+            await UpdateSubjectsHintsAsync();
+            var analyticsAsync = await EFDataProvider.GetMyAnalyticsDataAsync(CurrentUser);
+            SubordinatedAnalytics = ConvertToStructuredAnalytics(analyticsAsync);
+            CurrentUserTeam = new ObservableCollection<Analytic>(analyticsAsync);
+
         }
 
         private ObservableCollection<StructuredAnalytic> ConvertToStructuredAnalytics(IEnumerable<Analytic> analytics)
@@ -778,23 +846,22 @@ namespace TimeSheetApp.ViewModel
             }
         }
 
-        private void UpdateTimeSpan()
+        private async Task UpdateTimeSpanAsync()
         {
-
             UpdateCalendarItemsMethod();
             TodayRecords.Clear();
-            EFDataProvider.LoadTimeSheetRecords(CurrentDate, CurrentUser.UserName).ToList().ForEach(TodayRecords.Add);
-            RaisePropertyChanged(nameof(TotalDurationInMinutes));
-            RaisePropertyChanged(nameof(BusyTime));
+            IEnumerable<TimeSheetTable> records = await EFDataProvider.LoadTimeSheetRecordsAsync(CurrentDate, CurrentUser.UserName);
+            records.ToList().ForEach(TodayRecords.Add);
         }
 
-        private void FilterProcessesMethod(string userSearchInput)
+        private async Task FilterProcessesMethodAsync(string userSearchInput)
         {
             if (UserFilteredProcesses == null)
                 UserFilteredProcesses = new ObservableCollection<Process>();
             UserFilteredProcesses.Clear();
             List<Process> processes = AllProcesses.ToList();
-            List<TimeSheetTable> currentAnalyticRecords = EFDataProvider.GetTimeSheetRecordsForAnalytic(CurrentUser.UserName).ToList();
+            var result = await EFDataProvider.GetTimeSheetRecordsForAnalyticAsync(CurrentUser.UserName);
+            List<TimeSheetTable> currentAnalyticRecords = result.ToList();
             processes = !string.IsNullOrWhiteSpace(userSearchInput) ?
             processes.Where(rec => rec.ProcName.ToLower().IndexOf(userSearchInput.ToLower()) > -1 ||
                 rec.Comment?.ToLower().IndexOf(userSearchInput.ToLower()) > -1 ||
@@ -802,9 +869,11 @@ namespace TimeSheetApp.ViewModel
             : processes;
             processes = processes.OrderByDescending(proc => currentAnalyticRecords.Where(i => i.Process_id == proc.Id).Count()).ThenBy(proc => proc.Id).ToList();
             processes.ForEach(UserFilteredProcesses.Add);
+            await SetupSelectionAsLastTimeAsync(UserFilteredProcesses[0]);
+            RaisePropertyChanged(nameof(UserFilteredProcesses));
         }
 
-        private void AddRecordMethod(TimeSheetTable newItem)
+        private async Task AddRecordMethod(TimeSheetTable newItem)
         {
             #region UnitTest's
             if (IsIntersectsWithOtherRecords(newItem))
@@ -846,23 +915,20 @@ namespace TimeSheetApp.ViewModel
                 TimeSpent = (int)(newItem.TimeEnd - newItem.TimeStart).TotalMinutes
             };
 
-
-            EFDataProvider.AddActivity(newRec);
-
             #region Обновление представления
-            UpdateTimeSpan();
+            
+            TodayRecords.Add(newRec);
             RaisePropertyChanged(nameof(TotalDurationInMinutes));
-            UpdateSubjectsHints();
             RaisePropertyChanged("subjectHints");
             newItem.TimeStart = newItem.TimeEnd;
             newItem.TimeEnd = newItem.TimeEnd.AddMinutes(15);
             IgnoreSubjectTextChange = false;
             newItem.Subject = string.Empty;
             IgnoreSubjectTextChange = true;
-
             newItem.Comment = string.Empty;
             RaisePropertyChanged(nameof(NewRecord));
             #endregion
+            await EFDataProvider.AddActivityAsync(newRec);
         }
 
         private bool IsIntersectsWithOtherRecords(TimeSheetTable record)
@@ -877,7 +943,7 @@ namespace TimeSheetApp.ViewModel
             }
         }
 
-        private void EditHistoryProcess(TimeSheetTable Record)
+        private async Task EditHistoryProcessAsync(TimeSheetTable Record)
         {
             if (Record == null) return;
             EditedRecord = new TimeSheetTable()
@@ -924,7 +990,7 @@ namespace TimeSheetApp.ViewModel
             EditForm form = new EditForm();
             if (form.ShowDialog() == true)
             {
-                CheckTimeForIntesectionMethod();
+                CheckTimeForIntesectionMethodAsync();
                 EFDataProvider.RemoveSelection(Record.Id);
                 EditedRecord.Risks.Clear();
                 EditedRecord.Process_id = EditedRecord.Process.Id;
@@ -938,8 +1004,8 @@ namespace TimeSheetApp.ViewModel
                 EditedRecord.Supports.AddRange(SupportsChoiceCollection.Select(item => new SupportNew { TimeSheetTableId = Record.Id, SupportId = item.Id }));
                 EditedRecord.Escalations.AddRange(EscalationsChoiceCollection.Select(item => new EscalationNew { TimeSheetTableId = Record.Id, EscalationId = item.Id }));
 
-                EFDataProvider.UpdateProcess(Record, EditedRecord);
-                UpdateTimeSpan();
+                await EFDataProvider.UpdateProcessAsync(Record, EditedRecord);
+                UpdateTimeSpanAsync();
             }
         }
 
