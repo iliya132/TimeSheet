@@ -30,7 +30,6 @@ namespace TimeSheetApp.Model
         IEnumerable<TimeSheetTable> LoadTimeSheetRecords(DateTime date, string userName);
         void GetReport(int ReportType, Analytic[] analytics, DateTime start, DateTime end);
         bool IsCollisionedWithOtherRecords(TimeSheetTable record);
-        bool IsAnalyticHasAccess(string userName);
         TimeSheetTable GetLastRecordWithSameProcess(int process_id, string userName);
         void RemoveSelection(int record_id);
         IEnumerable<TimeSheetTable> GetTimeSheetRecordsForAnalytic(string userName);

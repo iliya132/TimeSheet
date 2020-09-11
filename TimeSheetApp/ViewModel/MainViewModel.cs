@@ -57,8 +57,8 @@ namespace TimeSheetApp.ViewModel
 
         #region CurrentValues
 
-        List<TimeSheetTable> SelectedRecords = new List<TimeSheetTable>();
-        List<TimeSheetTable> CopiedRecords = new List<TimeSheetTable>();
+        readonly List<TimeSheetTable> SelectedRecords = new List<TimeSheetTable>();
+        readonly List<TimeSheetTable> CopiedRecords = new List<TimeSheetTable>();
         public TimeSpan TimeSelectorMin
         {
             get
@@ -68,7 +68,7 @@ namespace TimeSheetApp.ViewModel
             set
             {
                 NewRecord.TimeStart = new DateTime(NewRecord.TimeStart.Year, NewRecord.TimeStart.Month, NewRecord.TimeStart.Day, value.Hours, value.Minutes, value.Seconds);
-                RaisePropertyChanged("NewRecord");
+                RaisePropertyChanged(nameof(NewRecord));
             }
         }
 
@@ -81,7 +81,7 @@ namespace TimeSheetApp.ViewModel
             set
             {
                 NewRecord.TimeEnd = new DateTime(NewRecord.TimeEnd.Year, NewRecord.TimeEnd.Month, NewRecord.TimeEnd.Day, value.Hours, value.Minutes, value.Seconds);
-                RaisePropertyChanged("NewRecord");
+                RaisePropertyChanged(nameof(NewRecord));
             }
         }
 
@@ -105,7 +105,7 @@ namespace TimeSheetApp.ViewModel
             set
             {
                 _isReady = value;
-                RaisePropertyChanged("IsReady");
+                RaisePropertyChanged(nameof(IsReady));
             }
         }
         private string _title = "TimeSheet";
@@ -118,10 +118,11 @@ namespace TimeSheetApp.ViewModel
             set
             {
                 _title = value;
-                RaisePropertyChanged("Title");
+                RaisePropertyChanged(nameof(Title));
             }
         }
-        Dispatcher currentDispatcher = Dispatcher.CurrentDispatcher;
+
+        readonly Dispatcher currentDispatcher = Dispatcher.CurrentDispatcher;
 
         public double LastMonthTimeSpent
         {
@@ -230,7 +231,7 @@ namespace TimeSheetApp.ViewModel
             set
             {
                 _calendarItemsCount = value;
-                RaisePropertyChanged("CalendarItemsCount");
+                RaisePropertyChanged(nameof(CalendarItemsCount));
             }
         }
         private bool isCalendarLoading = true;
@@ -240,10 +241,10 @@ namespace TimeSheetApp.ViewModel
             set
             {
                 isCalendarLoading = value;
-                RaisePropertyChanged("LoadingVisibilityInverted");
-                RaisePropertyChanged("LoadingVisibility");
-                RaisePropertyChanged("IsCalendarReady");
-                RaisePropertyChanged("IsCalendarLoading");
+                RaisePropertyChanged(nameof(LoadingVisibilityInverted));
+                RaisePropertyChanged(nameof(LoadingVisibility));
+                RaisePropertyChanged(nameof(IsCalendarReady));
+                RaisePropertyChanged(nameof(IsCalendarLoading));
             }
 
         }
@@ -277,8 +278,8 @@ namespace TimeSheetApp.ViewModel
             get { return _currentEditedRecord; }
             set { Set(ref _currentEditedRecord, value); }
         }
-        private DateTime initalTimeStart { get; set; }
-        private DateTime initalTimeEnd { get; set; }
+        private DateTime InitalTimeStart { get; set; }
+        private DateTime InitalTimeEnd { get; set; }
 
         private bool _isTimeCorrect = true;
         public bool IsTimeCorrect { get => _isTimeCorrect; set => _isTimeCorrect = value; }
@@ -361,7 +362,7 @@ namespace TimeSheetApp.ViewModel
             }
         }
 
-        Timer loadCalendarTimer;
+        private readonly Timer loadCalendarTimer;
 
         #endregion
 
@@ -406,7 +407,7 @@ namespace TimeSheetApp.ViewModel
                 NewRecord.AnalyticId = CurrentUser.Id;
 
                 GenerateNodes();
-                loadCalendarTimer = new Timer(timerTick, null, 0, Timeout.Infinite);
+                loadCalendarTimer = new Timer(TimerTick, null, 0, Timeout.Infinite);
                 UpdateTimeSpan();
                 IsReady = true;
             }
@@ -414,7 +415,7 @@ namespace TimeSheetApp.ViewModel
             {
                 MessageBox.Show($"{ex.Message}. {ex.InnerException}. {ex.StackTrace}", "Œÿ»¡ ¿", MessageBoxButton.OK, MessageBoxImage.Error);
                 Thread.Sleep(5000);
-                Environment.Exit(0);
+                throw ex;
             }
         }
 
@@ -516,7 +517,7 @@ namespace TimeSheetApp.ViewModel
 
         }
 
-        private void timerTick(object state)
+        private void TimerTick(object state)
         {
             UpdateCalendarItemsMethod();
         }
@@ -589,7 +590,7 @@ namespace TimeSheetApp.ViewModel
                     SubordinatedAnalyticNodes.Add(new Node(analytic.FirstStructure));
                 #endregion
                 #region Generate Ierarhial
-                foreach (Node node in SubordinatedAnalyticNodes)
+                for (int i = 0; i < SubordinatedAnalyticNodes.Count; i++)
                 {
                     #region 1stGen
                     Node firstGen = Node.FindNode(analytic.FirstStructure, SubordinatedAnalyticNodes);
@@ -669,8 +670,8 @@ namespace TimeSheetApp.ViewModel
 
         private void CheckTimeForIntesectionMethod()
         {
-            if (!(EditedRecord.TimeStart >= initalTimeStart &&
-                EditedRecord.TimeStart < initalTimeEnd) &&
+            if (!(EditedRecord.TimeStart >= InitalTimeStart &&
+                EditedRecord.TimeStart < InitalTimeEnd) &&
                 EFDataProvider.IsCollisionedWithOtherRecords(EditedRecord) ||
                 (EditedRecord.TimeStart == EditedRecord.TimeEnd ||
                 EditedRecord.TimeStart > EditedRecord.TimeEnd))
@@ -893,8 +894,8 @@ namespace TimeSheetApp.ViewModel
                 Formats = Record.Formats,
                 Id = Record.Id
             };
-            initalTimeStart = Record.TimeStart;
-            initalTimeEnd = Record.TimeEnd;
+            InitalTimeStart = Record.TimeStart;
+            InitalTimeEnd = Record.TimeEnd;
 
             #region LoadSelection
             BusinessBlockChoiceCollection.Clear();

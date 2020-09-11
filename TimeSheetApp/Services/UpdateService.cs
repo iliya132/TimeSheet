@@ -12,13 +12,14 @@ namespace TimeSheetApp.Services
 {
     public static class UpdateService
     {
+#if !DevAtHome
         static double currentVer;
         static double targetVer;
         const string APP_NAME = "TimeSheetApp.exe";
         const string ROOT_PATH = @"\\moscow\hdfs\WORK\Архив необычных операций\ОРППА\Timesheet\Data";
         const string CHANGELOG_FILEPATH = @"\\moscow\hdfs\WORK\Архив необычных операций\ОРППА\Timesheet\Data\Changelog.txt";
         const string UPDATE_TEXT = "Обнаружена новая версия программы. TimeSheet будет перезапущен после обновления";
-
+#endif
         public static void CheckForUpdate()
         {
 #if !DevAtHome

@@ -16,9 +16,9 @@ namespace TimeSheetTests
         #region variables
         #region Connection string
 #if !DevAtHome
-        string ConectionString = @"data source=A105512\A105512;Initial Catalog=TimeSheet;Integrated Security=false;user id = TimeSheetuser; password = DK_user!; MultipleActiveResultSets=True;";
+        readonly string ConectionString = @"data source=A105512\A105512;Initial Catalog=TimeSheet;Integrated Security=false;user id = TimeSheetuser; password = DK_user!; MultipleActiveResultSets=True;";
 #else
-        string ConnectionString = @"data source=IlyaHome;Initial Catalog=TimeSheet;Integrated Security=true; MultipleActiveResultSets=True;";
+        readonly string ConnectionString = @"data source=IlyaHome;Initial Catalog=TimeSheet;Integrated Security=true; MultipleActiveResultSets=True;";
 #endif
         #endregion
         public abstract string ProviderName { get; }
@@ -29,28 +29,24 @@ namespace TimeSheetTests
         [TestMethod]
         public void GetProcesses()
         {
-            bool succeed = true;
             int expectedCount = GetTableCount("Process");
             List<Process> processes = DataProvider.GetProcesses().ToList();
             if (processes.Count != expectedCount)
             {
-                succeed = false;
                 throw new Exception($"Processes count is not 63, but {processes.Count}");
             }
             foreach(Process process in processes)
             {
                 if (process.Block == null)
                 {
-                    succeed = false;
                     throw new Exception("Process doesn't contains Blocks");
                 }
                 if (process.SubBlock == null)
                 {
-                    succeed = false;
                     throw new Exception("Process doesn't contains SubBlocks");
                 }
             }
-            Assert.IsTrue(succeed);
+            Assert.IsTrue(true);
         }
 
         [TestMethod]
@@ -397,8 +393,46 @@ namespace TimeSheetTests
         
         private TimeSheetTable GetRecord(int recordId)
         {
-            TimeSheetContext context = new TimeSheetContext();
-            return context.TimeSheetTableSet.Include("BusinessBlocks").FirstOrDefault(i => i.Id == recordId);
+            SqlConnection connection = new SqlConnection(ConnectionString);
+            SqlCommand getRecord = new SqlCommand($"select * from TimeSheetTable join NewBusinessBlockSet on NewBusinessBlockSet.TimeSheetTableId = TimeSheetTable.id where TimeSheetTable.id = {recordId}", connection);
+            SqlDataReader reader;
+            TimeSheetTable recordFromDB = new TimeSheetTable();
+            try
+            {
+                connection.Open();
+                reader = getRecord.ExecuteReader();
+                recordFromDB.BusinessBlocks = new List<BusinessBlockNew>();
+                bool recFilled = false;
+                while (reader.Read() != false)
+                {
+                    if (!recFilled)
+                    {
+                        recordFromDB.AnalyticId = Convert.ToInt32(reader["AnalyticId"].ToString());
+                        recordFromDB.TimeSpent = Convert.ToInt32(reader["TimeSpent"].ToString());
+                        recordFromDB.ClientWaysId = Convert.ToInt32(reader["ClientWaysId"].ToString());
+                        recordFromDB.FormatsId = Convert.ToInt32(reader["FormatsId"].ToString());
+                        recordFromDB.Process_id = Convert.ToInt32(reader["Process_id"].ToString());
+                        recordFromDB.Id = Convert.ToInt32(reader["id"].ToString());
+                        recordFromDB.TimeStart = Convert.ToDateTime(reader["TimeStart"].ToString());
+                        recordFromDB.TimeEnd = Convert.ToDateTime(reader["TimeEnd"].ToString());
+                        recordFromDB.Comment = reader["comment"].ToString();
+                        recordFromDB.Subject = reader["Subject"].ToString();
+                    }
+                    recordFromDB.BusinessBlocks.Add(new BusinessBlockNew
+                    {
+                        BusinessBlockId = Convert.ToInt32(reader["BusinessBlockId"].ToString()),
+                        TimeSheetTableId = Convert.ToInt32(reader["TimeSheetTableId"].ToString())
+                    });
+                }
+            }catch(Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return recordFromDB;
         }
 
         #region Delete Test
@@ -540,6 +574,63 @@ namespace TimeSheetTests
             }
         }
         #endregion
+
+        [TestMethod]
+        public void LoadTimeSheetRecords()
+        {
+            int expectedCount = 6;
+            string expectedSubject = "WhistleBlowingLine";
+            DateTime date = new DateTime(2020, 09, 11);
+            List<TimeSheetTable> records = DataProvider.LoadTimeSheetRecords(date, TestUser).ToList();
+            if(records.Count != expectedCount)
+            {
+                throw new Exception($"Полученное значение не соответствует ожидаемому. Ожидалось: {expectedCount}. Получено {records.Count}");
+            }
+            if(!records.Any(i => i.Subject.Equals(expectedSubject)))
+            {
+
+                throw new Exception($"Не выгружена ожидаемая запись {expectedSubject}");
+            }
+            Assert.IsTrue(true);
+        }
+
+        [TestMethod]
+        public void IsCollisionedWithOtherRecords()
+        {
+            TimeSheetTable colidedRecord = new TimeSheetTable
+            {
+                TimeStart = new DateTime(2020,7,21,13,45,20),
+                TimeEnd = new DateTime(2020,7,21,14,0,0),
+                AnalyticId = 1
+            };
+            TimeSheetTable notColidedRecord = new TimeSheetTable
+            {
+                TimeStart = new DateTime(2020, 7, 21, 18, 45, 20),
+                TimeEnd = new DateTime(2020, 7, 21, 19, 0, 0),
+                AnalyticId = 1
+            };
+            TimeSheetTable colidedRecordWithSameId = new TimeSheetTable
+            {
+                TimeStart = new DateTime(2020, 7, 21, 13, 5, 20),
+                TimeEnd = new DateTime(2020, 7, 21, 13, 25, 0),
+                AnalyticId = 1,
+                Id = 121443
+            };
+            if (!DataProvider.IsCollisionedWithOtherRecords(colidedRecord))
+            {
+                throw new Exception("Пересечение не выявлено, хотя оно есть.");
+            }
+            if (DataProvider.IsCollisionedWithOtherRecords(notColidedRecord))
+            {
+                throw new Exception("Пересечение выявлено, хотя его нет.");
+            }
+            if (DataProvider.IsCollisionedWithOtherRecords(colidedRecordWithSameId))
+            {
+                throw new Exception("Пересечение выявлено, хотя его нет. Пересечение только с записью с тем же Id");
+            }
+            Assert.IsTrue(true);
+        }
+
 
         [TestInitialize]
         public abstract void Setup();

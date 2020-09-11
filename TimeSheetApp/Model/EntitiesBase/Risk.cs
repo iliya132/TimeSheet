@@ -24,5 +24,9 @@ namespace TimeSheetApp.Model.EntitiesBase
             }
             return false;
         }
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
     }
 }

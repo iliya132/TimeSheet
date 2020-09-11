@@ -17,9 +17,9 @@ namespace TimeSheetTests
     public class UITests
     {
 #if DevAtHome
-        private readonly string  timeSheetDebugPath = @"C:\Users\iliya\Source\Repos\iliya132\TimeSheet\TimeSheetApp\bin\Debug\TimeSheetApp.exe";
+        private const string timeSheetDebugPath = @"C:\Users\iliya\Source\Repos\iliya132\TimeSheet\TimeSheetApp\bin\Debug\TimeSheetApp.exe";
 #else
-        private readonly string  timeSheetDebugPath = @"C:\Users\iliya\Source\Repos\iliya132\TimeSheet\TimeSheetApp\bin\Debug\TimeSheetApp.exe";
+        private const string  timeSheetDebugPath = @"C:\Users\iliya\Source\Repos\iliya132\TimeSheet\TimeSheetApp\bin\Debug\TimeSheetApp.exe";
 #endif
         AutomationElement AEDesktop { get; set; }
         Process tsProc { get; set; }
@@ -27,7 +27,7 @@ namespace TimeSheetTests
 
         public UITests()
         {
-            tsProc = Process.Start(@"C:\Users\iliya\Source\Repos\iliya132\TimeSheet\TimeSheetApp\bin\Debug\TimeSheetApp.exe");
+            tsProc = Process.Start(timeSheetDebugPath);
             WaitWhileCondition(5000, tsProc == null, ()=>
             {
                 Process[] processes = Process.GetProcessesByName("TimeSheetApp");

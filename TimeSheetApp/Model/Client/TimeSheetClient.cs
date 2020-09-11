@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 
 using System;
@@ -12,7 +10,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Http.Controllers;
 using System.Windows;
 
 using TimeSheetApp.Model.Client.Base;
@@ -25,13 +22,13 @@ namespace TimeSheetApp.Model.Client
     public class TimeSheetClient : BaseClient, IDataProvider
     {
         protected override string ServiceAddress { get; set; }
-        private string currentUserName { get; set; }
+        private string CurrentUserName { get; set; }
 
         public TimeSheetClient() :base()
         {
 #if DevAtHome
             ServiceAddress = @"http://localhost:8082/timesheet";
-            currentUserName = "u_m0x0c";
+            CurrentUserName = "u_m0x0c";
 #else
             ServiceAddress = @"http://172.25.100.210:81/timesheet";
             currentUserName = Environment.UserName;
@@ -43,7 +40,7 @@ namespace TimeSheetApp.Model.Client
             if (process == null)
                 return new List<string>();
 
-            string url = GenerateUrl(nameof(GetSubjectHints), $"process_id={process.Id}&username={currentUserName}");
+            string url = GenerateUrl(nameof(GetSubjectHints), $"process_id={process.Id}&username={CurrentUserName}");
             var result = Get<List<string>>(url);
             return result;
         }
@@ -155,12 +152,6 @@ namespace TimeSheetApp.Model.Client
         {
             string recordJson = JsonConvert.SerializeObject(record);
             string url = GenerateUrl(nameof(IsCollisionedWithOtherRecords), $"record={recordJson}");
-            return Get<bool>(url);
-        }
-
-        public bool IsAnalyticHasAccess(string userName)
-        {
-            string url = GenerateUrl(nameof(IsAnalyticHasAccess), $"userName={userName}");
             return Get<bool>(url);
         }
 
