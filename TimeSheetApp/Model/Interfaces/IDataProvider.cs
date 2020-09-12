@@ -23,7 +23,7 @@ namespace TimeSheetApp.Model
         IEnumerable<Analytic> GetMyAnalyticsData(Analytic currentUser);
         IEnumerable<string> GetProcessBlocks();
         IEnumerable<string> GetSubBlocksNames();
-        void AddActivity(TimeSheetTable activity);
+        TimeSheetTable AddActivity(TimeSheetTable activity);
         Analytic LoadAnalyticData(string userName);
         void UpdateProcess(TimeSheetTable oldProcess, TimeSheetTable newProcess);
         void DeleteRecord(int record_id);
@@ -35,9 +35,11 @@ namespace TimeSheetApp.Model
         IEnumerable<TimeSheetTable> GetTimeSheetRecordsForAnalytic(string userName);
         void Commit();
         double GetTimeSpent(string userName, DateTime start, DateTime end);
+        IEnumerable<Process> GetProcessesSortedByRelevance(string userName, string filter);
         int GetDaysWorkedCount(Analytic currentUser, DateTime lastMonthFirstDay, DateTime lastMonthLastDay);
         IEnumerable<string> GetReportsAvailable();
         IEnumerable<Analytic> GetTeam(Analytic analytic);
+        Task<IEnumerable<Process>> GetProcessesSortedByRelevanceAsync(string userName, string filter);
         Task<IEnumerable<string>> GetSubjectHintsAsync(Process process);
         Task<bool> ForcedToQuitAsync();
         Task<IEnumerable<Process>> GetProcessesAsync();
@@ -50,7 +52,7 @@ namespace TimeSheetApp.Model
         Task<IEnumerable<Analytic>> GetMyAnalyticsDataAsync(Analytic currentUser);
         Task<IEnumerable<string>> GetProcessBlocksAsync();
         Task<IEnumerable<string>> GetSubBlocksNamesAsync();
-        Task AddActivityAsync(TimeSheetTable activity);
+        Task<TimeSheetTable> AddActivityAsync(TimeSheetTable activity);
         Task<Analytic> LoadAnalyticDataAsync(string userName);
         Task UpdateProcessAsync(TimeSheetTable oldProcess, TimeSheetTable newProcess);
         Task DeleteRecordAsync(int record_id);

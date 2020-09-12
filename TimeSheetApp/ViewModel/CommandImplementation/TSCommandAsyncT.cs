@@ -12,6 +12,7 @@ namespace TimeSheetApp.ViewModel.CommandImplementation
         public event EventHandler CanExecuteChanged;
         public Func<T, Task> Action { get; set; }
         private static bool IsExecuting { get; set; }
+        private static object lockObj = new object();
 
         public TSCommandAsync(Func<T, Task> action)
         {
