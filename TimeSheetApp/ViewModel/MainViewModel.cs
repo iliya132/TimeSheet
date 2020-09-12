@@ -416,7 +416,7 @@ namespace TimeSheetApp.ViewModel
         public TSCommandAsync<TimeSheetTable> EditProcess { get; set; }
         public TSCommandAsync<TimeSheetTable> DeleteProcess { get; set; }
         public TSCommandAsync ReloadTimeSheet { get; set; }
-        public TSCommandAsync<string> FilterProcesses { get; set; }
+        public TSCommand<string> FilterProcesses { get; set; }
         public TSCommandAsync<Process> LoadSelectionForSelectedProcess { get; set; }
         public TSCommandAsync ReloadHistoryRecords { get; set; }
         public TSCommandAsync CheckTimeForIntersection { get; set; }
@@ -477,7 +477,7 @@ namespace TimeSheetApp.ViewModel
             ReloadTimeSheet = new TSCommandAsync(UpdateTimeSpanAsync);
             CheckTimeForIntersection = new TSCommandAsync(CheckTimeForIntesectionMethodAsync);
             LoadSelectionForSelectedProcess = new TSCommandAsync<Process>(SetupSelectionAsLastTimeAsync);
-            FilterProcesses = new TSCommandAsync<string>(FilterProcessesMethodAsync);
+            FilterProcesses = new TSCommand<string>(StartTimerToFilterProcesses);
             GetReport = new TSCommandAsync(GetReportMethodAsync);
             ReloadHistoryRecords = new TSCommandAsync(UpdateTimeSpanAsync);
             ReportSelectionStore = new TSCommand(OnAnalyticSelectionChanged);
@@ -743,15 +743,15 @@ namespace TimeSheetApp.ViewModel
                 TimeSheetTable lastRecord = await EFDataProvider.GetLastRecordWithSameProcessAsync(selectedProcess.Id, CurrentUser.UserName);
                 if (lastRecord != null)
                 {
-                    List<BusinessBlock> blocks = lastRecord.BusinessBlocks.Select(i => i.BusinessBlock).ToList();
+                    List<BusinessBlock> blocks = lastRecord.BusinessBlocks.Select(i => i.BusinessBlock).Distinct().ToList();
                     foreach(BusinessBlock block in blocks)
                     {
                         BusinessBlockChoiceCollection.Add(block);
                     }
                     blocks.ForEach(BusinessBlockChoiceCollection.Add);
-                    lastRecord.Supports.Select(i => i.Supports).ToList().ForEach(SupportsChoiceCollection.Add);
-                    lastRecord.Escalations.Select(i => i.Escalation).ToList().ForEach(EscalationsChoiceCollection.Add);
-                    lastRecord.Risks.Select(i => i.Risk).ToList().ForEach(RiskChoiceCollection.Add);
+                    lastRecord.Supports.Select(i => i.Supports).Distinct().ToList().ForEach(SupportsChoiceCollection.Add);
+                    lastRecord.Escalations.Select(i => i.Escalation).Distinct().ToList().ForEach(EscalationsChoiceCollection.Add);
+                    lastRecord.Risks.Select(i => i.Risk).Distinct().ToList().ForEach(RiskChoiceCollection.Add);
 
                     NewRecord.ClientWays = lastRecord.ClientWays;
                     NewRecord.Formats = lastRecord.Formats;
@@ -795,15 +795,15 @@ namespace TimeSheetApp.ViewModel
 #endif
 
             CurrentUser = EFDataProvider.LoadAnalyticData(userName);
-            IEnumerable<Process> processesResult = await EFDataProvider.GetProcessesAsync();
+            StartTimerToFilterProcesses(string.Empty);
             IEnumerable<BusinessBlock> bBlocksResult = await EFDataProvider.GetBusinessBlocksAsync();
             IEnumerable<Supports> supportsResult = await EFDataProvider.GetSupportsAsync();
             IEnumerable<ClientWays> clientWaysResult = await EFDataProvider.GetClientWaysAsync();
             IEnumerable<Formats> formatsResult = await EFDataProvider.GetFormatAsync();
             IEnumerable<Escalation> escalationsResult = await EFDataProvider.GetEscalationAsync();
             IEnumerable<Risk> risksResult = await EFDataProvider.GetRisksAsync();
+            IEnumerable<Process> processesResult = await EFDataProvider.GetProcessesAsync();
             IEnumerable<string> reportsResult = await EFDataProvider.GetReportsAvailableAsync();
-            AllProcesses = new ObservableCollection<Process>(processesResult);
             BusinessBlocks = bBlocksResult.ToList();
             Supports = supportsResult.ToList();
             ClientWays = clientWaysResult.ToList();
@@ -811,6 +811,7 @@ namespace TimeSheetApp.ViewModel
             Escalations = escalationsResult.ToList();
             Risks = risksResult.ToList();
             ReportsAvailable = reportsResult.ToList();
+            AllProcesses = new ObservableCollection<Process>(processesResult);
             RaisePropertyChanged(nameof(BusinessBlocks));
             RaisePropertyChanged(nameof(Supports));
             RaisePropertyChanged(nameof(ClientWays));
@@ -818,7 +819,6 @@ namespace TimeSheetApp.ViewModel
             RaisePropertyChanged(nameof(Escalations));
             RaisePropertyChanged(nameof(Risks));
             RaisePropertyChanged(nameof(ReportsAvailable));
-            await FilterProcessesMethodAsync(string.Empty);
             await UpdateSubjectsHintsAsync();
             var analyticsAsync = await EFDataProvider.GetMyAnalyticsDataAsync(CurrentUser);
             SubordinatedAnalytics = ConvertToStructuredAnalytics(analyticsAsync);
@@ -849,28 +849,48 @@ namespace TimeSheetApp.ViewModel
         private async Task UpdateTimeSpanAsync()
         {
             UpdateCalendarItemsMethod();
-            TodayRecords.Clear();
+            currentDispatcher.Invoke(() =>
+            {
+                TodayRecords.Clear();
+            });
+            
             IEnumerable<TimeSheetTable> records = await EFDataProvider.LoadTimeSheetRecordsAsync(CurrentDate, CurrentUser.UserName);
-            records.ToList().ForEach(TodayRecords.Add);
+            currentDispatcher.Invoke(() =>
+            {
+                records.ToList().ForEach(TodayRecords.Add);
+            });
         }
 
-        private async Task FilterProcessesMethodAsync(string userSearchInput)
+        private void StartTimerToFilterProcesses(string userSearchInput)
         {
-            if (UserFilteredProcesses == null)
-                UserFilteredProcesses = new ObservableCollection<Process>();
-            UserFilteredProcesses.Clear();
-            List<Process> processes = AllProcesses.ToList();
-            var result = await EFDataProvider.GetTimeSheetRecordsForAnalyticAsync(CurrentUser.UserName);
-            List<TimeSheetTable> currentAnalyticRecords = result.ToList();
-            processes = !string.IsNullOrWhiteSpace(userSearchInput) ?
-            processes.Where(rec => rec.ProcName.ToLower().IndexOf(userSearchInput.ToLower()) > -1 ||
-                rec.Comment?.ToLower().IndexOf(userSearchInput.ToLower()) > -1 ||
-                $"{rec.Block_Id}.{rec.SubBlock_Id}.{rec.Id}".IndexOf(userSearchInput) > -1).ToList()
-            : processes;
-            processes = processes.OrderByDescending(proc => currentAnalyticRecords.Where(i => i.Process_id == proc.Id).Count()).ThenBy(proc => proc.Id).ToList();
-            processes.ForEach(UserFilteredProcesses.Add);
-            await SetupSelectionAsLastTimeAsync(UserFilteredProcesses[0]);
-            RaisePropertyChanged(nameof(UserFilteredProcesses));
+            int timeout = string.IsNullOrWhiteSpace(userSearchInput) ? 0 : 500;
+            delayTimer?.Dispose();
+            delayTimer = new Timer(DoFilter, userSearchInput, timeout, Timeout.Infinite);
+            UserFilteredProcesses = UserFilteredProcesses ?? new ObservableCollection<Process>();
+        }
+
+        private async void DoFilter(object obj)
+        {
+            IEnumerable<Process> queryResult = await EFDataProvider.GetProcessesSortedByRelevanceAsync(CurrentUser.UserName, (string)obj);
+            await currentDispatcher.Invoke(async ()=>{
+                UserFilteredProcesses.Clear();
+                queryResult.ToList().ForEach(UserFilteredProcesses.Add);
+                if (UserFilteredProcesses.Count > 0)
+                {
+                    await SetupSelectionAsLastTimeAsync(UserFilteredProcesses[0]);
+                    RaisePropertyChanged(nameof(UserFilteredProcesses));
+                }
+            });
+        }
+
+        Timer delayTimer;
+
+        private void ShowMessage(string msg, string subj, MessageBoxImage img)
+        {
+            currentDispatcher.Invoke(() =>
+            {
+                MessageBox.Show(msg, subj, MessageBoxButton.OK, img);
+            });
         }
 
         private async Task AddRecordMethod(TimeSheetTable newItem)
@@ -878,22 +898,22 @@ namespace TimeSheetApp.ViewModel
             #region UnitTest's
             if (IsIntersectsWithOtherRecords(newItem))
             {
-                MessageBox.Show("Добавляемая запись пересекается с другой активностью. Выберите другое время.", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                ShowMessage("Добавляемая запись пересекается с другой активностью. Выберите другое время.", "ошибка", MessageBoxImage.Exclamation);
                 return;
             }
             else if (newItem.TimeStart == newItem.TimeEnd)
             {
-                MessageBox.Show("Время начала равно времени окончания. Укажите корректное время", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                ShowMessage("Время начала равно времени окончания. Укажите корректное время", "ошибка", MessageBoxImage.Exclamation);
                 return;
             }
             else if (newItem.TimeStart > newItem.TimeEnd)
             {
-                MessageBox.Show("Время начала больше времени окончания. Укажите корректное время", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                ShowMessage("Время начала больше времени окончания. Укажите корректное время", "ошибка", MessageBoxImage.Exclamation);
                 return;
             }
             else if (BusinessBlockChoiceCollection.Count == 0)
             {
-                MessageBox.Show("Не указан ни один бизнес блок. Укажите хотя бы один", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                ShowMessage("Не указан ни один бизнес блок. Укажите хотя бы один", "ошибка", MessageBoxImage.Exclamation);
                 return;
             }
             #endregion
@@ -917,18 +937,17 @@ namespace TimeSheetApp.ViewModel
 
             #region Обновление представления
             
-            TodayRecords.Add(newRec);
             RaisePropertyChanged(nameof(TotalDurationInMinutes));
-            RaisePropertyChanged("subjectHints");
             newItem.TimeStart = newItem.TimeEnd;
             newItem.TimeEnd = newItem.TimeEnd.AddMinutes(15);
-            IgnoreSubjectTextChange = false;
-            newItem.Subject = string.Empty;
             IgnoreSubjectTextChange = true;
+            newItem.Subject = string.Empty;
+            IgnoreSubjectTextChange = false;
             newItem.Comment = string.Empty;
             RaisePropertyChanged(nameof(NewRecord));
             #endregion
-            await EFDataProvider.AddActivityAsync(newRec);
+            TimeSheetTable newRecord = await EFDataProvider.AddActivityAsync(newRec);
+            TodayRecords.Add(newRecord);
         }
 
         private bool IsIntersectsWithOtherRecords(TimeSheetTable record)

@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using TimeSheetApp.Model.Client.Base;
@@ -178,15 +180,16 @@ namespace TimeSheetApp.Model.Client
             return await GetAsync<List<string>>(url);
         }
 
-        public void AddActivity(TimeSheetTable activity)
+        public TimeSheetTable AddActivity(TimeSheetTable activity)
         {
             string url = GenerateUrl(nameof(AddActivity));
-            Post(url, activity);
+            return Post<TimeSheetTable>(url, activity).Content.ReadAsAsync<TimeSheetTable>().Result;
         }
-        public async Task AddActivityAsync(TimeSheetTable activity)
+        public async Task<TimeSheetTable> AddActivityAsync(TimeSheetTable activity)
         {
             string url = GenerateUrl(nameof(AddActivity));
-            await PostAsync(url, activity);
+            HttpResponseMessage msg = await PostAsync<TimeSheetTable>(url, activity);
+            return await msg.Content.ReadAsAsync<TimeSheetTable>();
         }
 
         public Analytic LoadAnalyticData(string userName)
@@ -386,6 +389,18 @@ namespace TimeSheetApp.Model.Client
         {
             string url = GenerateUrl(nameof(GetReportsAvailable));
             return await GetAsync<List<string>>(url);
+        }
+
+        public IEnumerable<Process> GetProcessesSortedByRelevance(string userName, string filter)
+        {
+            string url = GenerateUrl(nameof(GetProcessesSortedByRelevance), $"userName={userName}&filter={filter}");
+            return Get<List<Process>>(url);
+        }
+
+        public async Task<IEnumerable<Process>> GetProcessesSortedByRelevanceAsync(string userName, string filter)
+        {
+            string url = GenerateUrl(nameof(GetProcessesSortedByRelevance), $"userName={userName}&filter={filter}");
+            return await GetAsync<List<Process>>(url);
         }
     }
 }
