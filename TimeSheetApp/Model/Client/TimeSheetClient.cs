@@ -21,7 +21,7 @@ namespace TimeSheetApp.Model.Client
         public TimeSheetClient() :base()
         {
 #if DevAtHome
-            ServiceAddress = @"http://192.168.0.5:81/timesheet";
+            ServiceAddress = @"http://192.168.0.5:80/timesheet";
             CurrentUserName = "u_m0x0c";
 #else
             ServiceAddress = @"http://172.25.100.210:81/timesheet";
