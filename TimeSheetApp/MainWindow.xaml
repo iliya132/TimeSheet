@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:TimeSheetApp"
         xmlns:Usercontrols="clr-namespace:TimeSheetApp.Controls"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-        xmlns:mvvm="http://www.galasoft.ch/mvvmlight" xmlns:lebedevcontrols="clr-namespace:LebedevControls;assembly=LebedevControls"
+        xmlns:lebedevcontrols="clr-namespace:LebedevControls;assembly=LebedevControls"
         mc:Ignorable="d"
         Title="{Binding Source={StaticResource Locator}, Path=Main.Title}" Height="750" Width="1100"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
@@ -42,7 +42,7 @@
                             <TextBox Name="FilterBox">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="TextChanged">
-                                        <mvvm:EventToCommand Command="{Binding FilterProcesses}"
+                                        <i:InvokeCommandAction Command="{Binding FilterProcesses}"
                                              CommandParameter="{Binding ElementName=FilterBox, Path=Text}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
@@ -52,11 +52,11 @@
                         <ListView Name = "ProcessList" ItemsSource="{Binding UserFilteredProcesses}" SelectedItem="{Binding NewRecord.Process}" Margin="0,0,10,0" Grid.Row="1" SelectedIndex="0">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="SelectionChanged">
-                                    <mvvm:EventToCommand Command="{Binding LoadSelectionForSelectedProcess}"
+                                    <i:InvokeCommandAction Command="{Binding LoadSelectionForSelectedProcess}"
                                                          CommandParameter="{Binding ElementName=ProcessList, Path=SelectedItem}"/>
                                 </i:EventTrigger>
                                 <i:EventTrigger EventName="Loaded">
-                                    <mvvm:EventToCommand Command="{Binding LoadSelectionForSelectedProcess}"
+                                    <i:InvokeCommandAction Command="{Binding LoadSelectionForSelectedProcess}"
                                                          CommandParameter="{Binding ElementName=ProcessList, Path=SelectedItem}"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
@@ -172,7 +172,7 @@
                                                  >
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="ValueChanged">
-                                            <mvvm:EventToCommand Command="{Binding TimeSelected}"/>
+                                            <i:InvokeCommandAction Command="{Binding TimeSelected}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </xctk:TimePicker>
@@ -203,7 +203,7 @@
                                                  ButtonSpinnerLocation="Left">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="ValueChanged">
-                                            <mvvm:EventToCommand Command="{Binding TimeSelected}"/>
+                                            <i:InvokeCommandAction Command="{Binding TimeSelected}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </xctk:TimePicker>
@@ -293,11 +293,11 @@
                         <ListView Name="TimeSpanListView" ItemsSource="{Binding TodayRecords}" Margin="10,0,0,0" Grid.Row="0">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseDoubleClick">
-                                    <mvvm:EventToCommand Command="{Binding Main.EditProcess, Source={StaticResource Locator}}"
+                                    <i:InvokeCommandAction Command="{Binding Main.EditProcess, Source={StaticResource Locator}}"
                                                 CommandParameter="{Binding ElementName=TimeSpanListView, Path=SelectedItem}"/>
                                 </i:EventTrigger>
                                 <i:EventTrigger EventName="SelectionChanged">
-                                    <mvvm:EventToCommand 
+                                    <i:InvokeCommandAction 
                                         Command="{Binding StoreSelectedRecords}"
                                         CommandParameter="{Binding ElementName=TimeSpanListView, Path=SelectedItems}"/>
                                 </i:EventTrigger>
@@ -385,7 +385,7 @@
                                      Visibility="Collapsed">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="TextChanged">
-                                        <mvvm:EventToCommand Command="{Binding FinilizeEditUserName}"
+                                        <i:InvokeCommandAction Command="{Binding FinilizeEditUserName}"
                                                              CommandParameter="{Binding ElementName=EditUserName, Path=Text}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
@@ -516,10 +516,10 @@
                                                                     <CheckBox IsChecked="{Binding Selected}">
                                                                         <i:Interaction.Triggers>
                                                                             <i:EventTrigger EventName="Checked">
-                                                                                <mvvm:EventToCommand Command="{Binding Main.SelectAnalytic, Source={StaticResource Locator}}" CommandParameter="{Binding}"/>
+                                                                                <i:InvokeCommandAction Command="{Binding Main.SelectAnalytic, Source={StaticResource Locator}}" CommandParameter="{Binding}"/>
                                                                             </i:EventTrigger>
                                                                             <i:EventTrigger EventName="Unchecked">
-                                                                                <mvvm:EventToCommand Command="{Binding Main.UnselectAnalytic, Source={StaticResource Locator}}" CommandParameter="{Binding}"/>
+                                                                                <i:InvokeCommandAction Command="{Binding Main.UnselectAnalytic, Source={StaticResource Locator}}" CommandParameter="{Binding}"/>
                                                                             </i:EventTrigger>
                                                                         </i:Interaction.Triggers>
                                                                     </CheckBox>

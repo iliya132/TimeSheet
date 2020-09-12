@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
+
 using TimeSheetApp.Model.EntitiesBase;
 
 namespace TimeSheetApp.Model
@@ -20,7 +16,6 @@ namespace TimeSheetApp.Model
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
-
         public string FIO { get; set; }
         public string userName { get; set; }
         private bool selected = false;

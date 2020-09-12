@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -21,7 +20,7 @@ namespace TimeSheetApp.Model.Client
         public TimeSheetClient() :base()
         {
 #if DevAtHome
-            ServiceAddress = @"http://localhost:8082/timesheet";
+            ServiceAddress = @"http://192.168.0.5:81/timesheet";
             CurrentUserName = "u_m0x0c";
 #else
             ServiceAddress = @"http://172.25.100.210:81/timesheet";

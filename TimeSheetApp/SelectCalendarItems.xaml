@@ -15,7 +15,7 @@
                   MouseDoubleClick="ListView_MouseDoubleClick">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseDoubleClick">
-                    <mvvm:EventToCommand Command="{Binding SelectCalendarItem}"/>
+                    <i:InvokeCommandAction Command="{Binding SelectCalendarItem}"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
 

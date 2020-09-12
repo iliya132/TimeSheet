@@ -5,7 +5,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-        xmlns:mvvm="http://www.galasoft.ch/mvvmlight"
         xmlns:local="clr-namespace:TimeSheetApp"
         mc:Ignorable="d"
         Title="Редактировать запись" Height="550" Width="800"
@@ -113,7 +112,7 @@
                                              Width="110">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="ValueChanged">
-                                    <mvvm:EventToCommand Command="{Binding CheckTimeForIntersection}"/>
+                                    <i:InvokeCommandAction Command="{Binding CheckTimeForIntersection}"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </xctk:TimePicker>
@@ -128,7 +127,7 @@
                                              Width="110">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="ValueChanged">
-                                            <mvvm:EventToCommand Command="{Binding CheckTimeForIntersection}"/>
+                                            <i:InvokeCommandAction Command="{Binding CheckTimeForIntersection}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </xctk:TimePicker>
