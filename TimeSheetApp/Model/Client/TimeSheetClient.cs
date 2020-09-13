@@ -21,7 +21,7 @@ namespace TimeSheetApp.Model.Client
         public TimeSheetClient() :base()
         {
 #if DevAtHome
-            ServiceAddress = @"http://192.168.0.5:80/timesheet";
+            ServiceAddress = @"http://192.168.0.4:80/timesheet";
             CurrentUserName = "u_m0x0c";
 #else
             ServiceAddress = @"http://172.25.100.210:81/timesheet";
@@ -356,23 +356,7 @@ namespace TimeSheetApp.Model.Client
             return await GetAsync<List<Analytic>>(url);
         }
 
-        private string GenerateUrl(string senderName, params string[] parameters)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (parameters == null || parameters.Length == 0)
-            {
-                return $"{ServiceAddress}/{senderName}";
-            }
-            else
-            {
-
-                foreach(string param in parameters)
-                {
-                    sb.Append($"{param}&");
-                }
-                return $"{ServiceAddress}/{senderName}?{sb.Remove(sb.Length-1, 1)}";
-            }
-        }
+        
 
         public Task<bool> ForcedToQuitAsync()
         {

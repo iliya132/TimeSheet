@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Threading;
 using TimeSheetApp.Model;
 using TimeSheetApp.Model.EntitiesBase;
+using TimeSheetApp.Model.Interfaces;
 using TimeSheetApp.ViewModel.CommandImplementation;
 
 using Process = TimeSheetApp.Model.EntitiesBase.Process;
@@ -430,14 +431,17 @@ namespace TimeSheetApp.ViewModel
         public TSCommand CopyRecords { get; set; }
         public TSCommand PasteRecords { get; set; }
         public TSCommand TimeSelected { get; set; }
+        public IIdentityProvider IdentityProvider { get; }
 
 
         #endregion
 
 
-        public MainViewModel(IDataProvider dataProvider)
+        public MainViewModel(IDataProvider dataProvider, IIdentityProvider identityProvider)
         {
             EFDataProvider = dataProvider;
+            IdentityProvider = identityProvider;
+            IdentityProvider.LoginAsync("TimeSheetUser", "DK_User1!");
             Initialize();
             
         }

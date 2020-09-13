@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -83,6 +84,24 @@ namespace TimeSheetApp.Model.Client.Base
         {
             var response = await Client.DeleteAsync(url);
             return response;
+        }
+
+        protected string GenerateUrl(string senderName, params string[] parameters)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (parameters == null || parameters.Length == 0)
+            {
+                return $"{ServiceAddress}/{senderName}";
+            }
+            else
+            {
+
+                foreach (string param in parameters)
+                {
+                    sb.Append($"{param}&");
+                }
+                return $"{ServiceAddress}/{senderName}?{sb.Remove(sb.Length - 1, 1)}";
+            }
         }
 
     }
