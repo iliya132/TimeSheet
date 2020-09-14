@@ -17,8 +17,8 @@ namespace TimeSheetApp.ViewModel
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
             SimpleIoc.Default.Register<MainViewModel>();
             
-            SimpleIoc.Default.Register<IDataProvider, TimeSheetClient>();
             SimpleIoc.Default.Register<IIdentityProvider, IdentityClient>();
+            SimpleIoc.Default.Register<IDataProvider, TimeSheetClient>();
         }
 
         public MainViewModel Main

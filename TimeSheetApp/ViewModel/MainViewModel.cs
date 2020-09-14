@@ -437,13 +437,21 @@ namespace TimeSheetApp.ViewModel
         #endregion
 
 
-        public MainViewModel(IDataProvider dataProvider, IIdentityProvider identityProvider)
+        public MainViewModel(IIdentityProvider identityProvider, IDataProvider dataProvider)
         {
-            EFDataProvider = dataProvider;
             IdentityProvider = identityProvider;
-            IdentityProvider.LoginAsync("TimeSheetUser", "DK_User1!");
-            Initialize();
-            
+            EFDataProvider = dataProvider;
+            try
+            {
+                if (!EFDataProvider.CanConnect()) throw new Exception("Не удается подключится к серверу. Повторите попытку позже или обратитесь в ОРППА");
+                Initialize();
+            }catch (Exception e)
+            {
+                EmptyView errorHolder = new EmptyView();
+                errorHolder.Show();
+                MessageBox.Show(errorHolder, e.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                Environment.Exit(0);
+            }
         }
 
         private async Task Initialize()

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TimeSheetApp.Model.Client.Base;
 using TimeSheetApp.Model.EntitiesBase;
+using TimeSheetApp.Model.Interfaces;
 using Process = TimeSheetApp.Model.EntitiesBase.Process;
 
 namespace TimeSheetApp.Model.Client
@@ -17,16 +18,18 @@ namespace TimeSheetApp.Model.Client
     {
         protected override string ServiceAddress { get; set; }
         private string CurrentUserName { get; set; }
-
-        public TimeSheetClient() :base()
+        IIdentityProvider IdentityClient { get; set; }
+        public TimeSheetClient(IIdentityProvider identityClient) :base(identityClient)
         {
+
 #if DevAtHome
-            ServiceAddress = @"http://192.168.0.4:80/timesheet";
+            ServiceAddress = @"https://localhost:44341/timesheet";
             CurrentUserName = "u_m0x0c";
 #else
             ServiceAddress = @"http://172.25.100.210:81/timesheet";
             currentUserName = Environment.UserName;
 #endif
+            IdentityClient = identityClient;
         }
 
         public IEnumerable<string> GetSubjectHints(Process process)
@@ -60,6 +63,7 @@ namespace TimeSheetApp.Model.Client
             string url = $"{ServiceAddress}/{nameof(GetProcesses)}";
             
             List<Process> processes = Get<List<Process>>(url);
+
             return processes;
         }
 
@@ -377,14 +381,21 @@ namespace TimeSheetApp.Model.Client
 
         public IEnumerable<Process> GetProcessesSortedByRelevance(string userName, string filter)
         {
+            if (string.IsNullOrWhiteSpace(userName)) return null;
             string url = GenerateUrl(nameof(GetProcessesSortedByRelevance), $"userName={userName}&filter={filter}");
             return Get<List<Process>>(url);
         }
 
         public async Task<IEnumerable<Process>> GetProcessesSortedByRelevanceAsync(string userName, string filter)
         {
+            if (string.IsNullOrWhiteSpace(userName)) return null;
             string url = GenerateUrl(nameof(GetProcessesSortedByRelevance), $"userName={userName}&filter={filter}");
             return await GetAsync<List<Process>>(url);
+        }
+
+        public bool CanConnect()
+        {
+            return !string.IsNullOrEmpty(IdentityClient.GetToken());
         }
     }
 }

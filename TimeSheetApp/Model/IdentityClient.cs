@@ -1,6 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,10 +14,13 @@ using TimeSheetApp.Model.Interfaces;
 
 namespace TimeSheetApp.Model
 {
-    public class IdentityClient : BaseClient, IIdentityProvider
+    public class IdentityClient : IIdentityProvider
     {
 
-        protected override string ServiceAddress { get; set; }
+        protected string ServiceAddress { get; set; }
+        private static string Token { get; set; }
+        private HttpClient Client { get; set; }
+
 
         public IdentityClient()
         {
@@ -21,18 +29,45 @@ namespace TimeSheetApp.Model
 #else
             ServiceAddress = @"http://172.25.100.210:81/account";
 #endif
+            Client = new HttpClient();
         }
 
-        public Task LoginAsync(string login, string password)
+        public string GetToken()
         {
-            string url = GenerateUrl(nameof(Login), $"login={login}&passwrd={password}");
-            return Task.Run(() => Get(url));
+            if(string.IsNullOrWhiteSpace(Token) || !CanConnect())
+            {
+                Login("TimeSheetUser", "DK_User1!");
+            }
+            return Token;
         }
 
-        public void Login(string login, string password)
+        private bool CanConnect()
         {
-            string url = GenerateUrl(nameof(Login), $"login={login}& passwrd={password}");
-            Get(url);
+            return Client.GetAsync("http://localhost:8081/timesheet/conn").Result.IsSuccessStatusCode;
+        }
+
+        public class Credentials
+        {
+            public string Name { get; set; }
+            public string Password { get; set; }
+        }
+
+        private void Login(string login, string password)
+        {
+            string url = $"{ServiceAddress}/token";
+            Credentials credentials = new Credentials
+            {
+                Name = login,
+                Password = password
+            };
+            string json = JsonConvert.SerializeObject(credentials);
+            HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            HttpResponseMessage response = Client.PostAsync(url, content).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                string access_token = JObject.Parse(response.Content.ReadAsStringAsync().Result)["access_token"].ToString();
+                Token = access_token;
+            }
         }
     }
 }

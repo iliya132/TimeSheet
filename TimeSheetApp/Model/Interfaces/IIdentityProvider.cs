@@ -8,7 +8,6 @@ namespace TimeSheetApp.Model.Interfaces
 {
     public interface IIdentityProvider
     {
-        Task LoginAsync(string login, string password);
-        void Login(string login, string password);
+        string GetToken();
     }
 }

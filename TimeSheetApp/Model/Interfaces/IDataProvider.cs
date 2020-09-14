@@ -11,6 +11,7 @@ namespace TimeSheetApp.Model
 {
     public interface IDataProvider
     {
+        bool CanConnect();
         IEnumerable<string> GetSubjectHints(Process process);
         bool ForcedToQuit();
         IEnumerable<Process> GetProcesses();

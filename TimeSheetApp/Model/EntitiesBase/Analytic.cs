@@ -47,5 +47,11 @@ namespace TimeSheetApp.Model.EntitiesBase
         public virtual Analytic AdminHead { get; set; }
         public virtual Analytic FunctionHead { get; set; }
 
+        public override string ToString()
+        {
+            return $"{LastName} {FirstName} {FatherName}";
+        }
+
+        
     }
 }
