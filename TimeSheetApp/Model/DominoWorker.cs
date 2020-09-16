@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,42 +19,24 @@ namespace TimeSheetApp.Model
     public class DominoWorker
     {
 #if !DevAtHome
+        NotesSession notesSession;
         NotesDatabase notesDB;
         NotesDocument notesDoc;
-        NotesSession notesSession;
         NotesView notesView;
         NotesDbDirectory notesDir;
         List<CalendarItem> _calendarItems = new List<CalendarItem>();
-        List<CalendarItem> CalendarItems = new List<CalendarItem>();
-#endif
-        private void write(string msg)
-        {
-#if !DevAtHome
-            using (StreamWriter writer = new StreamWriter("DominoLog.txt", true))
-            {
-                writer.WriteLine(msg);
-            }
-#endif
-        }
+        List<CalendarItem> CalendarItems => _calendarItems;
 
         public DominoWorker()
         {
-#if !DevAtHome
             Init();
-#endif
         }
-
+#endif
 
         public List<CalendarItem> GetCalendarRecords(DateTime date)
         {
 #if !DevAtHome
-            CalendarItems.Clear();
-            _calendarItems.Where(i => i.StartTime.Day == date.Day &&
-                                i.StartTime.Month == date.Month &&
-                                i.StartTime.Year == date.Year)
-                            .Distinct()
-                            .ToList().ForEach(CalendarItems.Add);
-            return CalendarItems;
+            return CalendarItems.Where(i => i.StartTime.Date.CompareTo(date.Date) == 0).OrderBy(i=>i.StartTime).ToList();
 #else
             return new List<CalendarItem>();
 #endif
@@ -60,7 +45,6 @@ namespace TimeSheetApp.Model
 #if !DevAtHome
         private void Init()
         {
-
             try
             {
                 notesSession = new NotesSession();
@@ -74,50 +58,62 @@ namespace TimeSheetApp.Model
 #region loading last month records
                 notesView = notesDB.GetView("($Calendar)");
                 notesDoc = notesView.GetLastDocument();
-                DateTime start = DateTime.Now;
-                DateTime end = DateTime.Now;
+
                 List<NotesDocument> documents = new List<NotesDocument>();
                 while (notesDoc != null)
                 {
-                    documents.Add(notesDoc);
+                    NotesItem startDateItem = notesDoc.GetFirstItem("StartDate");
+                    NotesItem startTimeItem = notesDoc.GetFirstItem("StartTime");
+                    NotesItem endDateItem = notesDoc.GetFirstItem("EndDate");
+                    NotesItem endTimeItem = notesDoc.GetFirstItem("EndTime");
+                    NotesItem repeatedItem = notesDoc.GetFirstItem("Repeats");
+                    NotesItem startDateTimeItem = notesDoc.GetFirstItem("STARTDATETIME");
+                    DateTime startDate = Convert.ToDateTime(startDateItem?.Text);
+                    DateTime startTime = Convert.ToDateTime(startTimeItem?.Text);
+                    DateTime endDate = Convert.ToDateTime(endDateItem?.Text);
+                    DateTime endTime = Convert.ToDateTime(endTimeItem?.Text);
+                    int repeated = Convert.ToInt32(repeatedItem?.Text);
+                    string subj = notesDoc.GetFirstItem("Subject").Text;
+                    string type = notesDoc.GetFirstItem("Form").Text;
+                    DateTime startResult = new DateTime(startDate.Year, startDate.Month, startDate.Day, startTime.Hour, startTime.Minute, startTime.Second);
+                    DateTime endResult = new DateTime(startDate.Year, startDate.Month, startDate.Day, endTime.Hour, endTime.Minute, endTime.Second);
+                    if (repeated == 0)
+                    {
+                        CalendarItem item = new CalendarItem
+                        {
+                            Type = type,
+                            Subject = subj,
+                            StartTime = startResult,
+                            EndTime = endResult
+                        };
+                        CalendarItems.Add(item);
+                    }
+                    else
+                    {
+                        string[] arr = startDateTimeItem.Text.Split(';');
+                        foreach(string dateStr in arr)
+                        {
+                            DateTime date = Convert.ToDateTime(dateStr);
+                            if (!CalendarItems.Any(i => i.Subject.Equals(subj) && i.StartTime.Date == date.Date))
+                            {
+                                CalendarItem item = new CalendarItem
+                                {
+                                    Type = type,
+                                    Subject = subj,
+                                    StartTime = new DateTime(date.Year, date.Month, date.Day, startResult.Hour, startResult.Minute, 0),
+                                    EndTime = new DateTime(date.Year, date.Month, date.Day, endResult.Hour, endResult.Minute, 0),
+                                };
+                                CalendarItems.Add(item);
+                            }
+                        }
+                    }
                     notesDoc = notesView.GetPrevDocument(notesDoc);
                 }
-
-                foreach (NotesDocument doc in documents)
-                {
-                    
-                    string type = doc.GetFirstItem("Form").Values[0];
-                    string subj = doc.GetFirstItem("Subject").Values[0];
-
-                    NotesItem startTime = doc.GetFirstItem("STARTDATETIME");
-                    NotesItem endTime = doc.GetFirstItem("EndDateTime");
-                    if (startTime == null || endTime == null)
-                    {
-                        continue;
-                    }
-                    start = startTime == null ? start : startTime.Values[0];
-                    end = endTime == null ? end : endTime.Values[0];
-
-                    string typeRus = type;
-                    if (type.Equals("Task")) typeRus = "Задача";
-                    if (type.Equals("Appointment")) typeRus = "Встреча";
-
-
-                    CalendarItem newItem = new CalendarItem()
-                    {
-                        Type = type,
-                        Subject = $"({typeRus}) {subj}",
-                        StartTime = start,
-                        EndTime = end
-                    };
-                    _calendarItems.Add(newItem);
-                }
 #endregion
-                
             }
-            catch (Exception e)
+            catch
             {
-                Console.WriteLine(e.Message);
+                
             }
 
     }

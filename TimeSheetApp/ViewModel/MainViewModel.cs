@@ -20,7 +20,7 @@ namespace TimeSheetApp.ViewModel
 {
     public class MainViewModel :INotifyPropertyChanged
     {
-        public IDataProvider EFDataProvider;
+        public IDataProvider _dbProvider;
 
         #region DataCollections
 
@@ -178,7 +178,8 @@ namespace TimeSheetApp.ViewModel
                 DateTime thisMonthLastDay = thisMonthFirstDay.AddMonths(1).AddDays(-1);
                 DateTime lastMonthFirstDay = thisMonthFirstDay.AddMonths(-1);
                 DateTime lastMonthLastDay = thisMonthLastDay.AddMonths(-1);
-                return EFDataProvider.GetTimeSpent(CurrentUser.UserName, lastMonthFirstDay, lastMonthLastDay);
+                double res = _dbProvider.GetTimeSpent(CurrentUser.UserName, lastMonthFirstDay, lastMonthLastDay);
+                return res;
             }
         }
 
@@ -190,7 +191,7 @@ namespace TimeSheetApp.ViewModel
                 DateTime thisMonthLastDay = thisMonthFirstDay.AddMonths(1).AddDays(-1);
                 DateTime lastMonthFirstDay = thisMonthFirstDay.AddMonths(-1);
                 DateTime lastMonthLastDay = thisMonthLastDay.AddMonths(-1);
-                return EFDataProvider.GetDaysWorkedCount(CurrentUser, lastMonthFirstDay, lastMonthLastDay);
+                return _dbProvider.GetDaysWorkedCount(CurrentUser, lastMonthFirstDay, lastMonthLastDay);
             }
         }
 
@@ -199,7 +200,7 @@ namespace TimeSheetApp.ViewModel
             get
             {
                 DateTime thisWeekFirstDay = DateTime.Today.AddDays(-7);
-                return EFDataProvider.GetTimeSpent(CurrentUser.UserName, thisWeekFirstDay, DateTime.Today);
+                return _dbProvider.GetTimeSpent(CurrentUser.UserName, thisWeekFirstDay, DateTime.Today);
             }
         }
 
@@ -208,7 +209,7 @@ namespace TimeSheetApp.ViewModel
             get
             {
                 DateTime thisWeekFirstDay = DateTime.Now.AddDays(-7);
-                return EFDataProvider.GetDaysWorkedCount(CurrentUser, thisWeekFirstDay, DateTime.Now);
+                return _dbProvider.GetDaysWorkedCount(CurrentUser, thisWeekFirstDay, DateTime.Now);
             }
         }
 
@@ -389,14 +390,14 @@ namespace TimeSheetApp.ViewModel
             set { _calendarItems = value; }
         }
 
-        public List<(TimeSpan, TimeSpan)> BusyTime
+        public List<TimeSpan[]> BusyTime
         {
             get
             {
-                List<(TimeSpan, TimeSpan)> exportValue = new List<(TimeSpan, TimeSpan)>();
+                List<TimeSpan[]> exportValue = new List<TimeSpan[]>();
                 foreach (TimeSheetTable record in TodayRecords)
                 {
-                    exportValue.Add((record.TimeStart.TimeOfDay, record.TimeEnd.TimeOfDay));
+                    exportValue.Add(new TimeSpan[2] { record.TimeStart.TimeOfDay, record.TimeEnd.TimeOfDay });
                 }
                 return exportValue;
             }
@@ -440,18 +441,24 @@ namespace TimeSheetApp.ViewModel
         public MainViewModel(IIdentityProvider identityProvider, IDataProvider dataProvider)
         {
             IdentityProvider = identityProvider;
-            EFDataProvider = dataProvider;
+            _dbProvider = dataProvider;
             try
             {
-                if (!EFDataProvider.CanConnect()) throw new Exception("Не удается подключится к серверу. Повторите попытку позже или обратитесь в ОРППА");
+                if (!_dbProvider.CanConnect()) QuitWithException($"Не удается подключится к серверу.Повторите попытку позже или обратитесь в ОРППА");
                 Initialize();
             }catch (Exception e)
             {
-                EmptyView errorHolder = new EmptyView();
-                errorHolder.Show();
-                MessageBox.Show(errorHolder, e.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                Environment.Exit(0);
+                QuitWithException($"{e.Message}\r\n{e.InnerException.Message}");
             }
+        }
+
+        private void QuitWithException(string msg)
+        {
+            EmptyView errorHolder = new EmptyView();
+            errorHolder.Show();
+
+            MessageBox.Show(errorHolder, msg, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            Environment.Exit(0);
         }
 
         private async Task Initialize()
@@ -467,6 +474,10 @@ namespace TimeSheetApp.ViewModel
             loadCalendarTimer = new Timer(TimerTick, null, 0, Timeout.Infinite);
             GenerateNodes();
             await UpdateTimeSpanAsync();
+            RaisePropertyChanged(nameof(LastMonthTimeSpent));
+            RaisePropertyChanged(nameof(LastMonthDaysWorked));
+            RaisePropertyChanged(nameof(LastWeekTimeSpent));
+            RaisePropertyChanged(nameof(LastWeekDaysWorked));
             IsReady = true;
         }
 
@@ -563,19 +574,17 @@ namespace TimeSheetApp.ViewModel
                 CurrentUser.LastName = UserNameSplited[0];
                 CurrentUser.FirstName = UserNameSplited[1];
                 CurrentUser.FatherName = UserNameSplited[2];
-                await EFDataProvider.CommitAsync();
+                await _dbProvider.CommitAsync();
             }
             RaisePropertyChanged(nameof(CurrentUserFullName));
         }
 
         private void QuitIfStartedFromServer()
         {
-            if (Directory.GetCurrentDirectory().ToLower().
-                IndexOf("орппа", 0) > -1)
+            if (Directory.GetCurrentDirectory().ToLower().IndexOf("орппа", 0) > -1)
             {
-                Environment.Exit(0);
+                QuitWithException("Вы пытаетесь запустить родительский экземпляр таймшита. Пожалуйста, сперва скопируйте файлы к себе на компьютер.");
             }
-
         }
 
         private void TimerTick(object state)
@@ -588,8 +597,10 @@ namespace TimeSheetApp.ViewModel
             {
                 await Task.Run(() =>
                 {
-                    currentDispatcher.Invoke(() => worker = new DominoWorker());
+                    DominoWorker newworker = new DominoWorker();
+                    currentDispatcher.Invoke(() => worker = newworker);
                 });
+
             }
             DateTime date = CurrentDate;
             currentDispatcher.Invoke(() =>
@@ -722,7 +733,7 @@ namespace TimeSheetApp.ViewModel
             }
             IsReady = false;
             ReportBtnName = "Выгружаю отчет";
-            await EFDataProvider.GetReportAsync(SelectedReport+1, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
+            await _dbProvider.GetReportAsync(SelectedReport+1, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
             ReportBtnName = "Выгрузить отчет";
             IsReady = true;
         }
@@ -731,7 +742,7 @@ namespace TimeSheetApp.ViewModel
         {
             if (!(EditedRecord.TimeStart >= InitalTimeStart &&
                 EditedRecord.TimeStart < InitalTimeEnd) &&
-                await EFDataProvider.IsCollisionedWithOtherRecordsAsync(EditedRecord) ||
+                await _dbProvider.IsCollisionedWithOtherRecordsAsync(EditedRecord) ||
                 (EditedRecord.TimeStart == EditedRecord.TimeEnd ||
                 EditedRecord.TimeStart > EditedRecord.TimeEnd))
             {
@@ -752,7 +763,7 @@ namespace TimeSheetApp.ViewModel
             RiskChoiceCollection.Clear();
             if (selectedProcess != null)
             {
-                TimeSheetTable lastRecord = await EFDataProvider.GetLastRecordWithSameProcessAsync(selectedProcess.Id, CurrentUser.UserName);
+                TimeSheetTable lastRecord = await _dbProvider.GetLastRecordWithSameProcessAsync(selectedProcess.Id, CurrentUser.UserName);
                 if (lastRecord != null)
                 {
                     List<BusinessBlock> blocks = lastRecord.BusinessBlocks.Select(i => i.BusinessBlock).Distinct().ToList();
@@ -775,7 +786,7 @@ namespace TimeSheetApp.ViewModel
 
         private async Task UpdateSubjectsHintsAsync()
         {
-            var result = await EFDataProvider.GetSubjectHintsAsync(NewRecord.Process);
+            var result = await _dbProvider.GetSubjectHintsAsync(NewRecord.Process);
             subjectsFromDB = result.ToList();
 
             SubjectHints.Clear();
@@ -793,7 +804,7 @@ namespace TimeSheetApp.ViewModel
         private async Task DeleteHistoryRecordAsync(TimeSheetTable record)
         {
             TodayRecords.Remove(record);
-            await EFDataProvider.DeleteRecordAsync(record.Id);
+            await _dbProvider.DeleteRecordAsync(record.Id);
         }
 
         /// <summary>
@@ -806,16 +817,16 @@ namespace TimeSheetApp.ViewModel
             userName = "u_m0x0c";
 #endif
 
-            CurrentUser = EFDataProvider.LoadAnalyticData(userName);
+            CurrentUser = _dbProvider.LoadAnalyticData(userName);
             StartTimerToFilterProcesses(string.Empty);
-            IEnumerable<BusinessBlock> bBlocksResult = await EFDataProvider.GetBusinessBlocksAsync();
-            IEnumerable<Supports> supportsResult = await EFDataProvider.GetSupportsAsync();
-            IEnumerable<ClientWays> clientWaysResult = await EFDataProvider.GetClientWaysAsync();
-            IEnumerable<Formats> formatsResult = await EFDataProvider.GetFormatAsync();
-            IEnumerable<Escalation> escalationsResult = await EFDataProvider.GetEscalationAsync();
-            IEnumerable<Risk> risksResult = await EFDataProvider.GetRisksAsync();
-            IEnumerable<Process> processesResult = await EFDataProvider.GetProcessesAsync();
-            IEnumerable<string> reportsResult = await EFDataProvider.GetReportsAvailableAsync();
+            IEnumerable<BusinessBlock> bBlocksResult = await _dbProvider.GetBusinessBlocksAsync();
+            IEnumerable<Supports> supportsResult = await _dbProvider.GetSupportsAsync();
+            IEnumerable<ClientWays> clientWaysResult = await _dbProvider.GetClientWaysAsync();
+            IEnumerable<Formats> formatsResult = await _dbProvider.GetFormatAsync();
+            IEnumerable<Escalation> escalationsResult = await _dbProvider.GetEscalationAsync();
+            IEnumerable<Risk> risksResult = await _dbProvider.GetRisksAsync();
+            IEnumerable<Process> processesResult = await _dbProvider.GetProcessesAsync();
+            IEnumerable<string> reportsResult = await _dbProvider.GetReportsAvailableAsync();
             BusinessBlocks = bBlocksResult.ToList();
             Supports = supportsResult.ToList();
             ClientWays = clientWaysResult.ToList();
@@ -832,7 +843,7 @@ namespace TimeSheetApp.ViewModel
             RaisePropertyChanged(nameof(Risks));
             RaisePropertyChanged(nameof(ReportsAvailable));
             await UpdateSubjectsHintsAsync();
-            var analyticsAsync = await EFDataProvider.GetMyAnalyticsDataAsync(CurrentUser);
+            var analyticsAsync = await _dbProvider.GetMyAnalyticsDataAsync(CurrentUser);
             SubordinatedAnalytics = ConvertToStructuredAnalytics(analyticsAsync);
             CurrentUserTeam = new ObservableCollection<Analytic>(analyticsAsync);
 
@@ -866,7 +877,7 @@ namespace TimeSheetApp.ViewModel
                 TodayRecords.Clear();
             });
             
-            IEnumerable<TimeSheetTable> records = await EFDataProvider.LoadTimeSheetRecordsAsync(CurrentDate, CurrentUser.UserName);
+            IEnumerable<TimeSheetTable> records = await _dbProvider.LoadTimeSheetRecordsAsync(CurrentDate, CurrentUser.UserName);
             currentDispatcher.Invoke(() =>
             {
                 records.ToList().ForEach(TodayRecords.Add);
@@ -883,7 +894,7 @@ namespace TimeSheetApp.ViewModel
 
         private async void DoFilter(object obj)
         {
-            IEnumerable<Process> queryResult = await EFDataProvider.GetProcessesSortedByRelevanceAsync(CurrentUser.UserName, (string)obj);
+            IEnumerable<Process> queryResult = await _dbProvider.GetProcessesSortedByRelevanceAsync(CurrentUser.UserName, (string)obj);
             await currentDispatcher.Invoke(async ()=>{
                 UserFilteredProcesses.Clear();
                 queryResult.ToList().ForEach(UserFilteredProcesses.Add);
@@ -958,13 +969,18 @@ namespace TimeSheetApp.ViewModel
             newItem.Comment = string.Empty;
             RaisePropertyChanged(nameof(NewRecord));
             #endregion
-            TimeSheetTable newRecord = await EFDataProvider.AddActivityAsync(newRec);
+            TimeSheetTable newRecord = await _dbProvider.AddActivityAsync(newRec);
             TodayRecords.Add(newRecord);
+
+            RaisePropertyChanged(nameof(LastMonthTimeSpent));
+            RaisePropertyChanged(nameof(LastMonthDaysWorked));
+            RaisePropertyChanged(nameof(LastWeekTimeSpent));
+            RaisePropertyChanged(nameof(LastWeekDaysWorked));
         }
 
         private bool IsIntersectsWithOtherRecords(TimeSheetTable record)
         {
-            if (EFDataProvider.IsCollisionedWithOtherRecords(record))
+            if (_dbProvider.IsCollisionedWithOtherRecords(record))
             {
                 return true;
             }
@@ -1021,8 +1037,8 @@ namespace TimeSheetApp.ViewModel
             EditForm form = new EditForm();
             if (form.ShowDialog() == true)
             {
-                CheckTimeForIntesectionMethodAsync();
-                EFDataProvider.RemoveSelection(Record.Id);
+                await CheckTimeForIntesectionMethodAsync();
+                _dbProvider.RemoveSelection(Record.Id);
                 EditedRecord.Risks.Clear();
                 EditedRecord.Process_id = EditedRecord.Process.Id;
                 EditedRecord.ClientWaysId = EditedRecord.ClientWays.Id;
@@ -1035,14 +1051,14 @@ namespace TimeSheetApp.ViewModel
                 EditedRecord.Supports.AddRange(SupportsChoiceCollection.Select(item => new SupportNew { TimeSheetTableId = Record.Id, SupportId = item.Id }));
                 EditedRecord.Escalations.AddRange(EscalationsChoiceCollection.Select(item => new EscalationNew { TimeSheetTableId = Record.Id, EscalationId = item.Id }));
 
-                await EFDataProvider.UpdateProcessAsync(Record, EditedRecord);
-                UpdateTimeSpanAsync();
+                await _dbProvider.UpdateProcessAsync(Record, EditedRecord);
+                await UpdateTimeSpanAsync();
             }
         }
 
         private List<CalendarItem> GetDominoCalendar(DateTime date)
         {
-            var items = worker.GetCalendarRecords(date);
+            List<CalendarItem> items = worker.GetCalendarRecords(date);
             CalendarItemsCount = items.Count;
             return items;
         }

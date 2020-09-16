@@ -16,7 +16,18 @@
         <local:CodeFullConverter x:Key="CodeFullConverter"/>
         <local:DateTimeConverter x:Key="DateTimeConverter"/>
         <local:AnalyticToFullNameConverter x:Key="AnalyticToFullNameConverter"/>
+        <Storyboard x:Key="loading">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[2].(RotateTransform.Angle)" Storyboard.TargetName="loadingImage" RepeatBehavior="Forever">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="360"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
     </Window.Resources>
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard Storyboard="{StaticResource loading}"/>
+        </EventTrigger>
+    </Window.Triggers>
     <Grid>
         <Button Name="HelpBtn" HorizontalAlignment="Right" VerticalAlignment="Top" Width="25" Height="25" Click="HelpBtn_Click" Background="AliceBlue" Grid.Column="1">
             <Image Source="Resource/Help.png"/>
@@ -221,8 +232,17 @@
                             Style="{StaticResource SelectableImage}">
                                 <Grid >
                                     <Image Source="Resource/calendar.png" HorizontalAlignment="Center" Panel.ZIndex="1"/>
-                                    <Image Source="Resource/loading.png" HorizontalAlignment="Center" Panel.ZIndex="0" Width="20" Height="20" 
-                                           Visibility="{Binding LoadingVisibility}"/>
+                                    <Image Name="loadingImage" Source="Resource/loading.png" HorizontalAlignment="Center" Panel.ZIndex="0" Width="20" Height="20" 
+                                           Visibility="{Binding LoadingVisibility}" RenderTransformOrigin="0.5,0.5">
+                                        <Image.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform/>
+                                                <SkewTransform/>
+                                                <RotateTransform/>
+                                                <TranslateTransform/>
+                                            </TransformGroup>
+                                        </Image.RenderTransform>
+                                    </Image>
                                     <TextBlock Text="{Binding CalendarItemsCount, StringFormat={}{0}}"
                                                Visibility="{Binding LoadingVisibilityInverted}"
                                                VerticalAlignment="Center" 

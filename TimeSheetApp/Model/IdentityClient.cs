@@ -25,9 +25,9 @@ namespace TimeSheetApp.Model
         public IdentityClient()
         {
 #if DevAtHome
-            ServiceAddress = @"http://localhost:8081/account";
+            ServiceAddress = @"http://localhost:8081";
 #else
-            ServiceAddress = @"http://172.25.100.210:81/account";
+            ServiceAddress = @"http://172.25.100.210:81";
 #endif
             Client = new HttpClient();
         }
@@ -36,14 +36,21 @@ namespace TimeSheetApp.Model
         {
             if(string.IsNullOrWhiteSpace(Token) || !CanConnect())
             {
-                Login("TimeSheetUser", "DK_User1!");
+                try
+                {
+                    Login("TimeSheetUser", "DK_User1!");
+                }
+                catch
+                {
+                    Token = string.Empty;
+                }
             }
             return Token;
         }
 
         private bool CanConnect()
         {
-            return Client.GetAsync("http://localhost:8081/timesheet/conn").Result.IsSuccessStatusCode;
+            return Client.GetAsync($"{ServiceAddress}/timesheet/conn").Result.IsSuccessStatusCode;
         }
 
         public class Credentials
@@ -54,7 +61,7 @@ namespace TimeSheetApp.Model
 
         private void Login(string login, string password)
         {
-            string url = $"{ServiceAddress}/token";
+            string url = $"{ServiceAddress}/account/token";
             Credentials credentials = new Credentials
             {
                 Name = login,

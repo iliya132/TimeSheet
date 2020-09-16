@@ -16,7 +16,7 @@ namespace TimeSheetTests
         #region variables
         #region Connection string
 #if !DevAtHome
-        readonly string ConectionString = @"data source=A105512\A105512;Initial Catalog=TimeSheet;Integrated Security=false;user id = TimeSheetuser; password = DK_user!; MultipleActiveResultSets=True;";
+        readonly string ConnectionString = @"data source=A105512\A105512;Initial Catalog=TimeSheet;Integrated Security=false;user id = TimeSheetuser; password = DK_user!; MultipleActiveResultSets=True;";
 #else
         readonly string ConnectionString = @"data source=IlyaHome;Initial Catalog=TimeSheet;Integrated Security=true; MultipleActiveResultSets=True;";
 #endif

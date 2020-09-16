@@ -22,7 +22,7 @@ namespace TimeSheetTests
         [TestInitialize]
         public override void Setup()
         {
-            DataProvider = new TimeSheetClient();
+            DataProvider = new TimeSheetClient(new IdentityClient());
         }
         
         [TestCleanup]

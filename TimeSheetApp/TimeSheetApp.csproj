@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\ILMerge.3.0.41\build\ILMerge.props" Condition="Exists('..\packages\ILMerge.3.0.41\build\ILMerge.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -19,18 +20,19 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
+    <InstallFrom>Unc</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
     <UpdateIntervalUnits>Days</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
+    <InstallUrl>\\moscow\hdfs\WORK\Архив необычных операций\ОРППА\Timesheet\Alfa\</InstallUrl>
+    <UpdateUrl>\\moscow\hdfs\WORK\Архив необычных операций\ОРППА\Timesheet\Data\</UpdateUrl>
     <TargetCulture>ru</TargetCulture>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <AutorunEnabled>true</AutorunEnabled>
-    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationRevision>3</ApplicationRevision>
     <ApplicationVersion>2.4.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -42,14 +44,15 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;DevAtHome</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -86,7 +89,7 @@
     </Reference>
     <Reference Include="LebedevControls, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Resource\LebedevControls.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Проекты\Repositories\iliya132\LebControls\LebedevControls\bin\Debug\LebedevControls.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
@@ -382,6 +385,15 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\ILMerge.3.0.41\build\ILMerge.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ILMerge.3.0.41\build\ILMerge.props'))" />
+  </Target>
+  <Target Name="ILMerge">
+    <!-- the ILMergePath property points to the location of ILMerge.exe console application -->
+    <Exec Command="$(ILMergeConsolePath) Bin\Release\TimeSheet.exe  ^&#xD;&#xA;	/out:TimeSheet.exe ^&#xD;&#xA;	Bin\Release\CommonServiceLocator.dll ^&#xD;&#xA;	Bin\Release\GalaSoft.MvvmLight.dll ^&#xD;&#xA;	Bin\Release\GalaSoft.MvvmLight.Extras.dll ^&#xD;&#xA;	Bin\Release\GalaSoft.MvvmLight.Platform.dll ^&#xD;&#xA;	Bin\Release\LebedevControls.dll ^&#xD;&#xA;	Bin\Release\Microsoft.Bcl.AsyncInterfaces.dll ^&#xD;&#xA;	Bin\Release\Newtonsoft.Json.dll ^&#xD;&#xA;	Bin\Release\System.Buffers.dll ^&#xD;&#xA;	Bin\Release\System.Memory.dll ^&#xD;&#xA;	Bin\Release\System.Net.Http.Formatting.dll ^&#xD;&#xA;	Bin\Release\System.Net.Http.Json.dll ^&#xD;&#xA;	Bin\Release\System.Numerics.Vectors.dll ^&#xD;&#xA;	Bin\Release\System.Runtime.CompilerServices.Unsafe.dll ^&#xD;&#xA;	Bin\Release\System.Text.Encodings.Web.dll ^&#xD;&#xA;	Bin\Release\System.Text.Json.dll ^&#xD;&#xA;	Bin\Release\System.Threading.Tasks.Extensions.dll ^&#xD;&#xA;	Bin\Release\System.ValueTuple.dll ^&#xD;&#xA;	Bin\Release\System.Windows.Interactivity.dll ^&#xD;&#xA;	Bin\Release\Xceed.Wpf.Toolkit.dll " />
+  </Target>
 </Project>

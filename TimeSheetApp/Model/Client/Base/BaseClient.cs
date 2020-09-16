@@ -66,7 +66,7 @@ namespace TimeSheetApp.Model.Client.Base
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", identityClient.GetToken());
-            HttpContent content = new StringContent(JsonConvert.SerializeObject(value));
+            HttpContent content = new StringContent(JsonConvert.SerializeObject(value), Encoding.UTF8, "application/json");
             request.Content = content;
             HttpResponseMessage response = Client.SendAsync(request).Result;
             response.EnsureSuccessStatusCode();
@@ -77,7 +77,7 @@ namespace TimeSheetApp.Model.Client.Base
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", identityClient.GetToken());
-            HttpContent content = new StringContent(JsonConvert.SerializeObject(value));
+            HttpContent content = new StringContent(JsonConvert.SerializeObject(value), Encoding.UTF8, "application/json");
             request.Content = content;
             var response = await Client.SendAsync(request);
             response.EnsureSuccessStatusCode();
@@ -88,7 +88,7 @@ namespace TimeSheetApp.Model.Client.Base
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Put, url);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", identityClient.GetToken());
-            HttpContent content = new StringContent(JsonConvert.SerializeObject(value));
+            HttpContent content = new StringContent(JsonConvert.SerializeObject(value), Encoding.UTF8, "application/json");
             request.Content = content;
             HttpResponseMessage response = Client.SendAsync(request).Result;
             response.EnsureSuccessStatusCode();
@@ -99,7 +99,7 @@ namespace TimeSheetApp.Model.Client.Base
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Put, url);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", identityClient.GetToken());
-            HttpContent content = new StringContent(JsonConvert.SerializeObject(value));
+            HttpContent content = new StringContent(JsonConvert.SerializeObject(value), Encoding.UTF8, "application/json");
             request.Content = content;
             HttpResponseMessage response = await Client.SendAsync(request);
             response.EnsureSuccessStatusCode();

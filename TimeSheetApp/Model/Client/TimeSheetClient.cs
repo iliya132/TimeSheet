@@ -27,7 +27,7 @@ namespace TimeSheetApp.Model.Client
             CurrentUserName = "u_m0x0c";
 #else
             ServiceAddress = @"http://172.25.100.210:81/timesheet";
-            currentUserName = Environment.UserName;
+            CurrentUserName = Environment.UserName;
 #endif
             IdentityClient = identityClient;
         }
@@ -251,6 +251,7 @@ namespace TimeSheetApp.Model.Client
             string analyticsId = string.Join("*",analytics.Select(i => i.Id.ToString()));
             string url = GenerateUrl(nameof(GetReport), $"ReportType={ReportType}&analytics={analyticsId}&start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}");
             WebClient client = new WebClient();
+            client.Headers.Add(HttpRequestHeader.Authorization, $"Bearer {IdentityClient.GetToken()}");
             client.DownloadFile(url, "downloadedFile");
         }
 
@@ -259,6 +260,7 @@ namespace TimeSheetApp.Model.Client
             string analyticsId = string.Join("*", analytics.Select(i => i.Id.ToString()));
             string url = GenerateUrl(nameof(GetReport), $"ReportType={ReportType}&analytics={analyticsId}&start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}");
             WebClient client = new WebClient();
+            client.Headers.Add(HttpRequestHeader.Authorization, $"Bearer {IdentityClient.GetToken()}");
             client.DownloadFile(url, "report.xlsx");
             System.Diagnostics.Process.Start("report.xlsx");
         }
@@ -326,25 +328,26 @@ namespace TimeSheetApp.Model.Client
 
         public double GetTimeSpent(string userName, DateTime start, DateTime end)
         {
-            string url = GenerateUrl(nameof(GetTimeSpent), $"userName={userName}&start={start:dd-MM-yyyy}&end={end:dd-MM-yyyy}");
+            string url = GenerateUrl(nameof(GetTimeSpent), $"userName={userName}&start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}");
+
             return Get<double>(url);
         }
 
         public async Task<double> GetTimeSpentAsync(string userName, DateTime start, DateTime end)
         {
-            string url = GenerateUrl(nameof(GetTimeSpent), $"userName={userName}&start={start:dd-MM-yyyy}&end={end:dd-MM-yyyy}");
+            string url = GenerateUrl(nameof(GetTimeSpent), $"userName={userName}&start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}");
             return await GetAsync<double>(url);
         }
 
         public int GetDaysWorkedCount(Analytic currentUser, DateTime lastMonthFirstDay, DateTime lastMonthLastDay)
         {
-            string url = GenerateUrl(nameof(GetDaysWorkedCount), $"userName={currentUser.UserName}&lastMonthFirstDay={lastMonthFirstDay:dd-MM-yyyy}&lastMonthLastDay={lastMonthLastDay:dd-MM-yyyy}");
+            string url = GenerateUrl(nameof(GetDaysWorkedCount), $"userName={currentUser.UserName}&lastMonthFirstDay={lastMonthFirstDay:yyyy-MM-dd}&lastMonthLastDay={lastMonthLastDay:yyyy-MM-dd}");
             return Get<int>(url);
         }
 
         public async Task<int> GetDaysWorkedCountAsync(Analytic currentUser, DateTime lastMonthFirstDay, DateTime lastMonthLastDay)
         {
-            string url = GenerateUrl(nameof(GetDaysWorkedCount), $"userName={currentUser.UserName}&lastMonthFirstDay={lastMonthFirstDay:dd-MM-yyyy}&lastMonthLastDay={lastMonthLastDay:dd-MM-yyyy}");
+            string url = GenerateUrl(nameof(GetDaysWorkedCount), $"userName={currentUser.UserName}&lastMonthFirstDay={lastMonthFirstDay:yyyy-MM-dd}&lastMonthLastDay={lastMonthLastDay:yyyy-MM-dd}");
             return await GetAsync<int>(url);
         }
 
@@ -359,8 +362,6 @@ namespace TimeSheetApp.Model.Client
             string url = GenerateUrl(nameof(GetTeam), $"userName={analytic.UserName}");
             return await GetAsync<List<Analytic>>(url);
         }
-
-        
 
         public Task<bool> ForcedToQuitAsync()
         {
