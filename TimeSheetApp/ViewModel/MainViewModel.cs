@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -757,25 +758,19 @@ namespace TimeSheetApp.ViewModel
 
         private async Task SetupSelectionAsLastTimeAsync(Process selectedProcess)
         {
-            BusinessBlockChoiceCollection.Clear();
-            SupportsChoiceCollection.Clear();
-            EscalationsChoiceCollection.Clear();
-            RiskChoiceCollection.Clear();
             if (selectedProcess != null)
             {
                 TimeSheetTable lastRecord = await _dbProvider.GetLastRecordWithSameProcessAsync(selectedProcess.Id, CurrentUser.UserName);
                 if (lastRecord != null)
                 {
-                    List<BusinessBlock> blocks = lastRecord.BusinessBlocks.Select(i => i.BusinessBlock).Distinct().ToList();
-                    foreach(BusinessBlock block in blocks)
-                    {
-                        BusinessBlockChoiceCollection.Add(block);
-                    }
-                    blocks.ForEach(BusinessBlockChoiceCollection.Add);
+                    BusinessBlockChoiceCollection.Clear();
+                    SupportsChoiceCollection.Clear();
+                    EscalationsChoiceCollection.Clear();
+                    RiskChoiceCollection.Clear();
+                    lastRecord.BusinessBlocks.Select(i => i.BusinessBlock).Distinct().ToList().ForEach(BusinessBlockChoiceCollection.Add);
                     lastRecord.Supports.Select(i => i.Supports).Distinct().ToList().ForEach(SupportsChoiceCollection.Add);
                     lastRecord.Escalations.Select(i => i.Escalation).Distinct().ToList().ForEach(EscalationsChoiceCollection.Add);
                     lastRecord.Risks.Select(i => i.Risk).Distinct().ToList().ForEach(RiskChoiceCollection.Add);
-
                     NewRecord.ClientWays = lastRecord.ClientWays;
                     NewRecord.Formats = lastRecord.Formats;
                 }

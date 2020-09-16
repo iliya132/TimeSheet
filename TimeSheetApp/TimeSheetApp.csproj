@@ -44,7 +44,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;DevAtHome</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -86,10 +86,6 @@
     </Reference>
     <Reference Include="GalaSoft.MvvmLight.Platform, Version=5.4.1.0, Culture=neutral, PublicKeyToken=5f873c45e98af8a1, processorArchitecture=MSIL">
       <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.Platform.dll</HintPath>
-    </Reference>
-    <Reference Include="LebedevControls, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Проекты\Repositories\iliya132\LebControls\LebedevControls\bin\Debug\LebedevControls.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
@@ -163,8 +159,11 @@
     <Compile Include="Controls\HintTextBox.xaml.cs">
       <DependentUpon>HintTextBox.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\MultiChoiseComboBox.xaml.cs">
-      <DependentUpon>MultiChoiseComboBox.xaml</DependentUpon>
+    <Compile Include="Controls\MultiValuesSelector.xaml.cs">
+      <DependentUpon>MultiValuesSelector.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TimeSelector.xaml.cs">
+      <DependentUpon>TimeSelector.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\AnalyticToFullNameConverter.cs" />
     <Compile Include="EditForm.xaml.cs">
@@ -222,9 +221,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\MultiChoiseComboBox.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="Controls\MultiValuesSelector.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\TimeSelector.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="EditForm.xaml">
       <SubType>Designer</SubType>

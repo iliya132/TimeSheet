@@ -7,9 +7,10 @@
         xmlns:local="clr-namespace:TimeSheetApp"
         xmlns:Usercontrols="clr-namespace:TimeSheetApp.Controls"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-        xmlns:mvvm="http://www.galasoft.ch/mvvmlight" xmlns:lebedevcontrols="clr-namespace:LebedevControls;assembly=LebedevControls"
+        xmlns:mvvm="http://www.galasoft.ch/mvvmlight" 
+        xmlns:lebedevcontrols1="clr-namespace:LebedevControls"
         mc:Ignorable="d"
-        Title="{Binding Source={StaticResource Locator}, Path=Main.Title}" Height="750" Width="1100"
+        Title="{Binding Source={StaticResource Locator}, Path=Main.Title}" Height="900" Width="1100"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
          Icon="Resource/MainIco.ico" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" >
     <Window.Resources>
@@ -254,28 +255,23 @@
                         </StackPanel>
                         <StackPanel Name="StackPanel2" Grid.Row="2" Margin="0,10,0,0" DataContext="{Binding Main, Source={StaticResource Locator}}">
                             <Line X1="0" X2="{Binding ElementName=StackPanel2, Path=ActualWidth}" Stroke="Black" StrokeThickness="1"/>
-                            <lebedevcontrols:TimeSelector Min="07:00:00" Max="19:15" 
+                            <lebedevcontrols1:TimeSelector Min="07:00:00" Max="19:15" 
                                                           MinTimeSelected="{Binding TimeSelectorMin, Mode=TwoWay}"
                                                           MaxTimeSelected="{Binding TimeSelectorMax, Mode=TwoWay}"
                                                           BusyTime="{Binding Source={StaticResource Locator}, Path=Main.BusyTime, Mode=OneWay}"/>
                             <Line X1="0" X2="{Binding ElementName=StackPanel2, Path=ActualWidth}" Stroke="Black" StrokeThickness="1"/>
-                            <Label Content="Бизнес подразделение" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="businessCombo" Height="30" DisplayMemberPath="BusinessBlockName"  ItemsSource="{Binding BusinessBlocks}" SelectedItemsOverride="{Binding BusinessBlockChoiceCollection}" Delimiter=", " IsSelectAllActive="True" IsTextSearchCaseSensitive="True">
-                            </xctk:CheckComboBox>
-                            <Label Content="Support" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Height="30" Name="supportCombo" DisplayMemberPath="Name" ItemsSource="{Binding Supports}" SelectedItemsOverride="{Binding SupportsChoiceCollection}" IsSelectAllActive="True">
-                            </xctk:CheckComboBox>
-                            <Label Content="Клиентские пути" FontWeight="Bold"/>
-                            <ComboBox Name="clientWaysCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding ClientWays}" SelectedItem="{Binding NewRecord.ClientWays}" SelectedIndex="0"/>
-                            <Label Content="Эскалация" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="escalationCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding Escalations}" SelectedItemsOverride="{Binding EscalationsChoiceCollection}" IsSelectAllActive="True">
-                            </xctk:CheckComboBox>
-                            <Label Content="Формат" FontWeight="Bold"/>
-                            <ComboBox Name="formatCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding Formats}" SelectedItem="{Binding NewRecord.Formats}" SelectedIndex="0"/>
-                            <Label Content="Риск" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="riskCombo" Height="30" ItemsSource="{Binding Risks}" DisplayMemberPath="RiskName" SelectedItemsOverride="{Binding RiskChoiceCollection}" IsSelectAllActive="True">
-                            </xctk:CheckComboBox>
-
+                            <Label Content="Бизнес подразделение" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                            <lebedevcontrols1:MultiValuesSelector Height="40" ItemsSource="{Binding BusinessBlocks}" SelectedItems="{Binding BusinessBlockChoiceCollection}" DisplayMember="ShortName" DisplayTipMember="BusinessBlockName" AllSelectButton="True" AllowMultiSelect="True"/>
+                            <Label Content="Support" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                            <lebedevcontrols1:MultiValuesSelector Height="40" ItemsSource="{Binding Supports}" SelectedItems="{Binding SupportsChoiceCollection}" DisplayMember="Name" DisplayTipMember="Name" AllSelectButton="True" AllowMultiSelect="True"/>
+                            <Label Content="Клиентские пути" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                            <lebedevcontrols1:MultiValuesSelector Height="40" ItemsSource="{Binding ClientWays}" LastSelectedItem="{Binding NewRecord.ClientWays}" AllowMultiSelect="False" DisplayMember="ShortName" DisplayTipMember="Name" AllSelectButton="False"/>
+                            <Label Content="Эскалация" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                            <lebedevcontrols1:MultiValuesSelector Height="40"  ItemsSource="{Binding Escalations}" SelectedItems="{Binding EscalationsChoiceCollection}" DisplayMember="Name" DisplayTipMember="Name" AllSelectButton="True" AllowMultiSelect="True"/>
+                            <Label Content="Формат" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                            <lebedevcontrols1:MultiValuesSelector Height="40" ItemsSource="{Binding Formats}" LastSelectedItem="{Binding NewRecord.Formats}" AllowMultiSelect="False" DisplayMember="Name" DisplayTipMember="Name" AllSelectButton="False"/>
+                            <Label Content="Риск" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                            <lebedevcontrols1:MultiValuesSelector Height="40" ItemsSource="{Binding Risks}" SelectedItems="{Binding RiskChoiceCollection}" DisplayMember="RiskName" DisplayTipMember="RiskName" AllSelectButton="True" AllowMultiSelect="True"/>
                             <Button Name="Add" Height="35" Margin="0,10,0,0" 
                         DataContext="{Binding Main, Source={StaticResource Locator}}"
                         Command="{Binding AddProcess}"

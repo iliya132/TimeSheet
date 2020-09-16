@@ -14,6 +14,7 @@ namespace TimeSheetApp.Model.EntitiesBase
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }
+        public string ShortName { get; set; }
         public override bool Equals(object obj)
         {
             if (obj is ClientWays && (obj as ClientWays).Id == this.Id)
@@ -22,9 +23,15 @@ namespace TimeSheetApp.Model.EntitiesBase
             }
             return false;
         }
+
         public override int GetHashCode()
         {
             return Id.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return $"{Id} - {Name}";
         }
     }
 }
