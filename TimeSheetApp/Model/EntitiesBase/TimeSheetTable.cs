@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.SqlServer.Server;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 
 namespace TimeSheetApp.Model.EntitiesBase
 {
@@ -35,8 +37,17 @@ namespace TimeSheetApp.Model.EntitiesBase
 
         [ForeignKey("ClientWaysId")]
         public virtual ClientWays ClientWays { get; set; }
+        private Formats _format;
         [ForeignKey("FormatsId")]
-        public virtual Formats Formats { get; set; }
+        public virtual Formats Formats
+        {
+            get => _format;
+            set
+            {
+                _format = value;
+                Debug.WriteLine(_format);
+            }
+        }
         [ForeignKey("AnalyticId")]
         public virtual Analytic Analytic { get; set; }
         [ForeignKey("Process_id")]

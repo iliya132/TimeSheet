@@ -6,18 +6,9 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace LebedevControls
 {
@@ -111,7 +102,7 @@ namespace LebedevControls
             {
                 currentControl.SelectItem(e.NewValue);
             }
-            if (e.NewValue != null && currentControl.SelectedItems != null)
+            if (e.NewValue != null && currentControl.SelectedItems != null && !currentControl.AllowMultiSelect)
             {
                 if (currentControl.SelectedItems.Count != 0)
                 {
@@ -123,7 +114,6 @@ namespace LebedevControls
                     currentControl.SelectItem(e.NewValue);
                 }
             }
-
         }
 
         private void OnSelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -212,7 +202,6 @@ namespace LebedevControls
         private void Cleanup()
         {
             BtnObjPair.Clear();
-            SelectedItems?.Clear();
             while (MainGrid.Children.Count != 0)
             {
                 MainGrid.Children.RemoveAt(0);
@@ -266,6 +255,21 @@ namespace LebedevControls
                     currentRow++;
                     currentColumn = 0;
                     currentRightBorder += gridActualWidth;
+                }
+                foreach(object item in SelectedItems)
+                {
+                    if (obj.ToString().Equals(item.ToString()))
+                    {
+                        newButton.Press();
+                    }
+                }
+                if(SelectedItems!=null && ItemsCount == SelectedItems.Count)
+                {
+                    SelectAllButton.Press();
+                }
+                if (LastSelectedItem!=null && LastSelectedItem.ToString().Equals(obj.ToString()))
+                {
+                    newButton.Press();
                 }
                 if (currentRow == 0) MainGrid.ColumnDefinitions.Add(new ColumnDefinition());
                 Grid.SetRow(newButton, currentRow);
@@ -361,7 +365,16 @@ namespace LebedevControls
             object selectedObject = BtnObjPair[selectedBtn];
             if (AllowMultiSelect)
             {
-                if (!SelectedItems.Contains(selectedObject))
+                bool contains = false;
+                foreach(object itm in SelectedItems)
+                {
+                    if (itm.ToString().Equals(selectedObject.ToString()))
+                    {
+                        contains = true;
+                        break;
+                    }
+                }
+                if (!contains)
                 {
                     SelectItem(selectedObject);
                 }
@@ -380,6 +393,7 @@ namespace LebedevControls
         private void SelectItem(object obj)
         {
             Button btn = BtnObjPair.FirstOrDefault(i => i.Value.ToString().Equals(obj.ToString())).Key;
+            LastSelectedItem = obj;
             if (btn != null)
             {
                 btn.Press();
