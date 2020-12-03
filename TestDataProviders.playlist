@@ -1,0 +1,161 @@
+<Playlist Version="2.0">
+  <Rule Name="Includes" Match="Any">
+    <Rule Match="All">
+      <Property Name="Solution" />
+      <Rule Match="Any">
+        <Rule Match="All">
+          <Property Name="Project" Value="TimeSheetTests" />
+          <Rule Match="Any">
+            <Rule Match="All">
+              <Property Name="Namespace" Value="TimeSheetTests" />
+              <Rule Match="Any">
+                <Rule Match="All">
+                  <Property Name="Class" Value="EFDataProviderTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.EFDataProviderTests.AddActivity" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="AddActivity" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.EFDataProviderTests.GetBusinessBlocks" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetBusinessBlocks" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.EFDataProviderTests.GetClientWays" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetClientWays" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.EFDataProviderTests.GetEscalations" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetEscalations" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.EFDataProviderTests.GetFormat" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetFormat" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.EFDataProviderTests.GetMyAnalyticsData" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetMyAnalyticsData" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.EFDataProviderTests.GetProcessBlocks" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetProcessBlocks" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.EFDataProviderTests.GetProcesses" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetProcesses" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.EFDataProviderTests.GetRisks" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetRisks" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.EFDataProviderTests.GetSubBlocksNames" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetSubBlocksNames" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.EFDataProviderTests.GetSupports" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetSupports" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+                <Rule Match="All">
+                  <Property Name="Class" Value="TSClientDataProviderTests" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.TSClientDataProviderTests.AddActivity" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="AddActivity" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.TSClientDataProviderTests.GetBusinessBlocks" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetBusinessBlocks" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.TSClientDataProviderTests.GetClientWays" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetClientWays" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.TSClientDataProviderTests.GetEscalations" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetEscalations" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.TSClientDataProviderTests.GetFormat" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetFormat" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.TSClientDataProviderTests.GetMyAnalyticsData" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetMyAnalyticsData" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.TSClientDataProviderTests.GetProcessBlocks" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetProcessBlocks" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.TSClientDataProviderTests.GetProcesses" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetProcesses" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.TSClientDataProviderTests.GetRisks" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetRisks" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.TSClientDataProviderTests.GetSubBlocksNames" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetSubBlocksNames" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="TimeSheetTests.TSClientDataProviderTests.GetSupports" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="GetSupports" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+              </Rule>
+            </Rule>
+          </Rule>
+        </Rule>
+      </Rule>
+    </Rule>
+  </Rule>
+</Playlist>

@@ -28,19 +28,30 @@ namespace TimeSheetApp.Model.EntitiesBase
         public int OtdelId { get; set; }
         public int PositionsId { get; set; }
         public int RoleTableId { get; set; }
+        public int? HeadAdmId { get; set; }
+        public int? HeadFuncId { get; set; }
+        public bool? Deleted_Flag { get; set; }
 
-        [ForeignKey("DepartmentId")]
+        [ForeignKey(nameof(DepartmentId))]
         public virtual Departments Departments { get; set; }
-        [ForeignKey("DirectionId")]
+        [ForeignKey(nameof(DirectionId))]
         public virtual Directions Directions { get; set; }
-        [ForeignKey("UpravlenieId")]
+        [ForeignKey(nameof(UpravlenieId))]
         public virtual Upravlenie Upravlenie { get; set; }
-        [ForeignKey("OtdelId")]
+        [ForeignKey(nameof(OtdelId))]
         public virtual Otdel Otdel { get; set; }
-        [ForeignKey("PositionsId")]
+        [ForeignKey(nameof(PositionsId))]
         public virtual Positions Positions{get;set;}
-        [ForeignKey("RoleTableId")]
+        [ForeignKey(nameof(RoleTableId))]
         public virtual Role Role { get; set; }
+        public virtual Analytic AdminHead { get; set; }
+        public virtual Analytic FunctionHead { get; set; }
 
+        public override string ToString()
+        {
+            return $"{LastName} {FirstName} {FatherName}";
+        }
+
+        
     }
 }

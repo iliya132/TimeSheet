@@ -12,8 +12,8 @@ namespace TimeSheetApp.Model
 {
     public class Node : INotifyPropertyChanged
     {
-        private List<AnalyticOrdered> _analytics = new List<AnalyticOrdered>();
-        public List<AnalyticOrdered> Analytics { get => _analytics; set => _analytics = value; }
+        private List<StructuredAnalytic> _analytics = new List<StructuredAnalytic>();
+        public List<StructuredAnalytic> Analytics { get => _analytics; set => _analytics = value; }
         public Visibility ContainsAnalytic { get; set; }
         public Visibility invertedContainsAnalytic
         {
@@ -125,7 +125,6 @@ namespace TimeSheetApp.Model
         }
         public static void PrintNodes(Node node)
         {
-            Console.WriteLine(node.StructureName);
             if (node.Nodes != null)
             {
                 foreach (Node childNode in node.Nodes)
@@ -143,7 +142,7 @@ namespace TimeSheetApp.Model
                 selectChild(val, childNode);
 
             }
-            foreach (AnalyticOrdered analytic in node.Analytics)
+            foreach (StructuredAnalytic analytic in node.Analytics)
             {
                 analytic.Selected = val;
             }

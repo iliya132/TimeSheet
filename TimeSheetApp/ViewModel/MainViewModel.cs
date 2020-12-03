@@ -1,103 +1,126 @@
 using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using TimeSheetApp.Model;
 using TimeSheetApp.Model.EntitiesBase;
+using TimeSheetApp.Model.Interfaces;
+using TimeSheetApp.ViewModel.CommandImplementation;
+
+using Process = TimeSheetApp.Model.EntitiesBase.Process;
 
 namespace TimeSheetApp.ViewModel
 {
-    public class MainViewModel : ViewModelBase
+    public class MainViewModel :INotifyPropertyChanged
     {
-        public IEFDataProvider EFDataProvider;
+        public IDataProvider _dbProvider;
 
         #region DataCollections
 
         #region Список процессов для выбора
-        /// <summary>
-        /// Список процессов, доступных для выбора
-        /// </summary>
-        private static ObservableCollection<Process> _processes;
-        public ObservableCollection<Process> Processes { get => _processes; set => _processes = value; }
-        /// <summary>
-        /// Список отфильтрованных процессов. К этой коллекции привязан лист ProcessList
-        /// </summary>
-        private ObservableCollection<Process> _processesFiltered = new ObservableCollection<Process>();
-        public ObservableCollection<Process> ProcessFiltered { get => _processesFiltered; set => _processesFiltered = value; }
+        public ObservableCollection<Process> AllProcesses { get; set; }
+        public ObservableCollection<Process> UserFilteredProcesses { get; set; }
         #endregion
 
-        #region ComboBox Collections
-        /// <summary>
-        /// Бизнес блоки, доступные для выбора
-        /// </summary>
-        private BusinessBlock[] _BusinessBlock;
-        public BusinessBlock[] BusinessBlock { get => _BusinessBlock; set => _BusinessBlock = value; }
-        /// <summary>
-        /// Support's доступные для выбора
-        /// </summary>
-        private Supports[] _supportsArr;
-        public Supports[] SupportsArr { get => _supportsArr; set => _supportsArr = value; }
-        /// <summary>
-        /// Клиентские пути, доступные для выбора
-        /// </summary>
-        private ClientWays[] _clientWays;
-        public ClientWays[] ClientWays { get => _clientWays; set => _clientWays = value; }
-        /// <summary>
-        /// Форматы доступные для выбора
-        /// </summary>
-        private Formats[] _formatList;
-        public Formats[] FormatList { get => _formatList; set => _formatList = value; }
-        /// <summary>
-        /// Риски, доступные для выбора
-        /// </summary>
-        private Risk[] _riskCol;
-        public Risk[] RiskCol { get => _riskCol; set => _riskCol = value; }
-        /// <summary>
-        /// Эскалации, доступные для выбора
-        /// </summary>
-        private Escalation[] _escalations;
-        public Escalation[] Escalations { get => _escalations; set => _escalations = value; }
+        #region Аллокации для выбора
+        public List<BusinessBlock> BusinessBlocks { get; set; }
+        public List<Supports> Supports { get; set; }
+        public List<ClientWays> ClientWays { get; set; }
+        public List<Formats> Formats { get; set; }
+        public List<Risk> Risks { get; set; }
+        public List<Escalation> Escalations { get; set; }
         #endregion
 
         #region Исторические записи
-        /// <summary>
-        /// Исторические записи из БД. (Лист TimeSpanListView)
-        /// </summary>
-        private ObservableCollection<TimeSheetTable> _historyRecords = new ObservableCollection<TimeSheetTable>();
-        public ObservableCollection<TimeSheetTable> HistoryRecords { get => _historyRecords; set => _historyRecords = value; }
+        private ObservableCollection<TimeSheetTable> _todayRecords = new ObservableCollection<TimeSheetTable>();
+        public ObservableCollection<TimeSheetTable> TodayRecords
+        {
+            get => _todayRecords;
+            set => _todayRecords = value;
+        }
         #endregion
 
         #region Список сотрудников в подчинении
-        /// <summary>
-        /// Список сотрудников в подчинении у текущего пользователя
-        /// </summary>
-        private ObservableCollection<Analytic> _subordinateEmployees = new ObservableCollection<Analytic>();
-        public ObservableCollection<Analytic> SubordinateEmployees
+        private ObservableCollection<StructuredAnalytic> _subordinatedAnalytics;
+        public ObservableCollection<StructuredAnalytic> SubordinatedAnalytics
         {
-            get { return _subordinateEmployees; }
-            set { _subordinateEmployees = value; }
+            get
+            {
+                return _subordinatedAnalytics;
+            }
+            set
+            {
+                _subordinatedAnalytics = value;
+                RaisePropertyChanged(nameof(SubordinatedAnalytics));
+            }
         }
-        private ObservableCollection<AnalyticOrdered> subordinatedOrdered = new ObservableCollection<AnalyticOrdered>();
-
-        public ObservableCollection<AnalyticOrdered> SubordinatedOrdered
+        private ObservableCollection<Node> _subordinatedAnalyticsNodes = new ObservableCollection<Node>();
+        public ObservableCollection<Node> SubordinatedAnalyticNodes
         {
-            get { return subordinatedOrdered; }
-            set { subordinatedOrdered = value; }
+            get
+            {
+                return _subordinatedAnalyticsNodes;
+            }
+            set
+            {
+                _subordinatedAnalyticsNodes = value;
+            }
         }
-
-        private ObservableCollection<Node> nodes = new ObservableCollection<Node>();
-        public ObservableCollection<Node> NodesCollection { get => nodes; set => nodes = value; }
-
-        private List<string> categories = new List<string>();
+        private ObservableCollection<Analytic> _currentUserTeam;
+        public ObservableCollection<Analytic> CurrentUserTeam
+        {
+            get
+            {
+                return _currentUserTeam;
+            }
+            set
+            {
+                _currentUserTeam = value;
+                RaisePropertyChanged(nameof(CurrentUserTeam));
+            }
+        }
         #endregion
 
         #endregion
 
         #region CurrentValues
+
+        readonly List<TimeSheetTable> SelectedRecords = new List<TimeSheetTable>();
+        readonly List<TimeSheetTable> CopiedRecords = new List<TimeSheetTable>();
+        public TimeSpan TimeSelectorMin
+        {
+            get
+            {
+                return NewRecord.TimeStart.TimeOfDay;
+            }
+            set
+            {
+                NewRecord.TimeStart = new DateTime(NewRecord.TimeStart.Year, NewRecord.TimeStart.Month, NewRecord.TimeStart.Day, value.Hours, value.Minutes, value.Seconds);
+                RaisePropertyChanged(nameof(NewRecord));
+            }
+        }
+
+        public TimeSpan TimeSelectorMax
+        {
+            get
+            {
+                return NewRecord.TimeEnd.TimeOfDay;
+            }
+            set
+            {
+                NewRecord.TimeEnd = new DateTime(NewRecord.TimeEnd.Year, NewRecord.TimeEnd.Month, NewRecord.TimeEnd.Day, value.Hours, value.Minutes, value.Seconds);
+                RaisePropertyChanged(nameof(NewRecord));
+            }
+        }
+
         #region editForm multiChoice
         private ObservableCollection<Risk> riskChoiceCollection = new ObservableCollection<Risk>();
         public ObservableCollection<Risk> RiskChoiceCollection { get => riskChoiceCollection; set => riskChoiceCollection = value; }
@@ -108,24 +131,95 @@ namespace TimeSheetApp.ViewModel
         private ObservableCollection<Supports> _supportsChoiceCollection = new ObservableCollection<Supports>();
         public ObservableCollection<Supports> SupportsChoiceCollection { get => _supportsChoiceCollection; set => _supportsChoiceCollection = value; }
         #endregion
+        private bool _isReady = true;
+        public bool IsReady
+        {
+            get
+            {
+                return _isReady;
+            }
+            set
+            {
+                _isReady = value;
+                RaisePropertyChanged(nameof(IsReady));
+            }
+        }
+        private string _ReportBtnName = "Выгрузить отчет";
+        public  string ReportBtnName
+        {
+            get => _ReportBtnName;
+            set
+            {
+                _ReportBtnName = value;
+                RaisePropertyChanged(nameof(ReportBtnName));
+            }
+        }
 
-        #region MainForm multiChoiceCollections
-        private ObservableCollection<Risk> _newRiskChoiceCollection = new ObservableCollection<Risk>();
-        public ObservableCollection<Risk> NewRiskChoiceCollection { get => _newRiskChoiceCollection; set => _newRiskChoiceCollection = value; }
-        private ObservableCollection<Escalation> _newEscalationsChoiceCollection = new ObservableCollection<Escalation>();
-        public ObservableCollection<Escalation> NewEscalationsChoiceCollection { get => _newEscalationsChoiceCollection; set => _newEscalationsChoiceCollection = value; }
-        private ObservableCollection<BusinessBlock> _newBusinessBlockChoiceCollection = new ObservableCollection<BusinessBlock>();
-        public ObservableCollection<BusinessBlock> NewBusinessBlockChoiceCollection { get => _newBusinessBlockChoiceCollection; set => _newBusinessBlockChoiceCollection = value; }
-        private ObservableCollection<Supports> _newSupportsChoiceCollection = new ObservableCollection<Supports>();
-        public ObservableCollection<Supports> NewSupportsChoiceCollection { get => _newSupportsChoiceCollection; set => _newSupportsChoiceCollection = value; }
-        #endregion
+        private string _title = "TimeSheet";
+        public string Title
+        {
+            get
+            {
+                return _title;
+            }
+            set
+            {
+                _title = value;
+                RaisePropertyChanged(nameof(Title));
+            }
+        }
+
+        readonly Dispatcher currentDispatcher = Dispatcher.CurrentDispatcher;
+
+        public double LastMonthTimeSpent
+        {
+            get
+            {
+                DateTime thisMonthFirstDay = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                DateTime thisMonthLastDay = thisMonthFirstDay.AddMonths(1).AddDays(-1);
+                DateTime lastMonthFirstDay = thisMonthFirstDay.AddMonths(-1);
+                DateTime lastMonthLastDay = thisMonthLastDay.AddMonths(-1);
+                double res = _dbProvider.GetTimeSpent(CurrentUser.UserName, lastMonthFirstDay, lastMonthLastDay);
+                return res;
+            }
+        }
+
+        public int LastMonthDaysWorked
+        {
+            get
+            {
+                DateTime thisMonthFirstDay = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                DateTime thisMonthLastDay = thisMonthFirstDay.AddMonths(1).AddDays(-1);
+                DateTime lastMonthFirstDay = thisMonthFirstDay.AddMonths(-1);
+                DateTime lastMonthLastDay = thisMonthLastDay.AddMonths(-1);
+                return _dbProvider.GetDaysWorkedCount(CurrentUser, lastMonthFirstDay, lastMonthLastDay);
+            }
+        }
+
+        public double LastWeekTimeSpent
+        {
+            get
+            {
+                DateTime thisWeekFirstDay = DateTime.Today.AddDays(-7);
+                return _dbProvider.GetTimeSpent(CurrentUser.UserName, thisWeekFirstDay, DateTime.Today);
+            }
+        }
+
+        public double LastWeekDaysWorked
+        {
+            get
+            {
+                DateTime thisWeekFirstDay = DateTime.Now.AddDays(-7);
+                return _dbProvider.GetDaysWorkedCount(CurrentUser, thisWeekFirstDay, DateTime.Now);
+            }
+        }
 
         public bool IgnoreSubjectTextChange { get; set; }
         /// <summary>
         /// подсказки для ввода текста в поле Тема
         /// </summary>
 
-        private Stack<string> subjectsFromDB;
+        private List<string> subjectsFromDB;
         private ObservableCollection<string> subjectHints = new ObservableCollection<string>();
         public ObservableCollection<string> SubjectHints { get => subjectHints; set => subjectHints = value; }
 
@@ -150,27 +244,7 @@ namespace TimeSheetApp.ViewModel
             get { return _editedRecord; }
             set { _editedRecord = value; }
         }
-        private BusinessBlockChoice _currentBusinessBlock = new BusinessBlockChoice();
 
-        public BusinessBlockChoice CurrentBusinessBlock
-        {
-            get { return _currentBusinessBlock; }
-            set
-            {
-                NewRecord.BusinessBlockChoice = value;
-                _currentBusinessBlock = value;
-            }
-        }
-        private SupportChoice _currentSupports = new SupportChoice();
-        public SupportChoice CurrentSupports
-        {
-            get { return _currentSupports; }
-            set
-            {
-                NewRecord.SupportChoice = value;
-                _currentSupports = value;
-            }
-        }
         private ClientWays _currentClientWays = new ClientWays();
         public ClientWays CurrentClientWays
         {
@@ -181,16 +255,7 @@ namespace TimeSheetApp.ViewModel
                 _currentClientWays = value;
             }
         }
-        private EscalationChoice _currentEscalation = new EscalationChoice();
-        public EscalationChoice CurrentEscalation
-        {
-            get { return _currentEscalation; }
-            set
-            {
-                NewRecord.EscalationChoice = value;
-                _currentEscalation = value;
-            }
-        }
+
         private Formats _currentFormat = new Formats();
         public Formats CurrentFormat
         {
@@ -201,19 +266,56 @@ namespace TimeSheetApp.ViewModel
                 _currentFormat = value;
             }
         }
-        private Risk _currentRisk = new Risk();
-        public Risk CurrentRisk
+
+
+        DominoWorker worker;
+        private CalendarItem _currentCalendarItem = new CalendarItem();
+        public CalendarItem CurrentCalendarItem { get => _currentCalendarItem; set => _currentCalendarItem = value; }
+        private int _calendarItemsCount;
+
+        public int CalendarItemsCount
         {
-            get { return _currentRisk; }
+            get { return _calendarItemsCount; }
             set
             {
-                NewRecord.RiskChoice_id = value.Id;
-                _currentRisk = value;
+                _calendarItemsCount = value;
+                RaisePropertyChanged(nameof(CalendarItemsCount));
             }
         }
+        private bool isCalendarLoading = true;
+        public bool IsCalendarLoading
+        {
+            get => isCalendarLoading;
+            set
+            {
+                isCalendarLoading = value;
+                RaisePropertyChanged(nameof(LoadingVisibilityInverted));
+                RaisePropertyChanged(nameof(LoadingVisibility));
+                RaisePropertyChanged(nameof(IsCalendarReady));
+                RaisePropertyChanged(nameof(IsCalendarLoading));
+            }
 
-
-
+        }
+        public bool IsCalendarReady
+        {
+            get => !IsCalendarLoading;
+        }
+        public Visibility LoadingVisibility
+        {
+            get
+            {
+                if (IsCalendarLoading) return Visibility.Visible;
+                else return Visibility.Collapsed;
+            }
+        }
+        public Visibility LoadingVisibilityInverted
+        {
+            get
+            {
+                if (!IsCalendarLoading) return Visibility.Visible;
+                else return Visibility.Collapsed;
+            }
+        }
         #endregion
 
         #region Редактирование процесса
@@ -222,10 +324,10 @@ namespace TimeSheetApp.ViewModel
         public Process CurrentEditedRecord
         {
             get { return _currentEditedRecord; }
-            set { Set(ref _currentEditedRecord, value); }
+            set { _currentEditedRecord = value; }
         }
-        private DateTime initalTimeStart { get; set; }
-        private DateTime initalTimeEnd { get; set; }
+        private DateTime InitalTimeStart { get; set; }
+        private DateTime InitalTimeEnd { get; set; }
 
         private bool _isTimeCorrect = true;
         public bool IsTimeCorrect { get => _isTimeCorrect; set => _isTimeCorrect = value; }
@@ -233,11 +335,7 @@ namespace TimeSheetApp.ViewModel
         #endregion
 
         #region Формирование отчета
-        private List<string> _reportsAvailable = new List<string>()
-        {
-            "Отчет по активности аналитиков",
-            "Ресурсный план"
-        };
+        private List<string> _reportsAvailable = new List<string>();
 
         public List<string> ReportsAvailable
         {
@@ -262,21 +360,12 @@ namespace TimeSheetApp.ViewModel
         }
         #endregion
 
-        #region Мультивыбор
-
-        RiskChoice editRiskChoice = new RiskChoice();
-        BusinessBlockChoice editBusinessBlockChoice = new BusinessBlockChoice();
-        SupportChoice editSupportChoice = new SupportChoice();
-        EscalationChoice editEscalationChoice = new EscalationChoice();
-        public BusinessBlock defBlock;
-        #endregion
-
         public TimeSpan TotalDurationInMinutes
         {
             get
             {
                 TimeSpan totalSpan = new TimeSpan();
-                foreach (TimeSheetTable record in HistoryRecords)
+                foreach (TimeSheetTable record in TodayRecords)
                 {
                     totalSpan += record.TimeEnd - record.TimeStart;
                 }
@@ -287,339 +376,374 @@ namespace TimeSheetApp.ViewModel
         public DateTime CurrentDate { get => _currentDate; set => _currentDate = value; }
         private Analytic _currentUser = new Analytic();
         public Analytic CurrentUser { get => _currentUser; set => _currentUser = value; }
-        private bool isEditState = false;
+        public string CurrentUserFullName
+        {
+            get
+            {
+                return $"{CurrentUser.LastName} {CurrentUser.FirstName} {CurrentUser.FatherName}";
+            }
+        }
+        private ObservableCollection<CalendarItem> _calendarItems = new ObservableCollection<CalendarItem>();
+
+        public ObservableCollection<CalendarItem> CalendarItems
+        {
+            get { return _calendarItems; }
+            set { _calendarItems = value; }
+        }
+
+        public List<TimeSpan[]> BusyTime
+        {
+            get
+            {
+                List<TimeSpan[]> exportValue = new List<TimeSpan[]>();
+                foreach (TimeSheetTable record in TodayRecords)
+                {
+                    exportValue.Add(new TimeSpan[2] { record.TimeStart.TimeOfDay, record.TimeEnd.TimeOfDay });
+                }
+                return exportValue;
+            }
+        }
+
+        private Timer loadCalendarTimer;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         #endregion
 
         #region Commands
-        public RelayCommand<TimeSheetTable> AddProcess { get; }
-        public RelayCommand<TimeSheetTable> EditProcess { get; }
-        public RelayCommand<TimeSheetTable> DeleteProcess { get; }
-        public RelayCommand ReloadTimeSheet { get; }
-        public RelayCommand<string> FilterProcesses { get; }
-        public RelayCommand<Process> LoadSelectionForSelectedProcess { get; }
-        public RelayCommand ReloadHistoryRecords { get; }
-        public RelayCommand CheckTimeForIntersection { get; }
-        public RelayCommand GetReport { get; }
-        public RelayCommand StoreSelection { get; }
-        public RelayCommand<AnalyticOrdered> SelectAnalytic { get; }
-        public RelayCommand<AnalyticOrdered> UnselectAnalytic { get; }
-        public RelayCommand ReportSelectionStore { get; }
+        public TSCommandAsync<TimeSheetTable> AddProcess { get; set; }
+        public TSCommandAsync<TimeSheetTable> EditProcess { get; set; }
+        public TSCommandAsync<TimeSheetTable> DeleteProcess { get; set; }
+        public TSCommandAsync ReloadTimeSheet { get; set; }
+        public TSCommand<string> FilterProcesses { get; set; }
+        public TSCommandAsync<Process> LoadSelectionForSelectedProcess { get; set; }
+        public TSCommandAsync ReloadHistoryRecords { get; set; }
+        public TSCommandAsync CheckTimeForIntersection { get; set; }
+        public TSCommandAsync GetReport { get; set; }
+        public TSCommand<StructuredAnalytic> SelectAnalytic { get; set; }
+        public TSCommand<StructuredAnalytic> UnselectAnalytic { get; set; }
+        public TSCommand ReportSelectionStore { get; set; }
+        public TSCommand SelectCalendarItem { get; set; }
+        public TSCommandAsync<string> FinilizeEditUserName { get; set; }
+        public TSCommand<object> StoreSelectedRecords { get; set; }
+        public TSCommand CopyRecords { get; set; }
+        public TSCommand PasteRecords { get; set; }
+        public TSCommand TimeSelected { get; set; }
+        public IIdentityProvider IdentityProvider { get; }
 
 
         #endregion
-        private void writeLog(string msg)
+
+
+        public MainViewModel(IIdentityProvider identityProvider, IDataProvider dataProvider)
         {
-            using (StreamWriter sw = new StreamWriter($"{Environment.UserName}_exception.txt", true)){
-                sw.WriteLine(msg);
+            IdentityProvider = identityProvider;
+            _dbProvider = dataProvider;
+            try
+            {
+                if (!_dbProvider.CanConnect()) QuitWithException($"Не удается подключится к серверу.Повторите попытку позже или обратитесь в ОРППА");
+                Initialize();
+            }catch (Exception e)
+            {
+                QuitWithException($"{e.Message}\r\n{e.InnerException.Message}");
             }
         }
-        public MainViewModel(IEFDataProvider dataProvider)
-        {
-            EFDataProvider = dataProvider;
 
-            FillDataCollections();
-            updateSubjectHints();
-            AddProcess = new RelayCommand<TimeSheetTable>(AddProcessMethod);
-            EditProcess = new RelayCommand<TimeSheetTable>(EditHistoryProcess);
-            DeleteProcess = new RelayCommand<TimeSheetTable>(DeleteHistoryRecord);
-            ReloadTimeSheet = new RelayCommand(UpdateTimeSpan);
-            CheckTimeForIntersection = new RelayCommand(CheckTimeForIntesectionMethod);
-            LoadSelectionForSelectedProcess = new RelayCommand<Process>(LoadSelection);
-            FilterProcesses = new RelayCommand<string>(FilterProcessesMethod);
-            GetReport = new RelayCommand(GetReportMethod);
-            ReloadHistoryRecords = new RelayCommand(UpdateTimeSpan);
-            StoreSelection = new RelayCommand(StoreMultiplyChoice);
-            ReportSelectionStore = new RelayCommand(ReportSelectionUpdate);
-            SelectAnalytic = new RelayCommand<AnalyticOrdered>(SelectAnalyticMethod);
-            UnselectAnalytic = new RelayCommand<AnalyticOrdered>(UnselectAnalyticMethod);
+        private void QuitWithException(string msg)
+        {
+            EmptyView errorHolder = new EmptyView();
+            errorHolder.Show();
+
+            MessageBox.Show(errorHolder, msg, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            Environment.Exit(0);
+        }
+
+        private async Task Initialize()
+        {
+            IsReady = false;
+            Title = "TimeSheet";
+            QuitIfStartedFromServer();
+            InitializeEvents();
+            InitializeCommads();
+            await FillDataCollectionsAsync();
             NewRecord.Analytic = CurrentUser;
             NewRecord.AnalyticId = CurrentUser.Id;
+            loadCalendarTimer = new Timer(TimerTick, null, 0, Timeout.Infinite);
             GenerateNodes();
+            await UpdateTimeSpanAsync();
+            RaisePropertyChanged(nameof(LastMonthTimeSpent));
+            RaisePropertyChanged(nameof(LastMonthDaysWorked));
+            RaisePropertyChanged(nameof(LastWeekTimeSpent));
+            RaisePropertyChanged(nameof(LastWeekDaysWorked));
+            IsReady = true;
         }
 
-        private void SelectAnalyticMethod(AnalyticOrdered analytic)
+        private void InitializeEvents()
+        {
+            TodayRecords.CollectionChanged += TodayRecords_CollectionChanged;
+        }
+
+        private void TodayRecords_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            RaisePropertyChanged(nameof(TotalDurationInMinutes));
+            RaisePropertyChanged(nameof(BusyTime));
+        }
+
+        private void InitializeCommads()
+        {
+            AddProcess = new TSCommandAsync<TimeSheetTable>(AddRecordMethod);
+            EditProcess = new TSCommandAsync<TimeSheetTable>(EditHistoryProcessAsync);
+            DeleteProcess = new TSCommandAsync<TimeSheetTable>(DeleteHistoryRecordAsync);
+            ReloadTimeSheet = new TSCommandAsync(UpdateTimeSpanAsync);
+            CheckTimeForIntersection = new TSCommandAsync(CheckTimeForIntesectionMethodAsync);
+            LoadSelectionForSelectedProcess = new TSCommandAsync<Process>(SetupSelectionAsLastTimeAsync);
+            FilterProcesses = new TSCommand<string>(StartTimerToFilterProcesses);
+            GetReport = new TSCommandAsync(GetReportMethodAsync);
+            ReloadHistoryRecords = new TSCommandAsync(UpdateTimeSpanAsync);
+            ReportSelectionStore = new TSCommand(OnAnalyticSelectionChanged);
+            SelectAnalytic = new TSCommand<StructuredAnalytic>(SelectAnalyticMethod);
+            UnselectAnalytic = new TSCommand<StructuredAnalytic>(UnselectAnalyticMethod);
+            SelectCalendarItem = new TSCommand(SelectCalendarItemMethod);
+            FinilizeEditUserName = new TSCommandAsync<string>(EditUserNameAsync);
+            StoreSelectedRecords = new TSCommand<object>(StoreSelectedRecordsMethod);
+            CopyRecords = new TSCommand(CopyRecordsMethod);
+            PasteRecords = new TSCommand(PasteRecordsMethod);
+            TimeSelected = new TSCommand(TimeChanged);
+        }
+
+        private void TimeChanged()
+        {
+            RaisePropertyChanged(nameof(TimeSelectorMin));
+            RaisePropertyChanged(nameof(TimeSelectorMax));
+            RaisePropertyChanged(nameof(TotalDurationInMinutes));
+            RaisePropertyChanged(nameof(BusyTime));
+
+        }
+
+        private void PasteRecordsMethod()
+        {
+            throw new NotImplementedException();
+
+            //if (CopiedRecords.Count < 1)
+            //    return;
+            //foreach(TimeSheetTable record in CopiedRecords)
+            //{
+            //    TimeSheetTable copiedRecord = new TimeSheetTable()
+            //    {
+            //        Analytic = record.Analytic,
+            //        AnalyticId = record.AnalyticId,
+            //        Subject = record.Subject,
+            //        Comment = record.Comment,
+            //        Process = record.Process,
+            //        TimeStart = new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, record.TimeStart.Hour, record.TimeStart.Minute, record.TimeStart.Second),
+            //        TimeEnd = new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, record.TimeEnd.Hour, record.TimeEnd.Minute, record.TimeEnd.Second),
+            //        TimeSpent = record.TimeSpent,
+            //        ClientWays = record.ClientWays,
+            //        Formats = record.Formats,
+            //    };
+            //}
+        }
+
+        private void CopyRecordsMethod()
+        {
+            CopiedRecords.Clear();
+            CopiedRecords.AddRange(SelectedRecords);
+        }
+
+        private void StoreSelectedRecordsMethod(object records)
+        {
+            System.Collections.IList items = (System.Collections.IList)records;
+            IEnumerable<TimeSheetTable> collection = items.Cast<TimeSheetTable>();
+            SelectedRecords.Clear();
+            SelectedRecords.AddRange(collection);
+        }
+
+        private async Task EditUserNameAsync(string newName)
+        {
+            string[] UserNameSplited = newName.Split(' ');
+            if (UserNameSplited.Length < 3)
+            {
+                MessageBox.Show("Указано некорректное ФИО", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+            else
+            {
+                CurrentUser.LastName = UserNameSplited[0];
+                CurrentUser.FirstName = UserNameSplited[1];
+                CurrentUser.FatherName = UserNameSplited[2];
+                await _dbProvider.CommitAsync();
+            }
+            RaisePropertyChanged(nameof(CurrentUserFullName));
+        }
+
+        private void QuitIfStartedFromServer()
+        {
+            if (Directory.GetCurrentDirectory().ToLower().IndexOf("орппа", 0) > -1)
+            {
+                QuitWithException("Вы пытаетесь запустить родительский экземпляр таймшита. Пожалуйста, сперва скопируйте файлы к себе на компьютер.");
+            }
+        }
+
+        private void TimerTick(object state)
+        {
+            UpdateCalendarItemsMethod();
+        }
+        private async void UpdateCalendarItemsMethod()
+        {
+            if (worker == null)
+            {
+                await Task.Run(() =>
+                {
+                    DominoWorker newworker = new DominoWorker();
+                    currentDispatcher.Invoke(() => worker = newworker);
+                });
+
+            }
+            DateTime date = CurrentDate;
+            currentDispatcher.Invoke(() =>
+            {
+                loadCalendarTimer.Change(300000, Timeout.Infinite);
+                CalendarItems.Clear();
+                CalendarItemsCount = 0;
+                IsCalendarLoading = true;
+            });
+            await Task.Run(() =>
+            {
+                List<CalendarItem> calendarItems = GetDominoCalendar(CurrentDate);
+                currentDispatcher.Invoke(() =>
+                {
+                    CalendarItems.Clear();
+                    calendarItems.ForEach(CalendarItems.Add);
+                    IsCalendarLoading = false;
+                });
+            });
+        }
+
+        private void SelectCalendarItemMethod()
+        {
+            NewRecord.Subject = CurrentCalendarItem.Subject;
+            NewRecord.TimeStart = CurrentCalendarItem.StartTime;
+            NewRecord.TimeEnd = CurrentCalendarItem.EndTime;
+            RaisePropertyChanged(nameof(NewRecord));
+        }
+
+        private void SelectAnalyticMethod(StructuredAnalytic analytic)
         {
             analytic.Selected = true;
-            ReportSelectionUpdate();
+            OnAnalyticSelectionChanged();
         }
-        private void UnselectAnalyticMethod(AnalyticOrdered analytic)
+        private void UnselectAnalyticMethod(StructuredAnalytic analytic)
         {
             analytic.Selected = false;
-            ReportSelectionUpdate();
+            OnAnalyticSelectionChanged();
         }
 
-        private void ReportSelectionUpdate()
+        private void OnAnalyticSelectionChanged()
         {
             SelectedAnalytics.Clear();
-            foreach (AnalyticOrdered analytic in SubordinatedOrdered)
-            {
-                if (analytic.Selected)
-                {
-                    SelectedAnalytics.Add(analytic.Analytic);
-                }
-            }
-
+            SubordinatedAnalytics.
+                Where(analytic => analytic.Selected).
+                    Select(analytic => analytic.Analytic).
+                        ToList().
+                            ForEach(SelectedAnalytics.Add);
         }
-
-
 
         private void GenerateNodes()
         {
-
-            foreach (AnalyticOrdered analytic in SubordinatedOrdered)
+            foreach (StructuredAnalytic analytic in SubordinatedAnalytics)
             {
                 #region initialize
-
-                if (NodesCollection.Count < 1)
-                    NodesCollection.Add(new Node(analytic.FirstStructure));
-
+                if (SubordinatedAnalyticNodes.Count < 1)
+                    SubordinatedAnalyticNodes.Add(new Node(analytic.FirstStructure));
                 #endregion
-
                 #region Generate Ierarhial
-                foreach (Node node in NodesCollection)
+                for (int i = 0; i < SubordinatedAnalyticNodes.Count; i++)
                 {
-
                     #region 1stGen
-
-                    if (string.IsNullOrEmpty(analytic.FirstStructure)) break;
-                    Node firstGen = Node.FindNode(analytic.FirstStructure, NodesCollection);
+                    Node firstGen = Node.FindNode(analytic.FirstStructure, SubordinatedAnalyticNodes);
                     if (firstGen == null)
                     {
                         firstGen = new Node(analytic.FirstStructure);
-                        NodesCollection.Add(firstGen);
+                        SubordinatedAnalyticNodes.Add(firstGen);
                     }
-
                     #endregion
 
                     #region 2ndGen
-
-                    if (string.IsNullOrEmpty(analytic.SecondStructure))
+                    if (string.IsNullOrEmpty(analytic.SecondStructure) || analytic.SecondStructure.Equals("Отсутствует"))
                     {
                         firstGen.Analytics.Add(analytic);
                         break;
                     }
-
-                    Node secondGen = Node.FindNode(analytic.SecondStructure, NodesCollection);
+                    Node secondGen = Node.FindNode(analytic.SecondStructure, SubordinatedAnalyticNodes);
                     if (secondGen == null)
                     {
                         firstGen.AddChild(new Node(analytic.SecondStructure));
-                        secondGen = Node.FindNode(analytic.SecondStructure, NodesCollection);
+                        secondGen = Node.FindNode(analytic.SecondStructure, SubordinatedAnalyticNodes);
                     }
-
                     #endregion
 
                     #region 3ndGen
-
-                    if (string.IsNullOrEmpty(analytic.ThirdStructure))
+                    if (string.IsNullOrEmpty(analytic.ThirdStructure) || analytic.ThirdStructure.Equals("Отсутствует"))
                     {
                         secondGen.Analytics.Add(analytic);
                         break;
                     }
-
-                    Node thirdGen = Node.FindNode(analytic.ThirdStructure, NodesCollection);
+                    Node thirdGen = Node.FindNode(analytic.ThirdStructure, SubordinatedAnalyticNodes);
                     if (thirdGen == null)
                     {
                         secondGen.AddChild(new Node(analytic.ThirdStructure));
-                        thirdGen = Node.FindNode(analytic.ThirdStructure, NodesCollection);
+                        thirdGen = Node.FindNode(analytic.ThirdStructure, SubordinatedAnalyticNodes);
                     }
-
                     #endregion
 
                     #region 4thGen
-
-                    if (string.IsNullOrEmpty(analytic.FourStructure))
+                    if (string.IsNullOrEmpty(analytic.FourStructure) || analytic.FourStructure.Equals("Отсутствует"))
                     {
                         thirdGen.Analytics.Add(analytic);
                         break;
                     }
 
-                    Node fourGen = Node.FindNode(analytic.FourStructure, NodesCollection);
+                    Node fourGen = Node.FindNode(analytic.FourStructure, SubordinatedAnalyticNodes);
                     if (fourGen == null)
                     {
                         thirdGen.AddChild(new Node(analytic.FourStructure));
-                        fourGen = Node.FindNode(analytic.FourStructure, NodesCollection);
+                        fourGen = Node.FindNode(analytic.FourStructure, SubordinatedAnalyticNodes);
                     }
                     fourGen.Analytics.Add(analytic);
                     #endregion
-
-
                 }
                 #endregion
-
-
             }
-            foreach (Node node1 in NodesCollection)
+
+            foreach (Node node1 in SubordinatedAnalyticNodes)
             {
                 node1.CountAnalytics(node1);
             }
         }
 
-        private void updateSubjectHints()
-        {
-            subjectsFromDB = EFDataProvider.GetSubjectHints(NewRecord.Process);
-
-            SubjectHints.Clear();
-            int itemsCount = subjectsFromDB.Count;
-            
-            for (int i = 0; i < 10 && i < itemsCount; i++)
-            {
-                if (subjectsFromDB.Count > 0)
-                {
-                    SubjectHints.Add(subjectsFromDB.Pop());
-                }
-            }
-
-        }
-        private void StoreMultiplyChoice()
-        {
-            editBusinessBlockChoice = new BusinessBlockChoice();
-            editSupportChoice = new SupportChoice();
-            editRiskChoice = new RiskChoice();
-            editEscalationChoice = new EscalationChoice();
-            ObservableCollection<BusinessBlock> currentBBCol;
-            ObservableCollection<Escalation> currentEscCol;
-            ObservableCollection<Supports> currentSupCol;
-            ObservableCollection<Risk> currentRiskCol;
-            if (isEditState)
-            {
-                currentBBCol = BusinessBlockChoiceCollection;
-                currentSupCol = SupportsChoiceCollection;
-                currentRiskCol = RiskChoiceCollection;
-                currentEscCol = EscalationsChoiceCollection;
-            }
-            else
-            {
-                currentBBCol = NewBusinessBlockChoiceCollection;
-                currentSupCol = NewSupportsChoiceCollection;
-                currentRiskCol = NewRiskChoiceCollection;
-                currentEscCol = NewEscalationsChoiceCollection;
-            }
-            if (currentBBCol.Count > 0)
-            {
-                for (int i = 0; i < currentBBCol.Count; i++)
-                {
-                    switch (i)
-                    {
-                        case (0): editBusinessBlockChoice.BusinessBlock_id = currentBBCol[i].Id; break;
-                        case (1): editBusinessBlockChoice.BusinessBlock_id1 = currentBBCol[i].Id; break;
-                        case (2): editBusinessBlockChoice.BusinessBlock_id2 = currentBBCol[i].Id; break;
-                        case (3): editBusinessBlockChoice.BusinessBlock_id3 = currentBBCol[i].Id; break;
-                        case (4): editBusinessBlockChoice.BusinessBlock_id4 = currentBBCol[i].Id; break;
-                        case (5): editBusinessBlockChoice.BusinessBlock_id5 = currentBBCol[i].Id; break;
-                        case (6): editBusinessBlockChoice.BusinessBlock_id6 = currentBBCol[i].Id; break;
-                        case (7): editBusinessBlockChoice.BusinessBlock_id7 = currentBBCol[i].Id; break;
-                        case (8): editBusinessBlockChoice.BusinessBlock_id8 = currentBBCol[i].Id; break;
-                        case (9): editBusinessBlockChoice.BusinessBlock_id9 = currentBBCol[i].Id; break;
-                        case (10): editBusinessBlockChoice.BusinessBlock_id10 = currentBBCol[i].Id; break;
-                        case (11): editBusinessBlockChoice.BusinessBlock_id11 = currentBBCol[i].Id; break;
-                        case (12): editBusinessBlockChoice.BusinessBlock_id12 = currentBBCol[i].Id; break;
-                        case (13): editBusinessBlockChoice.BusinessBlock_id13 = currentBBCol[i].Id; break;
-                        case (14): editBusinessBlockChoice.BusinessBlock_id14 = currentBBCol[i].Id; break;
-                    }
-                }
-            }
-            if (currentSupCol.Count > 0)
-            {
-                for (int i = 0; i < currentSupCol.Count; i++)
-                {
-                    switch (i)
-                    {
-                        case (0): editSupportChoice.Support_id = currentSupCol[i].Id; break;
-                        case (1): editSupportChoice.Support_id1 = currentSupCol[i].Id; break;
-                        case (2): editSupportChoice.Support_id2 = currentSupCol[i].Id; break;
-                        case (3): editSupportChoice.Support_id3 = currentSupCol[i].Id; break;
-                        case (4): editSupportChoice.Support_id4 = currentSupCol[i].Id; break;
-                        case (5): editSupportChoice.Support_id5 = currentSupCol[i].Id; break;
-                        case (6): editSupportChoice.Support_id6 = currentSupCol[i].Id; break;
-                        case (7): editSupportChoice.Support_id7 = currentSupCol[i].Id; break;
-                        case (8): editSupportChoice.Support_id8 = currentSupCol[i].Id; break;
-                        case (9): editSupportChoice.Support_id9 = currentSupCol[i].Id; break;
-                        case (10): editSupportChoice.Support_id10 = currentSupCol[i].Id; break;
-                        case (11): editSupportChoice.Support_id11 = currentSupCol[i].Id; break;
-                        case (12): editSupportChoice.Support_id12 = currentSupCol[i].Id; break;
-                        case (13): editSupportChoice.Support_id13 = currentSupCol[i].Id; break;
-                        case (14): editSupportChoice.Support_id14 = currentSupCol[i].Id; break;
-                    }
-                }
-            }
-            if (currentRiskCol.Count > 0)
-            {
-                for (int i = 0; i < currentRiskCol.Count; i++)
-                {
-                    switch (i)
-                    {
-                        case (0): editRiskChoice.Risk_id = currentRiskCol[i].Id; break;
-                        case (1): editRiskChoice.Risk_id1 = currentRiskCol[i].Id; break;
-                        case (2): editRiskChoice.Risk_id2 = currentRiskCol[i].Id; break;
-                        case (3): editRiskChoice.Risk_id3 = currentRiskCol[i].Id; break;
-                        case (4): editRiskChoice.Risk_id4 = currentRiskCol[i].Id; break;
-                        case (5): editRiskChoice.Risk_id5 = currentRiskCol[i].Id; break;
-                        case (6): editRiskChoice.Risk_id6 = currentRiskCol[i].Id; break;
-                        case (7): editRiskChoice.Risk_id7 = currentRiskCol[i].Id; break;
-                        case (8): editRiskChoice.Risk_id8 = currentRiskCol[i].Id; break;
-                        case (9): editRiskChoice.Risk_id9 = currentRiskCol[i].Id; break;
-
-                    }
-                }
-            }
-            if (currentEscCol.Count > 0)
-            {
-                for (int i = 0; i < currentEscCol.Count; i++)
-                {
-                    switch (i)
-                    {
-                        case (0): editEscalationChoice.Escalation_id = currentEscCol[i].Id; break;
-                        case (1): editEscalationChoice.Escalation_id1 = currentEscCol[i].Id; break;
-                        case (2): editEscalationChoice.Escalation_id2 = currentEscCol[i].Id; break;
-                        case (3): editEscalationChoice.Escalation_id3 = currentEscCol[i].Id; break;
-                        case (4): editEscalationChoice.Escalation_id4 = currentEscCol[i].Id; break;
-                        case (5): editEscalationChoice.Escalation_id5 = currentEscCol[i].Id; break;
-                        case (6): editEscalationChoice.Escalation_id6 = currentEscCol[i].Id; break;
-                        case (7): editEscalationChoice.Escalation_id7 = currentEscCol[i].Id; break;
-                        case (8): editEscalationChoice.Escalation_id8 = currentEscCol[i].Id; break;
-                        case (9): editEscalationChoice.Escalation_id9 = currentEscCol[i].Id; break;
-                        case (10): editEscalationChoice.Escalation_id10 = currentEscCol[i].Id; break;
-                        case (11): editEscalationChoice.Escalation_id11 = currentEscCol[i].Id; break;
-                        case (12): editEscalationChoice.Escalation_id12 = currentEscCol[i].Id; break;
-                        case (13): editEscalationChoice.Escalation_id13 = currentEscCol[i].Id; break;
-                        case (14): editEscalationChoice.Escalation_id14 = currentEscCol[i].Id; break;
-                    }
-                }
-            }
-
-            if (!isEditState)
-            {
-                NewRecord.RiskChoice = editRiskChoice;
-                NewRecord.SupportChoice = editSupportChoice;
-                NewRecord.EscalationChoice = editEscalationChoice;
-                NewRecord.BusinessBlockChoice = editBusinessBlockChoice;
-            }
-            else
-            {
-                EditedRecord.RiskChoice = editRiskChoice;
-                EditedRecord.SupportChoice = editSupportChoice;
-                EditedRecord.EscalationChoice = editEscalationChoice;
-                EditedRecord.BusinessBlockChoice = editBusinessBlockChoice;
-            }
-
-        }
-
-        private void GetReportMethod()
+        private async Task GetReportMethodAsync()
         {
             if (SelectedAnalytics.Count() < 1)
             {
                 MessageBox.Show("Не выбрано ни одного аналитика", "Выберите аналитика", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            
-            EFDataProvider.GetReport(SelectedReport, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
+            IsReady = false;
+            ReportBtnName = "Выгружаю отчет";
+            await _dbProvider.GetReportAsync(SelectedReport+1, SelectedAnalytics.ToArray(), StartReportDate, EndReportDate);
+            ReportBtnName = "Выгрузить отчет";
+            IsReady = true;
         }
 
-        private void CheckTimeForIntesectionMethod()
+        private async Task CheckTimeForIntesectionMethodAsync()
         {
-            if (!(EditedRecord.TimeStart >= initalTimeStart &&
-                EditedRecord.TimeStart < initalTimeEnd) &&
-                EFDataProvider.IsCollisionedWithOtherRecords(EditedRecord) ||
+            if (!(EditedRecord.TimeStart >= InitalTimeStart &&
+                EditedRecord.TimeStart < InitalTimeEnd) &&
+                await _dbProvider.IsCollisionedWithOtherRecordsAsync(EditedRecord) ||
                 (EditedRecord.TimeStart == EditedRecord.TimeEnd ||
                 EditedRecord.TimeStart > EditedRecord.TimeEnd))
             {
@@ -632,79 +756,100 @@ namespace TimeSheetApp.ViewModel
             RaisePropertyChanged(nameof(IsTimeCorrect));
         }
 
-        private void LoadSelection(Process selectedProcess)
+        private async Task SetupSelectionAsLastTimeAsync(Process selectedProcess)
         {
-            NewBusinessBlockChoiceCollection.Clear();
-            NewSupportsChoiceCollection.Clear();
-            NewEscalationsChoiceCollection.Clear();
-            NewRiskChoiceCollection.Clear();
             if (selectedProcess != null)
             {
-                Selection loadedSelection = LocalWorker.GetSelection(selectedProcess.Id);
-
-                if (loadedSelection != null)
+                TimeSheetTable lastRecord = await _dbProvider.GetLastRecordWithSameProcessAsync(selectedProcess.Id, CurrentUser.UserName);
+                if (lastRecord != null)
                 {
-                    foreach (BusinessBlock block in EFDataProvider.GetChoice(loadedSelection.BusinessBlockSelected, 0))
-                    {
-                        NewBusinessBlockChoiceCollection.Add(block);
-                    }
-                    foreach (Supports support in EFDataProvider.GetChoice(loadedSelection.SupportSelected, 1))
-                    {
-                        NewSupportsChoiceCollection.Add(support);
-                    }
-                    foreach (Escalation escalation in EFDataProvider.GetChoice(loadedSelection.EscalationSelected, 2))
-                    {
-                        NewEscalationsChoiceCollection.Add(escalation);
-                    }
-                    foreach (Risk risk in EFDataProvider.GetChoice(loadedSelection.RiskSelected, 3))
-                    {
-                        NewRiskChoiceCollection.Add(risk);
-                    }
-                    if ((NewRecord.ClientWays = Array.Find(ClientWays, i => i.Id == loadedSelection.ClientWaySelected)) == null)
-                    {
-                        NewRecord.ClientWays = ClientWays[0];
-                    }
-                    if ((NewRecord.Formats = Array.Find(FormatList, i => i.Id == loadedSelection.FormatSelected)) == null)
-                    {
-                        NewRecord.Formats = FormatList[0];
-                    }
-                    RaisePropertyChanged(nameof(NewRecord));
+                    BusinessBlockChoiceCollection.Clear();
+                    SupportsChoiceCollection.Clear();
+                    EscalationsChoiceCollection.Clear();
+                    RiskChoiceCollection.Clear();
+                    lastRecord.BusinessBlocks.Select(i => i.BusinessBlock).Distinct().ToList().ForEach(BusinessBlockChoiceCollection.Add);
+                    lastRecord.Supports.Select(i => i.Supports).Distinct().ToList().ForEach(SupportsChoiceCollection.Add);
+                    lastRecord.Escalations.Select(i => i.Escalation).Distinct().ToList().ForEach(EscalationsChoiceCollection.Add);
+                    lastRecord.Risks.Select(i => i.Risk).Distinct().ToList().ForEach(RiskChoiceCollection.Add);
+                    NewRecord.ClientWays = lastRecord.ClientWays;
+                    NewRecord.Formats = lastRecord.Formats;
                 }
+                RaisePropertyChanged(nameof(NewRecord));
             }
-            updateSubjectHints();
+            await UpdateSubjectsHintsAsync();
         }
 
-        private void DeleteHistoryRecord(TimeSheetTable record)
+        private async Task UpdateSubjectsHintsAsync()
         {
-            EFDataProvider.DeleteRecord(record);
-            UpdateTimeSpan();
+            var result = await _dbProvider.GetSubjectHintsAsync(NewRecord.Process);
+            subjectsFromDB = result.ToList();
+
+            SubjectHints.Clear();
+            int itemsCount = subjectsFromDB.Count;
+
+            for (int i = itemsCount - 1; i >= 0 && SubjectHints.Count < 11; i--)
+            {
+                if (subjectsFromDB.Count > 0 && !SubjectHints.Any(subj => subj.Equals(subjectsFromDB[i])))
+                {
+                    SubjectHints.Add(subjectsFromDB[i]);
+                }
+            }
+        }
+
+        private async Task DeleteHistoryRecordAsync(TimeSheetTable record)
+        {
+            TodayRecords.Remove(record);
+            await _dbProvider.DeleteRecordAsync(record.Id);
         }
 
         /// <summary>
         /// Заполняет коллекции списков значениями из БД
         /// </summary>
-        private void FillDataCollections()
+        private async Task FillDataCollectionsAsync()
         {
-            CurrentUser = EFDataProvider.LoadAnalyticData();
-            Processes = EFDataProvider.GetProcesses();
-            BusinessBlock = EFDataProvider.GetBusinessBlocks();
-            SupportsArr = EFDataProvider.GetSupports();
-            ClientWays = EFDataProvider.GetClientWays();
-            FormatList = EFDataProvider.GetFormat();
-            Escalations = EFDataProvider.GetEscalation();
-            RiskCol = EFDataProvider.GetRisks();
-            FilterProcessesMethod(string.Empty);
-            SubordinateEmployees = EFDataProvider.GetMyAnalyticsData(CurrentUser);
-            SubordinatedOrdered = GetAnalyticOrdereds(SubordinateEmployees);
-            UpdateTimeSpan();
+            string userName = Environment.UserName;
+#if DevAtHome
+            userName = "u_m0x0c";
+#endif
+
+            CurrentUser = _dbProvider.LoadAnalyticData(userName);
+            StartTimerToFilterProcesses(string.Empty);
+            IEnumerable<BusinessBlock> bBlocksResult = await _dbProvider.GetBusinessBlocksAsync();
+            IEnumerable<Supports> supportsResult = await _dbProvider.GetSupportsAsync();
+            IEnumerable<ClientWays> clientWaysResult = await _dbProvider.GetClientWaysAsync();
+            IEnumerable<Formats> formatsResult = await _dbProvider.GetFormatAsync();
+            IEnumerable<Escalation> escalationsResult = await _dbProvider.GetEscalationAsync();
+            IEnumerable<Risk> risksResult = await _dbProvider.GetRisksAsync();
+            IEnumerable<Process> processesResult = await _dbProvider.GetProcessesAsync();
+            IEnumerable<string> reportsResult = await _dbProvider.GetReportsAvailableAsync();
+            BusinessBlocks = bBlocksResult.ToList();
+            Supports = supportsResult.ToList();
+            ClientWays = clientWaysResult.ToList();
+            Formats = formatsResult.ToList();
+            Escalations = escalationsResult.ToList();
+            Risks = risksResult.ToList();
+            ReportsAvailable = reportsResult.ToList();
+            AllProcesses = new ObservableCollection<Process>(processesResult);
+            RaisePropertyChanged(nameof(BusinessBlocks));
+            RaisePropertyChanged(nameof(Supports));
+            RaisePropertyChanged(nameof(ClientWays));
+            RaisePropertyChanged(nameof(Formats));
+            RaisePropertyChanged(nameof(Escalations));
+            RaisePropertyChanged(nameof(Risks));
+            RaisePropertyChanged(nameof(ReportsAvailable));
+            await UpdateSubjectsHintsAsync();
+            var analyticsAsync = await _dbProvider.GetMyAnalyticsDataAsync(CurrentUser);
+            SubordinatedAnalytics = ConvertToStructuredAnalytics(analyticsAsync);
+            CurrentUserTeam = new ObservableCollection<Analytic>(analyticsAsync);
+
         }
 
-        private ObservableCollection<AnalyticOrdered> GetAnalyticOrdereds(IEnumerable<Analytic> analytics)
+        private ObservableCollection<StructuredAnalytic> ConvertToStructuredAnalytics(IEnumerable<Analytic> analytics)
         {
-            ObservableCollection<AnalyticOrdered> exportVal = new ObservableCollection<AnalyticOrdered>();
+            ObservableCollection<StructuredAnalytic> exportVal = new ObservableCollection<StructuredAnalytic>();
             foreach (Analytic analytic in analytics)
             {
-                AnalyticOrdered ordered = new AnalyticOrdered(analytic);
+                StructuredAnalytic ordered = new StructuredAnalytic(analytic);
                 ordered.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(Ordered_PropertyChanged);
                 exportVal.Add(ordered);
             }
@@ -715,132 +860,122 @@ namespace TimeSheetApp.ViewModel
         {
             if (e.PropertyName.Equals("Selected"))
             {
-                ReportSelectionUpdate();
+                OnAnalyticSelectionChanged();
             }
         }
 
-        private void UpdateTimeSpan()
+        private async Task UpdateTimeSpanAsync()
         {
-            HistoryRecords.Clear();
-            foreach (TimeSheetTable record in EFDataProvider.LoadTimeSheetRecords(CurrentDate, CurrentUser))
+            UpdateCalendarItemsMethod();
+            currentDispatcher.Invoke(() =>
             {
-                HistoryRecords.Add(record);
-            }
-            RaisePropertyChanged(nameof(TotalDurationInMinutes));
+                TodayRecords.Clear();
+            });
+            
+            IEnumerable<TimeSheetTable> records = await _dbProvider.LoadTimeSheetRecordsAsync(CurrentDate, CurrentUser.UserName);
+            currentDispatcher.Invoke(() =>
+            {
+                records.ToList().ForEach(TodayRecords.Add);
+            });
         }
 
-        private void FilterProcessesMethod(string filterText)
+        private void StartTimerToFilterProcesses(string userSearchInput)
         {
-            ProcessFiltered?.Clear();
-            Dictionary<Process, int> sortRule = new Dictionary<Process, int>();
-
-            if (string.IsNullOrWhiteSpace(filterText))
-            {
-                foreach (Process proc in Processes)
-                {
-                    sortRule.Add(proc, LocalWorker.ChoosenCounter(proc.Id));
-                }
-                foreach (KeyValuePair<Process, int> keyValue in sortRule.OrderByDescending(i => i.Value))
-                {
-                    ProcessFiltered.Add(keyValue.Key);
-                }
-                return;
-            }
-            foreach (Process process in Processes)
-            {
-                string codeFull = $"{process.Block_Id}.{process.SubBlock_Id}.{process.Id}";
-                if (process.ProcName.ToLower().IndexOf(filterText.ToLower()) > -1 || codeFull.IndexOf(filterText) > -1)
-                {
-                    sortRule.Add(process, LocalWorker.ChoosenCounter(process.Id));
-                }
-            }
-            foreach (KeyValuePair<Process, int> keyValue in sortRule.OrderByDescending(i => i.Value))
-            {
-                ProcessFiltered.Add(keyValue.Key);
-            }
-
-
+            int timeout = string.IsNullOrWhiteSpace(userSearchInput) ? 0 : 500;
+            delayTimer?.Dispose();
+            delayTimer = new Timer(DoFilter, userSearchInput, timeout, Timeout.Infinite);
+            UserFilteredProcesses = UserFilteredProcesses ?? new ObservableCollection<Process>();
         }
-        private void AddProcessMethod(TimeSheetTable newItem)
-        {
-            Console.WriteLine(newItem.Subject);
 
+        private async void DoFilter(object obj)
+        {
+            IEnumerable<Process> queryResult = await _dbProvider.GetProcessesSortedByRelevanceAsync(CurrentUser.UserName, (string)obj);
+            await currentDispatcher.Invoke(async ()=>{
+                UserFilteredProcesses.Clear();
+                queryResult.ToList().ForEach(UserFilteredProcesses.Add);
+                if (UserFilteredProcesses.Count > 0)
+                {
+                    await SetupSelectionAsLastTimeAsync(UserFilteredProcesses[0]);
+                    RaisePropertyChanged(nameof(UserFilteredProcesses));
+                }
+            });
+        }
+
+        Timer delayTimer;
+
+        private void ShowMessage(string msg, string subj, MessageBoxImage img)
+        {
+            currentDispatcher.Invoke(() =>
+            {
+                MessageBox.Show(msg, subj, MessageBoxButton.OK, img);
+            });
+        }
+
+        private async Task AddRecordMethod(TimeSheetTable newItem)
+        {
             #region UnitTest's
             if (IsIntersectsWithOtherRecords(newItem))
             {
-                MessageBox.Show("Добавляемая запись пересекается с другой активностью. Выберите другое время.", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                ShowMessage("Добавляемая запись пересекается с другой активностью. Выберите другое время.", "ошибка", MessageBoxImage.Exclamation);
                 return;
             }
             else if (newItem.TimeStart == newItem.TimeEnd)
             {
-                MessageBox.Show("Время начала равно времени окончания. Укажите корректное время", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                ShowMessage("Время начала равно времени окончания. Укажите корректное время", "ошибка", MessageBoxImage.Exclamation);
                 return;
             }
             else if (newItem.TimeStart > newItem.TimeEnd)
             {
-                MessageBox.Show("Время начала больше времени окончания. Укажите корректное время", "ошибка", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                ShowMessage("Время начала больше времени окончания. Укажите корректное время", "ошибка", MessageBoxImage.Exclamation);
+                return;
+            }
+            else if (BusinessBlockChoiceCollection.Count == 0)
+            {
+                ShowMessage("Не указан ни один бизнес блок. Укажите хотя бы один", "ошибка", MessageBoxImage.Exclamation);
                 return;
             }
             #endregion
 
-
-
-            #region Добавление в БД
-            int riskID = EFDataProvider.AddRiskChoice(newItem.RiskChoice);
-            int BBID = EFDataProvider.AddBusinessBlockChoice(newItem.BusinessBlockChoice);
-            int suppID = EFDataProvider.AddSupportChoiceSet(newItem.SupportChoice);
-            int escalID = EFDataProvider.AddEscalationChoice(newItem.EscalationChoice);
-            TimeSheetTable clonedActivity = new TimeSheetTable()
+            TimeSheetTable newRec = new TimeSheetTable
             {
-                AnalyticId = newItem.Analytic.Id,
-                BusinessBlockChoice_id = BBID,
+                Analytic = CurrentUser,
+                Risks = RiskChoiceCollection.Select(item => new RiskNew { TimeSheetTableId = newItem.Id, RiskId = item.Id }).ToList(),
+                Escalations = EscalationsChoiceCollection.Select(item => new EscalationNew { TimeSheetTableId = newItem.Id, EscalationId = item.Id }).ToList(),
+                BusinessBlocks = BusinessBlockChoiceCollection.Select(item => new BusinessBlockNew { TimeSheetTableId = newItem.Id, BusinessBlockId = item.Id }).ToList(),
+                Supports = SupportsChoiceCollection.Select(item => new SupportNew { TimeSheetTableId = newItem.Id, SupportId = item.Id }).ToList(),
                 ClientWaysId = newItem.ClientWays.Id,
-                EscalationChoice_id = escalID,
+                Comment = newItem.Comment,
                 FormatsId = newItem.Formats.Id,
                 Process_id = newItem.Process.Id,
-                Id = newItem.Id,
-                RiskChoice_id = riskID,
                 Subject = newItem.Subject,
-                Comment = newItem.Comment,
-                SupportChoice_id = suppID,
                 TimeStart = newItem.TimeStart,
                 TimeEnd = newItem.TimeEnd,
-                TimeSpent = newItem.TimeSpent
+                TimeSpent = (int)(newItem.TimeEnd - newItem.TimeStart).TotalMinutes
             };
-            EFDataProvider.AddActivity(clonedActivity);
-            #endregion
 
             #region Обновление представления
-            UpdateTimeSpan();
+            
             RaisePropertyChanged(nameof(TotalDurationInMinutes));
-            updateSubjectHints();
-            RaisePropertyChanged("subjectHints");
             newItem.TimeStart = newItem.TimeEnd;
             newItem.TimeEnd = newItem.TimeEnd.AddMinutes(15);
-            IgnoreSubjectTextChange = false;
-            newItem.Subject = string.Empty;
-
             IgnoreSubjectTextChange = true;
-
+            newItem.Subject = string.Empty;
+            IgnoreSubjectTextChange = false;
             newItem.Comment = string.Empty;
             RaisePropertyChanged(nameof(NewRecord));
             #endregion
+            TimeSheetTable newRecord = await _dbProvider.AddActivityAsync(newRec);
+            TodayRecords.Add(newRecord);
 
-            #region Запоминаем выбор
-            LocalWorker.StoreSelection(new Selection(
-                newItem.Process.Id,
-                BBID,
-                suppID,
-                newItem.ClientWays.Id,
-                escalID,
-                newItem.Formats.Id,
-                riskID));
-            #endregion
+            RaisePropertyChanged(nameof(LastMonthTimeSpent));
+            RaisePropertyChanged(nameof(LastMonthDaysWorked));
+            RaisePropertyChanged(nameof(LastWeekTimeSpent));
+            RaisePropertyChanged(nameof(LastWeekDaysWorked));
         }
 
         private bool IsIntersectsWithOtherRecords(TimeSheetTable record)
         {
-            if (EFDataProvider.IsCollisionedWithOtherRecords(record))
+            if (_dbProvider.IsCollisionedWithOtherRecords(record))
             {
                 return true;
             }
@@ -850,7 +985,7 @@ namespace TimeSheetApp.ViewModel
             }
         }
 
-        private void EditHistoryProcess(TimeSheetTable Record)
+        private async Task EditHistoryProcessAsync(TimeSheetTable Record)
         {
             if (Record == null) return;
             EditedRecord = new TimeSheetTable()
@@ -860,20 +995,15 @@ namespace TimeSheetApp.ViewModel
                 Subject = Record.Subject,
                 Comment = Record.Comment,
                 Process = Record.Process,
-                BusinessBlockChoice = Record.BusinessBlockChoice,
-                SupportChoice = Record.SupportChoice,
                 TimeStart = Record.TimeStart,
                 TimeEnd = Record.TimeEnd,
                 TimeSpent = Record.TimeSpent,
                 ClientWays = Record.ClientWays,
-                EscalationChoice = Record.EscalationChoice,
                 Formats = Record.Formats,
-                RiskChoice = Record.RiskChoice,
                 Id = Record.Id
             };
-            initalTimeStart = Record.TimeStart;
-            initalTimeEnd = Record.TimeEnd;
-            isEditState = true;
+            InitalTimeStart = Record.TimeStart;
+            InitalTimeEnd = Record.TimeEnd;
 
             #region LoadSelection
             BusinessBlockChoiceCollection.Clear();
@@ -881,42 +1011,51 @@ namespace TimeSheetApp.ViewModel
             EscalationsChoiceCollection.Clear();
             SupportsChoiceCollection.Clear();
 
-            foreach (BusinessBlock Bblock in EFDataProvider.LoadBusinessBlockChoice(Record.BusinessBlockChoice))
+            foreach (BusinessBlockNew Bblock in Record.BusinessBlocks)
             {
-                BusinessBlockChoiceCollection.Add(Bblock);
+                BusinessBlockChoiceCollection.Add(Bblock.BusinessBlock);
             }
-            foreach (Risk risk in EFDataProvider.LoadRiskChoice(Record.RiskChoice))
+            foreach (RiskNew risk in Record.Risks)
             {
-                RiskChoiceCollection.Add(risk);
+                RiskChoiceCollection.Add(risk.Risk);
             }
-            foreach (Supports suport in EFDataProvider.LoadSupportsChoice(Record.SupportChoice))
+            foreach (SupportNew suport in Record.Supports)
             {
-                SupportsChoiceCollection.Add(suport);
+                SupportsChoiceCollection.Add(suport.Supports);
             }
-            foreach (Escalation escalation in EFDataProvider.LoadEscalationChoice(Record.EscalationChoice))
+            foreach (EscalationNew escalation in Record.Escalations)
             {
-                EscalationsChoiceCollection.Add(escalation);
+                EscalationsChoiceCollection.Add(escalation.Escalation);
             }
             #endregion
 
             EditForm form = new EditForm();
             if (form.ShowDialog() == true)
             {
-                CheckTimeForIntesectionMethod();
-                int riskID = EFDataProvider.AddRiskChoice(EditedRecord.RiskChoice);
-                int BBID = EFDataProvider.AddBusinessBlockChoice(EditedRecord.BusinessBlockChoice);
-                int suppID = EFDataProvider.AddSupportChoiceSet(EditedRecord.SupportChoice);
-                int escalID = EFDataProvider.AddEscalationChoice(EditedRecord.EscalationChoice);
-                EditedRecord.RiskChoice_id = riskID;
-                EditedRecord.BusinessBlockChoice_id = BBID;
-                EditedRecord.SupportChoice_id = suppID;
-                EditedRecord.EscalationChoice_id = escalID;
-                EFDataProvider.UpdateProcess(Record, EditedRecord);
+                await CheckTimeForIntesectionMethodAsync();
+                _dbProvider.RemoveSelection(Record.Id);
+                EditedRecord.Risks.Clear();
+                EditedRecord.Process_id = EditedRecord.Process.Id;
+                EditedRecord.ClientWaysId = EditedRecord.ClientWays.Id;
+                EditedRecord.FormatsId = EditedRecord.Formats.Id;
+                EditedRecord.BusinessBlocks.Clear();
+                EditedRecord.Supports.Clear();
+                EditedRecord.Escalations.Clear();
+                EditedRecord.Risks.AddRange(RiskChoiceCollection.Select(item => new RiskNew { TimeSheetTableId = Record.Id, RiskId = item.Id }));
+                EditedRecord.BusinessBlocks.AddRange(BusinessBlockChoiceCollection.Select(item => new BusinessBlockNew { TimeSheetTableId = Record.Id, BusinessBlockId = item.Id }));
+                EditedRecord.Supports.AddRange(SupportsChoiceCollection.Select(item => new SupportNew { TimeSheetTableId = Record.Id, SupportId = item.Id }));
+                EditedRecord.Escalations.AddRange(EscalationsChoiceCollection.Select(item => new EscalationNew { TimeSheetTableId = Record.Id, EscalationId = item.Id }));
 
-                UpdateTimeSpan();
+                await _dbProvider.UpdateProcessAsync(Record, EditedRecord);
+                await UpdateTimeSpanAsync();
             }
-            isEditState = false;
+        }
 
+        private List<CalendarItem> GetDominoCalendar(DateTime date)
+        {
+            List<CalendarItem> items = worker.GetCalendarRecords(date);
+            CalendarItemsCount = items.Count;
+            return items;
         }
     }
 }

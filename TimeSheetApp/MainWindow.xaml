@@ -1,4 +1,5 @@
-﻿<Window xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"  x:Class="TimeSheetApp.MainWindow"
+﻿<Window xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"  
+        x:Class="TimeSheetApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,21 +7,29 @@
         xmlns:local="clr-namespace:TimeSheetApp"
         xmlns:Usercontrols="clr-namespace:TimeSheetApp.Controls"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-        xmlns:mvvm="http://www.galasoft.ch/mvvmlight"
+        xmlns:mvvm="http://www.galasoft.ch/mvvmlight" 
+        xmlns:lebedevcontrols1="clr-namespace:LebedevControls"
         mc:Ignorable="d"
-        Title="MainWindow" Height="750" Width="1100"
+        Title="{Binding Source={StaticResource Locator}, Path=Main.Title}" Height="600" Width="1000"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
-        IsEnabled="True" Icon="Resource/MainIco.ico" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" >
+         Icon="Resource/MainIco.ico" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing" WindowState="Normal" >
     <Window.Resources>
         <local:CodeFullConverter x:Key="CodeFullConverter"/>
-        <local:CodeDescriptionConverter x:Key="CodeDescriptionConverter"/>
         <local:DateTimeConverter x:Key="DateTimeConverter"/>
+        <local:AnalyticToFullNameConverter x:Key="AnalyticToFullNameConverter"/>
+        <Storyboard x:Key="loading">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[2].(RotateTransform.Angle)" Storyboard.TargetName="loadingImage" RepeatBehavior="Forever">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="360"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
     </Window.Resources>
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard Storyboard="{StaticResource loading}"/>
+        </EventTrigger>
+    </Window.Triggers>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="661*"/>
-            <ColumnDefinition Width="432*"/>
-        </Grid.ColumnDefinitions>
         <Button Name="HelpBtn" HorizontalAlignment="Right" VerticalAlignment="Top" Width="25" Height="25" Click="HelpBtn_Click" Background="AliceBlue" Grid.Column="1">
             <Image Source="Resource/Help.png"/>
         </Button>
@@ -28,9 +37,9 @@
             <TabItem Header="Учет времени">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="1.2*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1.444*"/>
                     </Grid.ColumnDefinitions>
                     <GridSplitter Grid.Column="0" Width="5" HorizontalAlignment="Right"/>
                     <GridSplitter Grid.Column="2" Width="5" HorizontalAlignment="Left"/>
@@ -52,7 +61,7 @@
                             </TextBox>
 
                         </StackPanel>
-                        <ListView Name = "ProcessList" ItemsSource="{Binding ProcessFiltered}" SelectedItem="{Binding NewRecord.Process}" Margin="0,0,10,0" Grid.Row="1" SelectedIndex="0">
+                        <ListView Name = "ProcessList" ItemsSource="{Binding UserFilteredProcesses}" SelectedItem="{Binding NewRecord.Process}" Margin="0,0,10,0" Grid.Row="1" SelectedIndex="0">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="SelectionChanged">
                                     <mvvm:EventToCommand Command="{Binding LoadSelectionForSelectedProcess}"
@@ -66,16 +75,24 @@
                             <ListView.View>
                                 <GridView AllowsColumnReorder="False">
 
-                                    <GridViewColumn Header="Код" >
+                                    <GridViewColumn Header="Код">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
-                                                    <TextBlock Text="{Binding Converter={StaticResource CodeFullConverter}}" ToolTip="{Binding Converter={StaticResource CodeDescriptionConverter}}"/>
+                                                    <TextBlock Text="{Binding CodeFull}" ToolTip="{Binding CodeFull}"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="Процесс" Width="297" DisplayMemberBinding="{Binding Path=ProcName}"/>
+                                    <GridViewColumn Header="Процесс" Width="150">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <TextBlock TextWrapping="Wrap" Text="{Binding ProcName}" ToolTip="{Binding ProcName}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
                                 </GridView>
                             </ListView.View>
                             <ListView.GroupStyle>
@@ -110,120 +127,275 @@
 
                         </StackPanel>
                     </Grid>
-                    <Grid Grid.Column="1">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="10*"/>
-                            <RowDefinition Height="6*"/>
-                        </Grid.RowDefinitions>
+                    <Grid Grid.Column="1" >
+                        <ScrollViewer>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30*" MinHeight="30px"/>
+                                    <RowDefinition Height="60*" MinHeight="60px"/>
+                                    <RowDefinition Height="480*"/>
+                                    <RowDefinition Height="160*" MinHeight="160px"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Grid.RowSpan="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <StackPanel VerticalAlignment="Top">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Style="{StaticResource SelectableImage}" Width="30" Height="30" Click="PrevDate_Click">
+                                                <Image Source="Resource/LeftArrow.png"/>
+                                            </Button>
+                                            <Button Width="50" Height="50" Style="{StaticResource SelectableImage}" Click="SelectToday_Click">
+                                                <Image Source="Resource/calendarIcon.png" HorizontalAlignment="Center"/>
+                                            </Button>
+                                            <Button Style="{StaticResource SelectableImage}" Width="30" Height="30" Click="NextDate_Click">
+                                                <Image Source="Resource/RightArrow.png"/>
+                                            </Button>
+                                        </StackPanel>
+                                        <DatePicker Name="DateBox" Grid.Row="0" HorizontalAlignment="Center" Width="100" Height="30" SelectedDateChanged="DateBox_SelectedDateChanged" SelectedDate="{Binding CurrentDate}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectedDateChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ReloadHistoryRecords}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </DatePicker>
 
+                                    </StackPanel>
+                                    <StackPanel VerticalAlignment="Top">
+                                        <Button Style="{StaticResource SelectableImage}" Name="StartIcon" HorizontalAlignment="Center" Height="50"  Width="50" Click="TimeIcon_MouseDown">
+                                            <Image  Source="Resource/AddClock.png" />
+                                        </Button>
+                                        <xctk:TimePicker Name="TimeIn" 
+                                                 Width="70" 
+                                                 Height="30"
+                                                 Margin="5,0,0,0" 
+                                                 HorizontalAlignment="Left" 
+                                                 TextAlignment="Center" 
+                                                 TimeInterval="0:15:0" 
+                                                 Grid.Row="2"
+                                     Value="{Binding NewRecord.TimeStart}" 
+                                                 ValueChanged="TimeSelectionChanged" 
+                                                 DefaultValue="01/18/2020 09:00:00" 
+                                                 MaxDropDownHeight="600" 
+                                                 StartTime="7:0:0" 
+                                                 CultureInfo="ru-RU" 
+                                                 CurrentDateTimePart="Hour24" 
+                                                 Kind="Local" 
+                                                 MouseWheelActiveTrigger="Focused" 
+                                                 FormatString="HH:mm" 
+                                                 ButtonSpinnerLocation="Left" 
+                                                 Format="Custom"
+                                                 
+                                                 >
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <mvvm:EventToCommand Command="{Binding TimeSelected}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </xctk:TimePicker>
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <Button Style="{StaticResource SelectableImage}" HorizontalAlignment="Center" Width="50" Height="50" Name="EndIcon" Click="TimeIcon_MouseDown">
+                                            <Image Source="Resource/DeleteClock.png" Width="auto" Margin="0"/>
+                                        </Button>
+                                        <xctk:TimePicker Name="Timeout" 
+                                                 Width="70" 
+                                                 Height="30"
+                                                 Margin="5,0,0,0" 
+                                                 HorizontalAlignment="Right" 
+                                                 TextAlignment="Center" 
+                                                 TimeInterval="0:15:0" 
+                                                 Grid.Row="2"
+                                    Value="{Binding NewRecord.TimeEnd}" 
+                                                 ValueChanged="TimeSelectionChanged" 
+                                                 DefaultValue="01/18/2020 09:00:00" 
+                                                 MaxDropDownHeight="600" 
+                                                 StartTime="7:0:0" 
+                                                 CultureInfo="ru-RU" 
+                                                 CurrentDateTimePart="Hour24" 
+                                                 Kind="Local" 
+                                                 MouseWheelActiveTrigger="Focused" 
+                                                 Format="Custom" 
+                                                 FormatString="HH:mm" 
+                                                 ButtonSpinnerLocation="Left">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <mvvm:EventToCommand Command="{Binding TimeSelected}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </xctk:TimePicker>
 
+                                    </StackPanel>
+                                    <Button
+                            Click="SelectCalendarItem_BtnClick"
+                            Margin="5,0,0,0"
+                            IsEnabled="{Binding IsCalendarReady}"
+                            Grid.Row="1"
+                            HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Width="50"
+                                Height="50"
+                            Style="{StaticResource SelectableImage}">
+                                        <Grid >
+                                            <Image Source="Resource/calendar.png" HorizontalAlignment="Center" Panel.ZIndex="1"/>
+                                            <Image Name="loadingImage" Source="Resource/loading.png" HorizontalAlignment="Center" Panel.ZIndex="0" Width="20" Height="20" 
+                                           Visibility="{Binding LoadingVisibility}" RenderTransformOrigin="0.5,0.5">
+                                                <Image.RenderTransform>
+                                                    <TransformGroup>
+                                                        <ScaleTransform/>
+                                                        <SkewTransform/>
+                                                        <RotateTransform/>
+                                                        <TranslateTransform/>
+                                                    </TransformGroup>
+                                                </Image.RenderTransform>
+                                            </Image>
+                                            <TextBlock Text="{Binding CalendarItemsCount, StringFormat={}{0}}"
+                                               Visibility="{Binding LoadingVisibilityInverted}"
+                                               VerticalAlignment="Center" 
+                                               Foreground="DarkRed" 
+                                               FontSize="18" 
+                                               HorizontalAlignment="Center"/>
+                                        </Grid>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Name="StackPanel2" Grid.Row="2" Margin="0,10,0,0" DataContext="{Binding Main, Source={StaticResource Locator}}" >
+                                    <Line X1="0" X2="{Binding ElementName=StackPanel2, Path=ActualWidth}" Stroke="Black" StrokeThickness="1"/>
+                                    <lebedevcontrols1:TimeSelector Min="07:00:00" Max="19:15" 
+                                                          MinTimeSelected="{Binding TimeSelectorMin, Mode=TwoWay}"
+                                                          MaxTimeSelected="{Binding TimeSelectorMax, Mode=TwoWay}"
+                                                          BusyTime="{Binding Source={StaticResource Locator}, Path=Main.BusyTime, Mode=OneWay}"/>
+                                    <Line X1="0" X2="{Binding ElementName=StackPanel2, Path=ActualWidth}" Stroke="Black" StrokeThickness="1"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Label Content="Бизнес подразделение" FontWeight="Bold" FontSize="16" />
+                                        <Button Width="20" Height="20" Style="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="HideOrShowBBSelectors">
+                                            <WrapPanel>
+                                                <Image Name="bbminimg" Source="/Resource/minimize.png"/>
+                                                <Image Name="bbmax" Visibility="Collapsed" Source="/Resource/maximize.png"/>
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
+                                    <lebedevcontrols1:MultiValuesSelector x:Name="BBSelectors" Height="40" ItemsSource="{Binding BusinessBlocks}" SelectedItems="{Binding BusinessBlockChoiceCollection}" DisplayMember="ShortName" DisplayTipMember="BusinessBlockName" AllSelectButton="True" AllowMultiSelect="True"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Label Content="Support" FontWeight="Bold" FontSize="16" />
+                                        <Button Width="20" Height="20" Style="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="HideOrShowSupSelectors">
+                                            <WrapPanel>
+                                                <Image Name="Supminimg" Source="/Resource/minimize.png"/>
+                                                <Image Name="supmax" Visibility="Collapsed" Source="/Resource/maximize.png"/>
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
+                                    <lebedevcontrols1:MultiValuesSelector x:Name="SupSelector" Height="40" ItemsSource="{Binding Supports}" SelectedItems="{Binding SupportsChoiceCollection}" DisplayMember="Name" DisplayTipMember="Name" AllSelectButton="True" AllowMultiSelect="True"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Label Content="Клиентские пути" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                                        <Button Width="20" Height="20" Style="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="HideOrShowCWSelectors">
+                                            <WrapPanel>
+                                                <Image Name="CWminimg" Source="/Resource/minimize.png"/>
+                                                <Image Name="CWmax" Visibility="Collapsed" Source="/Resource/maximize.png"/>
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
+                                    <lebedevcontrols1:MultiValuesSelector x:Name="CWSelector" Height="40" ItemsSource="{Binding ClientWays}" LastSelectedItem="{Binding NewRecord.ClientWays, Mode=TwoWay}" AllowMultiSelect="False" DisplayMember="ShortName" DisplayTipMember="Name" AllSelectButton="False"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Label Content="Эскалация" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                                        <Button Width="20" Height="20" Style="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="HideOrShowEscSelectors">
+                                            <WrapPanel>
+                                                <Image Name="Escminimg" Source="/Resource/minimize.png"/>
+                                                <Image Name="Escmax" Visibility="Collapsed" Source="/Resource/maximize.png"/>
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
+                                    <lebedevcontrols1:MultiValuesSelector x:Name="EscSelector" Height="40"  ItemsSource="{Binding Escalations}" SelectedItems="{Binding EscalationsChoiceCollection}" DisplayMember="Name" DisplayTipMember="Name" AllSelectButton="True" AllowMultiSelect="True"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Label Content="Формат" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                                        <Button Width="20" Height="20" Style="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="HideOrShowFormatSelectors">
+                                            <WrapPanel>
+                                                <Image Name="Formatminimg" Source="/Resource/minimize.png"/>
+                                                <Image Name="Formatmax" Visibility="Collapsed" Source="/Resource/maximize.png"/>
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
+                                    <lebedevcontrols1:MultiValuesSelector x:Name="FormatSelector" Height="40" ItemsSource="{Binding Formats}" LastSelectedItem="{Binding NewRecord.Formats, Mode=TwoWay}" AllowMultiSelect="False" DisplayMember="Name" DisplayTipMember="Name" AllSelectButton="False"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Label Content="Риск" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                                        <Button Width="20" Height="20" Style="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="HideOrShowRiskSelectors">
+                                            <WrapPanel>
+                                                <Image Name="Riskminimg" Source="/Resource/minimize.png"/>
+                                                <Image Name="Riskmax" Visibility="Collapsed" Source="/Resource/maximize.png"/>
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
 
-
-                        <StackPanel Grid.Row="0" Orientation="Horizontal">
-                            <Image Source="Resource/calendarIcon.png" HorizontalAlignment="Left"  Margin="25,2,0,2" Width="25"/>
-                            <Image Name="StartIcon" Source="Resource/AddClock.png" HorizontalAlignment="Left"  Margin="60,2,0,2" Width="25" MouseDown="TimeIcon_MouseDown"/>
-                            <Image Name="EndIcon" Source="Resource/DeleteClock.png" HorizontalAlignment="Right"  Margin="50,2,0,2" Width="25" MouseDown="TimeIcon_MouseDown"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="1" Orientation="Horizontal">
-                            <DatePicker Name="DateBox" Grid.Row="0" HorizontalAlignment="Right" Width="100" SelectedDateChanged="DateBox_SelectedDateChanged" SelectedDate="{Binding CurrentDate}">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="SelectedDateChanged">
-                                        <mvvm:EventToCommand Command="{Binding ReloadHistoryRecords}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </DatePicker>
-                            <xctk:TimePicker Name="TimeIn" Width="70" Margin="5,0,0,0" HorizontalAlignment="Left" TextAlignment="Center" TimeInterval="0:15:0" Grid.Row="2"
-                                 Value="{Binding NewRecord.TimeStart}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0" CultureInfo="ru-RU" CurrentDateTimePart="Hour24" Kind="Local" MouseWheelActiveTrigger="Focused" FormatString="HH:mm" ButtonSpinnerLocation="Left" Format="Custom"/>
-                            <xctk:TimePicker Name="Timeout" Width="70" Margin="5,0,0,0" HorizontalAlignment="Right" TextAlignment="Center" TimeInterval="0:15:0" Grid.Row="2"
-                                 Value="{Binding NewRecord.TimeEnd}" ValueChanged="TimeSelectionChanged" DefaultValue="01/18/2020 09:00:00" MaxDropDownHeight="600" StartTime="7:0:0" CultureInfo="ru-RU" CurrentDateTimePart="Hour24" Kind="Local" MouseWheelActiveTrigger="Focused" Format="Custom" FormatString="HH:mm" ButtonSpinnerLocation="Left"/>
-
-                        </StackPanel>
-
-
-
-                        <StackPanel Grid.Row="2" Margin="0,10,0,0" DataContext="{Binding Main, Source={StaticResource Locator}}">
-                            <Label Content="Бизнес подразделение" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="businessCombo" Height="30" DisplayMemberPath="BusinessBlockName"  ItemsSource="{Binding BusinessBlock}" SelectedItemsOverride="{Binding NewBusinessBlockChoiceCollection}" Delimiter=", " IsSelectAllActive="True" IsTextSearchCaseSensitive="True">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="ItemSelectionChanged">
-                                        <mvvm:EventToCommand Command="{Binding StoreSelection}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </xctk:CheckComboBox>
-                            <Label Content="Support" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Height="30" Name="supportCombo" DisplayMemberPath="Name" ItemsSource="{Binding SupportsArr}" SelectedItemsOverride="{Binding NewSupportsChoiceCollection}" IsSelectAllActive="True">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="ItemSelectionChanged">
-                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding SupportsChoiceCollection}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </xctk:CheckComboBox>
-                            <Label Content="Клиентские пути" FontWeight="Bold"/>
-                            <ComboBox Name="clientWaysCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding ClientWays}" SelectedItem="{Binding NewRecord.ClientWays}" SelectedIndex="0"/>
-                            <Label Content="Эскалация" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="escalationCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding Escalations}" SelectedItemsOverride="{Binding NewEscalationsChoiceCollection}" IsSelectAllActive="True">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="ItemSelectionChanged">
-                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding EscalationsChoiceCollection}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </xctk:CheckComboBox>
-                            <Label Content="Формат" FontWeight="Bold"/>
-                            <ComboBox Name="formatCombo" Height="30" DisplayMemberPath="Name" ItemsSource="{Binding FormatList}" SelectedItem="{Binding NewRecord.Formats}" SelectedIndex="0"/>
-                            <Label Content="Риск" FontWeight="Bold"/>
-                            <xctk:CheckComboBox Name="riskCombo" Height="30" ItemsSource="{Binding RiskCol}" DisplayMemberPath="RiskName" SelectedItemsOverride="{Binding NewRiskChoiceCollection}" IsSelectAllActive="True">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="ItemSelectionChanged">
-                                        <mvvm:EventToCommand Command="{Binding StoreSelection}" CommandParameter="{Binding RiskChoiceCollection}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </xctk:CheckComboBox>
-
-                            <Button Name="Add" Height="35" Margin="0,10,0,0" 
+                                    <lebedevcontrols1:MultiValuesSelector x:Name="RiskSelector" Height="40" ItemsSource="{Binding Risks}" SelectedItems="{Binding RiskChoiceCollection}" DisplayMember="RiskName" DisplayTipMember="RiskName" AllSelectButton="True" AllowMultiSelect="True"/>
+                                    <Button Name="Add" Height="35" Margin="0,10,0,0" 
                         DataContext="{Binding Main, Source={StaticResource Locator}}"
                         Command="{Binding AddProcess}"
                         CommandParameter="{Binding NewRecord}"
                         Style="{StaticResource GreenButton}" Click="Add_Click">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Center">
-                                    <Label Content="Добавить активность" VerticalAlignment="Center" />
-                                    <Image Source="Resource/AddIcon.png"/>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Center">
+                                            <Label Content="Добавить активность" VerticalAlignment="Center" />
+                                            <Image Source="Resource/AddIcon.png"/>
+                                        </StackPanel>
+                                    </Button>
                                 </StackPanel>
-                            </Button>
-                        </StackPanel>
-                        <StackPanel Orientation="Vertical" Grid.Row="4" >
-                            <Label Content="Тема" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
-                            <Usercontrols:HintTextBox x:Name="Subject" Margin="0,0,5,0" Height="30" Text="{Binding NewRecord.Subject, Mode=TwoWay}" ItemsSource="{Binding SubjectHints, Mode=OneWay}" IgnoreTextChange="{Binding IgnoreSubjectTextChange}"/>
-                            <Label Content="Комментарий" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
-                            <TextBox Name="Comment" Margin="0,0,5,0" Height="150" TextWrapping="Wrap" AcceptsReturn="True" 
+                                <StackPanel Orientation="Vertical" Grid.Row="4" >
+                                    <Label Content="Тема" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
+                                    <Usercontrols:HintTextBox 
+                                x:Name="Subject" 
+                                Margin="0,0,5,0" 
+                                Height="60" 
+                                Text="{Binding NewRecord.Subject, Mode=TwoWay}" 
+                                ItemsSource="{Binding SubjectHints, Mode=OneWay}" 
+                                IgnoreTextChange="{Binding IgnoreSubjectTextChange}"/>
+                                    <!--TextChangedEvent="Subject_TextChangedEvent"/>-->
+                                    <Label Content="Комментарий" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
+                                    <TextBox Name="Comment" Margin="0,0,5,0" Height="50" TextWrapping="Wrap" AcceptsReturn="True" 
                          Text="{Binding NewRecord.Comment}"/>
-                        </StackPanel>
-
+                                </StackPanel>
+                            </Grid>
+                        </ScrollViewer>
                     </Grid>
+
                     <Grid Grid.Column="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="10*"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <ListView Name="TimeSpanListView"  ItemsSource="{Binding HistoryRecords}" Margin="10,0,0,0" Grid.Row="0">
+
+                        <ListView Name="TimeSpanListView" ItemsSource="{Binding TodayRecords}" Margin="10,0,0,0" Grid.Row="0">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseDoubleClick">
                                     <mvvm:EventToCommand Command="{Binding Main.EditProcess, Source={StaticResource Locator}}"
                                                 CommandParameter="{Binding ElementName=TimeSpanListView, Path=SelectedItem}"/>
                                 </i:EventTrigger>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <mvvm:EventToCommand 
+                                        Command="{Binding StoreSelectedRecords}"
+                                        CommandParameter="{Binding ElementName=TimeSpanListView, Path=SelectedItems}"/>
+                                </i:EventTrigger>
                             </i:Interaction.Triggers>
+                            <ListView.Resources>
+                                <ContextMenu x:Key="ItemContextMenu">
+                                    <!--TODO реализовать<MenuItem Header="Копировать" Command="{Binding Source={StaticResource Locator}, Path=Main}"/>-->
+                                    <MenuItem Header="Выбрать время до" Click="SelectTimeBeforeClick"/>
+                                    <MenuItem Header="Выбрать время после" Click="SelectTimeAfterClick"/>
+                                </ContextMenu>
+                            </ListView.Resources>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}">
+                                    <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}"/>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ContextMenu>
+                                <ContextMenu>
+                                    <!--TODO Реализовать<MenuItem Header="Вставить" Click="SelectTimeBeforeClick"/>-->
+                                </ContextMenu>
+                            </ListView.ContextMenu>
                             <ListView.View>
                                 <GridView>
-
                                     <GridViewColumn Header="Start" Width="50" DisplayMemberBinding="{Binding Path=TimeStart, StringFormat={}{0:HH:mm}}"/>
                                     <GridViewColumn Header="End" Width="50" DisplayMemberBinding="{Binding Path=TimeEnd, StringFormat={}{0:HH:mm}}"/>
                                     <GridViewColumn Header="Процесс" Width="50" >
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
-                                                    <TextBlock Text="{Binding Converter={StaticResource CodeFullConverter}}" ToolTip="{Binding Converter={StaticResource CodeDescriptionConverter}}"/>
+                                                    <TextBlock Text="{Binding Process_id}"/>
                                                 </Grid>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
@@ -265,6 +437,93 @@
                     </Grid>
                 </Grid>
             </TabItem>
+            <TabItem Header="Личный кабинет">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300*"/>
+                        <ColumnDefinition Width="500*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="10,5">
+                            <Image Source="Resource/User.png" Width="50"/>
+                            <TextBlock Text="ФИО: " VerticalAlignment="Center" MaxWidth="215" TextWrapping="WrapWithOverflow"/>
+                            <TextBlock Name="UserNameLabel" Text="{Binding Source={StaticResource Locator}, Path=Main.CurrentUserFullName, Mode=OneWay}" VerticalAlignment="Center" MaxWidth="215" TextWrapping="WrapWithOverflow" Visibility="Visible"/>
+                            <TextBox Name="EditUserName" LostFocus="EditUserName_LostFocus" KeyDown="EditUserName_KeyDown" Text="{Binding Source={StaticResource Locator}, Path=Main.CurrentUserFullName, Mode=OneWay}" 
+                                     VerticalAlignment="Center" BorderBrush="{x:Null}" MaxWidth="215" TextWrapping="WrapWithOverflow" 
+                                     Visibility="Collapsed">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="TextChanged">
+                                        <mvvm:EventToCommand Command="{Binding FinilizeEditUserName}"
+                                                             CommandParameter="{Binding ElementName=EditUserName, Path=Text}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </TextBox>
+                            <Button Name="editUserNameBtn" Margin="10,0,0,0" Height="20" BorderBrush="{x:Null}" Background="{x:Null}" Click="EditUserNameBtn_Click">
+                                <Image Source="Resource/Edit.png"/>
+                            </Button>
+                        </StackPanel>
+                        <GroupBox Margin="10,5" Header="Подразделение" FontSize="10" Foreground="#FF686868">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Департамент: " Foreground="#FF1E1E1E"/>
+                                    <TextBlock Text="{Binding CurrentUser.Departments.Name}" Foreground="#FF1E1E1E"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Дирекция: " Foreground="#FF1E1E1E"/>
+                                    <TextBlock Text="{Binding CurrentUser.Directions.Name}" Foreground="#FF1E1E1E"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Управление: " Foreground="#FF1E1E1E"/>
+                                    <TextBlock Text="{Binding CurrentUser.Upravlenie.Name}" Foreground="#FF1E1E1E"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Отдел: " Foreground="#FF1E1E1E"/>
+                                    <TextBlock Text="{Binding CurrentUser.Otdel.Name}" Foreground="#FF1E1E1E"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Административный руководитель: " Foreground="#FF1E1E1E"/>
+                                    <TextBlock Text="{Binding CurrentUser.AdminHead, Converter={StaticResource AnalyticToFullNameConverter}}" Foreground="#FF1E1E1E"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Функциональный руководитель: " Foreground="#FF1E1E1E"/>
+                                    <TextBlock Text="{Binding CurrentUser.FunctionHead, Converter={StaticResource AnalyticToFullNameConverter}}" Foreground="#FF1E1E1E"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Margin="10,5" Header="Доступы"  FontSize="10" Foreground="#FF686868">
+                            <TextBlock Text="{Binding CurrentUser.Role.UIName, StringFormat=Роль в системе: {0}}" Foreground="#FF1E1E1E"/>
+                        </GroupBox>
+                    </StackPanel>
+                    <Grid Grid.Column="1" Margin="0,10,5,10">
+                        <StackPanel>
+                            <GroupBox Header="Аналитика" FontSize="10" Foreground="#FF686868">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding LastMonthTimeSpent, StringFormat=Активность за прошлый месяц: {0}ч }" Foreground="#FF1E1E1E" Margin="0,2"/>
+                                        <TextBlock Text="{Binding LastMonthDaysWorked, StringFormat= (отработано {0} дней)}" Foreground="#FF1E1E1E" Margin="0,2"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding LastWeekTimeSpent, StringFormat=Активность за прошлую неделю: {0}ч }" Foreground="#FF1E1E1E" Margin="0,2"/>
+                                        <TextBlock Text="{Binding LastWeekDaysWorked, StringFormat= (отработано {0} дней)}" Foreground="#FF1E1E1E" Margin="0,2"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="Команда" FontSize="10" Foreground="#FF686868">
+                                <StackPanel>
+                                    <ListView ItemsSource="{Binding CurrentUserTeam}"  MinHeight="200" Grid.Row="1" SelectedIndex="0" FontSize="10" BorderBrush="{x:Null}" ScrollViewer.CanContentScroll="False" ScrollViewer.VerticalScrollBarVisibility="Auto" Foreground="Black" Background="{x:Null}">
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridViewColumn Header="ФИО" DisplayMemberBinding="{Binding Converter={StaticResource AnalyticToFullNameConverter}}" Width="200"/>
+                                                <GridViewColumn Header="Должность" Width="150" DisplayMemberBinding="{Binding Positions.Name}"/>
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
+                                </StackPanel>
+                            </GroupBox>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </TabItem>
             <TabItem Header="Отчетность">
                 <Grid>
                     <Grid>
@@ -278,7 +537,7 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             <TextBlock Text="Сотрудники:" FontSize="16" VerticalAlignment="Center"/>
-                            <TreeView x:Name="treeView1" ItemsSource="{Binding NodesCollection}" Grid.Row="1" AlternationCount="1" OverridesDefaultStyle="True">
+                            <TreeView x:Name="treeView1" ItemsSource="{Binding SubordinatedAnalyticNodes}" Grid.Row="1" AlternationCount="1" OverridesDefaultStyle="True">
                                 <TreeView.Style>
                                     <Style TargetType="{x:Type TreeView}">
                                         <Setter Property="Background" Value="White"/>
@@ -354,12 +613,12 @@
                                 <Label Content="Конечная дата:"/>
                                 <DatePicker Name="EndDatePicker" SelectedDate="{Binding EndReportDate}" />
                             </StackPanel>
-                            <Button Name="GetReport" Content="Выгрузить отчет" Height="50" Margin="5,5,5,10" 
+                            <Button Name="GetReport" IsEnabled="{Binding Source={StaticResource Locator}, Path=Main.IsReady}" Content="{Binding ReportBtnName}" Height="50" Margin="5,5,5,10" 
                                     Command="{Binding GetReport}"/>
                             <TextBlock Text="Выбранные сотрудники:"/>
-                            <ListView Name="SelectedAnalyticsTable" ItemsSource="{Binding SelectedAnalytics}" IsEnabled="False" >
+                            <ListView Name="SelectedAnalyticsTable" ItemsSource="{Binding SelectedAnalytics}" Height="400" SelectionMode="Single">
                                 <ListView.View>
-                                    <GridView AllowsColumnReorder="False">
+                                    <GridView >
                                         <GridViewColumn Header="Фамилия" Width="150" DisplayMemberBinding="{Binding LastName}"/>
                                         <GridViewColumn Header="Имя" Width="150" DisplayMemberBinding="{Binding FirstName}"/>
                                         <GridViewColumn Header="Отчество" Width="150" DisplayMemberBinding="{Binding FatherName}"/>
@@ -370,9 +629,7 @@
                     </Grid>
                 </Grid>
             </TabItem>
-
         </TabControl>
-
-
     </Grid>
 </Window>
+
