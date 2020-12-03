@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -40,6 +41,8 @@ namespace TimeSheetApp
                 DateBox.SelectedDate = DateTime.Now;
 
                 isInitialized = true;
+
+                LoadConfig();
 
                 //Если это первый запуск после обновления - запустится help с информацией об обновлении
                 if (File.Exists("updated.txt"))
@@ -313,6 +316,158 @@ namespace TimeSheetApp
         private void NextDate_Click(object sender, RoutedEventArgs e)
         {
             DateBox.SelectedDate = DateBox.SelectedDate.Value.AddDays(1);
+        }
+
+        private void HideOrShowBBSelectors(object sender, RoutedEventArgs e)
+        {
+            if(BBSelectors.Visibility == Visibility.Visible)
+            {
+                BBSelectors.Visibility = Visibility.Collapsed;
+                bbminimg.Visibility = Visibility.Collapsed;
+                bbmax.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                BBSelectors.Visibility = Visibility.Visible;
+                bbminimg.Visibility = Visibility.Visible;
+                bbmax.Visibility = Visibility.Collapsed;
+            }
+        }
+        private void HideOrShowSupSelectors(object sender, RoutedEventArgs e)
+        {
+            if (SupSelector.Visibility == Visibility.Visible)
+            {
+                SupSelector.Visibility = Visibility.Collapsed;
+                Supminimg.Visibility = Visibility.Collapsed;
+                supmax.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                SupSelector.Visibility = Visibility.Visible;
+                Supminimg.Visibility = Visibility.Visible;
+                supmax.Visibility = Visibility.Collapsed;
+            }
+        }
+        private void HideOrShowCWSelectors(object sender, RoutedEventArgs e)
+        {
+            if (CWSelector.Visibility == Visibility.Visible)
+            {
+                CWSelector.Visibility = Visibility.Collapsed;
+                CWminimg.Visibility = Visibility.Collapsed;
+                CWmax.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                CWSelector.Visibility = Visibility.Visible;
+                CWminimg.Visibility = Visibility.Visible;
+                CWmax.Visibility = Visibility.Collapsed;
+            }
+        }
+        private void HideOrShowEscSelectors(object sender, RoutedEventArgs e)
+        {
+            if (EscSelector.Visibility == Visibility.Visible)
+            {
+                EscSelector.Visibility = Visibility.Collapsed;
+                Escminimg.Visibility = Visibility.Collapsed;
+                Escmax.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                EscSelector.Visibility = Visibility.Visible;
+                Escminimg.Visibility = Visibility.Visible;
+                Escmax.Visibility = Visibility.Collapsed;
+            }
+        }
+        private void HideOrShowFormatSelectors(object sender, RoutedEventArgs e)
+        {
+            if (FormatSelector.Visibility == Visibility.Visible)
+            {
+                FormatSelector.Visibility = Visibility.Collapsed;
+                Formatminimg.Visibility = Visibility.Collapsed;
+                Formatmax.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                FormatSelector.Visibility = Visibility.Visible;
+                Formatminimg.Visibility = Visibility.Visible;
+                Formatmax.Visibility = Visibility.Collapsed;
+            }
+        }
+        private void HideOrShowRiskSelectors(object sender, RoutedEventArgs e)
+        {
+            if (RiskSelector.Visibility == Visibility.Visible)
+            {
+                RiskSelector.Visibility = Visibility.Collapsed;
+                Riskminimg.Visibility = Visibility.Collapsed;
+                Riskmax.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                RiskSelector.Visibility = Visibility.Visible;
+                Riskminimg.Visibility = Visibility.Visible;
+                Riskmax.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void LoadConfig()
+        {
+            string config = "111111";
+            if (File.Exists("UIconfig.bin"))
+            {
+                using (StreamReader sr = new StreamReader("UIconfig.bin"))
+                {
+                    config = sr.ReadToEnd();
+                    if (config.Length != 6)
+                        return;
+                }
+            }
+            for (int i = 0; i < config.Length; i++)
+            {
+                if (config[i].Equals('0'))
+                {
+                    switch (i) 
+                    {
+                        case (0):
+                            HideOrShowBBSelectors(null, null);
+                            break;
+                        case (1):
+                            HideOrShowSupSelectors(null, null);
+                            break;
+                        case (2):
+                            HideOrShowCWSelectors(null, null);
+                            break;
+                        case (3):
+                            HideOrShowEscSelectors(null, null);
+                            break;
+                        case (4):
+                            HideOrShowFormatSelectors(null, null);
+                            break;
+                        case (5):
+                            HideOrShowRiskSelectors(null, null);
+                            break;
+                    }
+                }
+            }
+        }
+
+        private void SaveConfig()
+        {
+            using(StreamWriter sw = new StreamWriter("UIconfig.bin", false))
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append(BBSelectors.Visibility == Visibility.Visible ? 1 : 0);
+                sb.Append(SupSelector.Visibility == Visibility.Visible ? 1 : 0);
+                sb.Append(CWSelector.Visibility == Visibility.Visible ? 1 : 0);
+                sb.Append(EscSelector.Visibility == Visibility.Visible ? 1 : 0);
+                sb.Append(FormatSelector.Visibility == Visibility.Visible ? 1 : 0);
+                sb.Append(RiskSelector.Visibility == Visibility.Visible ? 1 : 0);
+                sw.Write(sb.ToString());
+            }
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            SaveConfig();
         }
     }
 }

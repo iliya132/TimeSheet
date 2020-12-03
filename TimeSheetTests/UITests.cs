@@ -19,7 +19,7 @@ namespace TimeSheetTests
 #if DevAtHome
         private const string timeSheetDebugPath = @"C:\Users\iliya\Source\Repos\iliya132\TimeSheet\TimeSheetApp\bin\Debug\TimeSheetApp.exe";
 #else
-        private const string  timeSheetDebugPath = @"C:\Users\iliya\Source\Repos\iliya132\TimeSheet\TimeSheetApp\bin\Debug\TimeSheetApp.exe";
+        private const string  timeSheetDebugPath = @"C:\Users\u_m0x0c\Source\Repos\TimeSheetMain\TimeSheetApp\bin\Debug\TimeSheetApp.exe";
 #endif
         AutomationElement AEDesktop { get; set; }
         Process tsProc { get; set; }

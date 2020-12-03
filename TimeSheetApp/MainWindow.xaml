@@ -10,9 +10,9 @@
         xmlns:mvvm="http://www.galasoft.ch/mvvmlight" 
         xmlns:lebedevcontrols1="clr-namespace:LebedevControls"
         mc:Ignorable="d"
-        Title="{Binding Source={StaticResource Locator}, Path=Main.Title}" Height="900" Width="1100"
+        Title="{Binding Source={StaticResource Locator}, Path=Main.Title}" Height="600" Width="1000"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
-         Icon="Resource/MainIco.ico" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" >
+         Icon="Resource/MainIco.ico" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Closing="Window_Closing" WindowState="Normal" >
     <Window.Resources>
         <local:CodeFullConverter x:Key="CodeFullConverter"/>
         <local:DateTimeConverter x:Key="DateTimeConverter"/>
@@ -127,40 +127,42 @@
 
                         </StackPanel>
                     </Grid>
-                    <Grid Grid.Column="1">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="9*"/>
-                            <RowDefinition Height="4*"/>
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Grid.RowSpan="2" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <StackPanel VerticalAlignment="Top">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Button Style="{StaticResource SelectableImage}" Width="30" Height="30" Click="PrevDate_Click">
-                                        <Image Source="Resource/LeftArrow.png"/>
-                                    </Button>
-                                    <Button Width="50" Height="50" Style="{StaticResource SelectableImage}" Click="SelectToday_Click">
-                                        <Image Source="Resource/calendarIcon.png" HorizontalAlignment="Center"/>
-                                    </Button>
-                                    <Button Style="{StaticResource SelectableImage}" Width="30" Height="30" Click="NextDate_Click">
-                                        <Image Source="Resource/RightArrow.png"/>
-                                    </Button>
-                                </StackPanel>
-                                <DatePicker Name="DateBox" Grid.Row="0" HorizontalAlignment="Center" Width="100" Height="30" SelectedDateChanged="DateBox_SelectedDateChanged" SelectedDate="{Binding CurrentDate}">
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="SelectedDateChanged">
-                                            <i:InvokeCommandAction Command="{Binding ReloadHistoryRecords}"/>
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                </DatePicker>
-                                
-                            </StackPanel>
-                            <StackPanel VerticalAlignment="Top">
-                                <Button Style="{StaticResource SelectableImage}" Name="StartIcon" HorizontalAlignment="Center" Height="50"  Width="50" Click="TimeIcon_MouseDown">
-                                    <Image  Source="Resource/AddClock.png" />
-                                </Button>
-                                <xctk:TimePicker Name="TimeIn" 
+                    <Grid Grid.Column="1" >
+                        <ScrollViewer>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30*" MinHeight="30px"/>
+                                    <RowDefinition Height="60*" MinHeight="60px"/>
+                                    <RowDefinition Height="480*"/>
+                                    <RowDefinition Height="160*" MinHeight="160px"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Grid.RowSpan="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <StackPanel VerticalAlignment="Top">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Style="{StaticResource SelectableImage}" Width="30" Height="30" Click="PrevDate_Click">
+                                                <Image Source="Resource/LeftArrow.png"/>
+                                            </Button>
+                                            <Button Width="50" Height="50" Style="{StaticResource SelectableImage}" Click="SelectToday_Click">
+                                                <Image Source="Resource/calendarIcon.png" HorizontalAlignment="Center"/>
+                                            </Button>
+                                            <Button Style="{StaticResource SelectableImage}" Width="30" Height="30" Click="NextDate_Click">
+                                                <Image Source="Resource/RightArrow.png"/>
+                                            </Button>
+                                        </StackPanel>
+                                        <DatePicker Name="DateBox" Grid.Row="0" HorizontalAlignment="Center" Width="100" Height="30" SelectedDateChanged="DateBox_SelectedDateChanged" SelectedDate="{Binding CurrentDate}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="SelectedDateChanged">
+                                                    <i:InvokeCommandAction Command="{Binding ReloadHistoryRecords}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </DatePicker>
+
+                                    </StackPanel>
+                                    <StackPanel VerticalAlignment="Top">
+                                        <Button Style="{StaticResource SelectableImage}" Name="StartIcon" HorizontalAlignment="Center" Height="50"  Width="50" Click="TimeIcon_MouseDown">
+                                            <Image  Source="Resource/AddClock.png" />
+                                        </Button>
+                                        <xctk:TimePicker Name="TimeIn" 
                                                  Width="70" 
                                                  Height="30"
                                                  Margin="5,0,0,0" 
@@ -182,18 +184,18 @@
                                                  Format="Custom"
                                                  
                                                  >
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="ValueChanged">
-                                            <mvvm:EventToCommand Command="{Binding TimeSelected}"/>
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                </xctk:TimePicker>
-                            </StackPanel>
-                            <StackPanel>
-                                <Button Style="{StaticResource SelectableImage}" HorizontalAlignment="Center" Width="50" Height="50" Name="EndIcon" Click="TimeIcon_MouseDown">
-                                    <Image Source="Resource/DeleteClock.png" Width="auto" Margin="0"/>
-                                </Button>
-                                <xctk:TimePicker Name="Timeout" 
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <mvvm:EventToCommand Command="{Binding TimeSelected}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </xctk:TimePicker>
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <Button Style="{StaticResource SelectableImage}" HorizontalAlignment="Center" Width="50" Height="50" Name="EndIcon" Click="TimeIcon_MouseDown">
+                                            <Image Source="Resource/DeleteClock.png" Width="auto" Margin="0"/>
+                                        </Button>
+                                        <xctk:TimePicker Name="Timeout" 
                                                  Width="70" 
                                                  Height="30"
                                                  Margin="5,0,0,0" 
@@ -213,15 +215,15 @@
                                                  Format="Custom" 
                                                  FormatString="HH:mm" 
                                                  ButtonSpinnerLocation="Left">
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="ValueChanged">
-                                            <mvvm:EventToCommand Command="{Binding TimeSelected}"/>
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                </xctk:TimePicker>
-                                
-                            </StackPanel>
-                            <Button
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="ValueChanged">
+                                                    <mvvm:EventToCommand Command="{Binding TimeSelected}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </xctk:TimePicker>
+
+                                    </StackPanel>
+                                    <Button
                             Click="SelectCalendarItem_BtnClick"
                             Margin="5,0,0,0"
                             IsEnabled="{Binding IsCalendarReady}"
@@ -231,75 +233,125 @@
                                 Width="50"
                                 Height="50"
                             Style="{StaticResource SelectableImage}">
-                                <Grid >
-                                    <Image Source="Resource/calendar.png" HorizontalAlignment="Center" Panel.ZIndex="1"/>
-                                    <Image Name="loadingImage" Source="Resource/loading.png" HorizontalAlignment="Center" Panel.ZIndex="0" Width="20" Height="20" 
+                                        <Grid >
+                                            <Image Source="Resource/calendar.png" HorizontalAlignment="Center" Panel.ZIndex="1"/>
+                                            <Image Name="loadingImage" Source="Resource/loading.png" HorizontalAlignment="Center" Panel.ZIndex="0" Width="20" Height="20" 
                                            Visibility="{Binding LoadingVisibility}" RenderTransformOrigin="0.5,0.5">
-                                        <Image.RenderTransform>
-                                            <TransformGroup>
-                                                <ScaleTransform/>
-                                                <SkewTransform/>
-                                                <RotateTransform/>
-                                                <TranslateTransform/>
-                                            </TransformGroup>
-                                        </Image.RenderTransform>
-                                    </Image>
-                                    <TextBlock Text="{Binding CalendarItemsCount, StringFormat={}{0}}"
+                                                <Image.RenderTransform>
+                                                    <TransformGroup>
+                                                        <ScaleTransform/>
+                                                        <SkewTransform/>
+                                                        <RotateTransform/>
+                                                        <TranslateTransform/>
+                                                    </TransformGroup>
+                                                </Image.RenderTransform>
+                                            </Image>
+                                            <TextBlock Text="{Binding CalendarItemsCount, StringFormat={}{0}}"
                                                Visibility="{Binding LoadingVisibilityInverted}"
                                                VerticalAlignment="Center" 
                                                Foreground="DarkRed" 
                                                FontSize="18" 
                                                HorizontalAlignment="Center"/>
-                                </Grid>
-                            </Button>
-                        </StackPanel>
-                        <StackPanel Name="StackPanel2" Grid.Row="2" Margin="0,10,0,0" DataContext="{Binding Main, Source={StaticResource Locator}}">
-                            <Line X1="0" X2="{Binding ElementName=StackPanel2, Path=ActualWidth}" Stroke="Black" StrokeThickness="1"/>
-                            <lebedevcontrols1:TimeSelector Min="07:00:00" Max="19:15" 
+                                        </Grid>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Name="StackPanel2" Grid.Row="2" Margin="0,10,0,0" DataContext="{Binding Main, Source={StaticResource Locator}}" >
+                                    <Line X1="0" X2="{Binding ElementName=StackPanel2, Path=ActualWidth}" Stroke="Black" StrokeThickness="1"/>
+                                    <lebedevcontrols1:TimeSelector Min="07:00:00" Max="19:15" 
                                                           MinTimeSelected="{Binding TimeSelectorMin, Mode=TwoWay}"
                                                           MaxTimeSelected="{Binding TimeSelectorMax, Mode=TwoWay}"
                                                           BusyTime="{Binding Source={StaticResource Locator}, Path=Main.BusyTime, Mode=OneWay}"/>
-                            <Line X1="0" X2="{Binding ElementName=StackPanel2, Path=ActualWidth}" Stroke="Black" StrokeThickness="1"/>
-                            <Label Content="Бизнес подразделение" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
-                            <lebedevcontrols1:MultiValuesSelector Height="40" ItemsSource="{Binding BusinessBlocks}" SelectedItems="{Binding BusinessBlockChoiceCollection}" DisplayMember="ShortName" DisplayTipMember="BusinessBlockName" AllSelectButton="True" AllowMultiSelect="True"/>
-                            <Label Content="Support" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
-                            <lebedevcontrols1:MultiValuesSelector Height="40" ItemsSource="{Binding Supports}" SelectedItems="{Binding SupportsChoiceCollection}" DisplayMember="Name" DisplayTipMember="Name" AllSelectButton="True" AllowMultiSelect="True"/>
-                            <Label Content="Клиентские пути" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
-                            <lebedevcontrols1:MultiValuesSelector Height="40" ItemsSource="{Binding ClientWays}" LastSelectedItem="{Binding NewRecord.ClientWays, Mode=TwoWay}" AllowMultiSelect="False" DisplayMember="ShortName" DisplayTipMember="Name" AllSelectButton="False"/>
-                            <Label Content="Эскалация" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
-                            <lebedevcontrols1:MultiValuesSelector Height="40"  ItemsSource="{Binding Escalations}" SelectedItems="{Binding EscalationsChoiceCollection}" DisplayMember="Name" DisplayTipMember="Name" AllSelectButton="True" AllowMultiSelect="True"/>
-                            <Label Content="Формат" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
-                            <lebedevcontrols1:MultiValuesSelector Height="40" ItemsSource="{Binding Formats}" LastSelectedItem="{Binding NewRecord.Formats, Mode=TwoWay}" AllowMultiSelect="False" DisplayMember="Name" DisplayTipMember="Name" AllSelectButton="False"/>
-                            <Label Content="Риск" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
-                            <lebedevcontrols1:MultiValuesSelector Height="40" ItemsSource="{Binding Risks}" SelectedItems="{Binding RiskChoiceCollection}" DisplayMember="RiskName" DisplayTipMember="RiskName" AllSelectButton="True" AllowMultiSelect="True"/>
-                            <Button Name="Add" Height="35" Margin="0,10,0,0" 
+                                    <Line X1="0" X2="{Binding ElementName=StackPanel2, Path=ActualWidth}" Stroke="Black" StrokeThickness="1"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Label Content="Бизнес подразделение" FontWeight="Bold" FontSize="16" />
+                                        <Button Width="20" Height="20" Style="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="HideOrShowBBSelectors">
+                                            <WrapPanel>
+                                                <Image Name="bbminimg" Source="/Resource/minimize.png"/>
+                                                <Image Name="bbmax" Visibility="Collapsed" Source="/Resource/maximize.png"/>
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
+                                    <lebedevcontrols1:MultiValuesSelector x:Name="BBSelectors" Height="40" ItemsSource="{Binding BusinessBlocks}" SelectedItems="{Binding BusinessBlockChoiceCollection}" DisplayMember="ShortName" DisplayTipMember="BusinessBlockName" AllSelectButton="True" AllowMultiSelect="True"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Label Content="Support" FontWeight="Bold" FontSize="16" />
+                                        <Button Width="20" Height="20" Style="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="HideOrShowSupSelectors">
+                                            <WrapPanel>
+                                                <Image Name="Supminimg" Source="/Resource/minimize.png"/>
+                                                <Image Name="supmax" Visibility="Collapsed" Source="/Resource/maximize.png"/>
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
+                                    <lebedevcontrols1:MultiValuesSelector x:Name="SupSelector" Height="40" ItemsSource="{Binding Supports}" SelectedItems="{Binding SupportsChoiceCollection}" DisplayMember="Name" DisplayTipMember="Name" AllSelectButton="True" AllowMultiSelect="True"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Label Content="Клиентские пути" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                                        <Button Width="20" Height="20" Style="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="HideOrShowCWSelectors">
+                                            <WrapPanel>
+                                                <Image Name="CWminimg" Source="/Resource/minimize.png"/>
+                                                <Image Name="CWmax" Visibility="Collapsed" Source="/Resource/maximize.png"/>
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
+                                    <lebedevcontrols1:MultiValuesSelector x:Name="CWSelector" Height="40" ItemsSource="{Binding ClientWays}" LastSelectedItem="{Binding NewRecord.ClientWays, Mode=TwoWay}" AllowMultiSelect="False" DisplayMember="ShortName" DisplayTipMember="Name" AllSelectButton="False"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Label Content="Эскалация" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                                        <Button Width="20" Height="20" Style="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="HideOrShowEscSelectors">
+                                            <WrapPanel>
+                                                <Image Name="Escminimg" Source="/Resource/minimize.png"/>
+                                                <Image Name="Escmax" Visibility="Collapsed" Source="/Resource/maximize.png"/>
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
+                                    <lebedevcontrols1:MultiValuesSelector x:Name="EscSelector" Height="40"  ItemsSource="{Binding Escalations}" SelectedItems="{Binding EscalationsChoiceCollection}" DisplayMember="Name" DisplayTipMember="Name" AllSelectButton="True" AllowMultiSelect="True"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Label Content="Формат" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                                        <Button Width="20" Height="20" Style="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="HideOrShowFormatSelectors">
+                                            <WrapPanel>
+                                                <Image Name="Formatminimg" Source="/Resource/minimize.png"/>
+                                                <Image Name="Formatmax" Visibility="Collapsed" Source="/Resource/maximize.png"/>
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
+                                    <lebedevcontrols1:MultiValuesSelector x:Name="FormatSelector" Height="40" ItemsSource="{Binding Formats}" LastSelectedItem="{Binding NewRecord.Formats, Mode=TwoWay}" AllowMultiSelect="False" DisplayMember="Name" DisplayTipMember="Name" AllSelectButton="False"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Label Content="Риск" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"/>
+                                        <Button Width="20" Height="20" Style="{x:Null}" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="HideOrShowRiskSelectors">
+                                            <WrapPanel>
+                                                <Image Name="Riskminimg" Source="/Resource/minimize.png"/>
+                                                <Image Name="Riskmax" Visibility="Collapsed" Source="/Resource/maximize.png"/>
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
+
+                                    <lebedevcontrols1:MultiValuesSelector x:Name="RiskSelector" Height="40" ItemsSource="{Binding Risks}" SelectedItems="{Binding RiskChoiceCollection}" DisplayMember="RiskName" DisplayTipMember="RiskName" AllSelectButton="True" AllowMultiSelect="True"/>
+                                    <Button Name="Add" Height="35" Margin="0,10,0,0" 
                         DataContext="{Binding Main, Source={StaticResource Locator}}"
                         Command="{Binding AddProcess}"
                         CommandParameter="{Binding NewRecord}"
                         Style="{StaticResource GreenButton}" Click="Add_Click">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Center">
-                                    <Label Content="Добавить активность" VerticalAlignment="Center" />
-                                    <Image Source="Resource/AddIcon.png"/>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Center">
+                                            <Label Content="Добавить активность" VerticalAlignment="Center" />
+                                            <Image Source="Resource/AddIcon.png"/>
+                                        </StackPanel>
+                                    </Button>
                                 </StackPanel>
-                            </Button>
-                        </StackPanel>
-                        <StackPanel Orientation="Vertical" Grid.Row="4" >
-                            <Label Content="Тема" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
-                            <Usercontrols:HintTextBox 
+                                <StackPanel Orientation="Vertical" Grid.Row="4" >
+                                    <Label Content="Тема" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
+                                    <Usercontrols:HintTextBox 
                                 x:Name="Subject" 
                                 Margin="0,0,5,0" 
                                 Height="60" 
                                 Text="{Binding NewRecord.Subject, Mode=TwoWay}" 
                                 ItemsSource="{Binding SubjectHints, Mode=OneWay}" 
                                 IgnoreTextChange="{Binding IgnoreSubjectTextChange}"/>
-                            <!--TextChangedEvent="Subject_TextChangedEvent"/>-->
-                            <Label Content="Комментарий" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
-                            <TextBox Name="Comment" Margin="0,0,5,0" Height="50" TextWrapping="Wrap" AcceptsReturn="True" 
+                                    <!--TextChangedEvent="Subject_TextChangedEvent"/>-->
+                                    <Label Content="Комментарий" FontSize="16"  Margin="5,0,0,0" FontWeight="Bold"/>
+                                    <TextBox Name="Comment" Margin="0,0,5,0" Height="50" TextWrapping="Wrap" AcceptsReturn="True" 
                          Text="{Binding NewRecord.Comment}"/>
-                        </StackPanel>
-
+                                </StackPanel>
+                            </Grid>
+                        </ScrollViewer>
                     </Grid>
-                    
+
                     <Grid Grid.Column="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="10*"/>
@@ -336,7 +388,7 @@
                                 </ContextMenu>
                             </ListView.ContextMenu>
                             <ListView.View>
-                            <GridView>
+                                <GridView>
                                     <GridViewColumn Header="Start" Width="50" DisplayMemberBinding="{Binding Path=TimeStart, StringFormat={}{0:HH:mm}}"/>
                                     <GridViewColumn Header="End" Width="50" DisplayMemberBinding="{Binding Path=TimeEnd, StringFormat={}{0:HH:mm}}"/>
                                     <GridViewColumn Header="Процесс" Width="50" >

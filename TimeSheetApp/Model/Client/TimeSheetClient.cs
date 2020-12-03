@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -248,21 +249,24 @@ namespace TimeSheetApp.Model.Client
 
         public void GetReport(int ReportType, Analytic[] analytics, DateTime start, DateTime end)
         {
+            string newfileName = $"Report{DateTime.Now:ddMMyyyymmss}.xlsx";
             string analyticsId = string.Join("*",analytics.Select(i => i.Id.ToString()));
             string url = GenerateUrl(nameof(GetReport), $"ReportType={ReportType}&analytics={analyticsId}&start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}");
             WebClient client = new WebClient();
             client.Headers.Add(HttpRequestHeader.Authorization, $"Bearer {IdentityClient.GetToken()}");
-            client.DownloadFile(url, "downloadedFile");
+            client.DownloadFile(url, newfileName);
+            System.Diagnostics.Process.Start(newfileName);
         }
 
         public async Task GetReportAsync(int ReportType, Analytic[] analytics, DateTime start, DateTime end)
         {
+            string newfileName = $"Report{DateTime.Now:ddMMyyyymmss}.xlsx";
             string analyticsId = string.Join("*", analytics.Select(i => i.Id.ToString()));
             string url = GenerateUrl(nameof(GetReport), $"ReportType={ReportType}&analytics={analyticsId}&start={start:yyyy-MM-dd}&end={end:yyyy-MM-dd}");
             WebClient client = new WebClient();
             client.Headers.Add(HttpRequestHeader.Authorization, $"Bearer {IdentityClient.GetToken()}");
-            client.DownloadFile(url, "report.xlsx");
-            System.Diagnostics.Process.Start("report.xlsx");
+            client.DownloadFile(url, newfileName);
+            System.Diagnostics.Process.Start(newfileName);
         }
 
         public bool IsCollisionedWithOtherRecords(TimeSheetTable record)

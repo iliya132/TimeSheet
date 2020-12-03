@@ -45,7 +45,6 @@ namespace TimeSheetApp.Model.EntitiesBase
             set
             {
                 _format = value;
-                Debug.WriteLine(_format);
             }
         }
         [ForeignKey("AnalyticId")]

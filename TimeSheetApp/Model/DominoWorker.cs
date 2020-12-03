@@ -47,8 +47,10 @@ namespace TimeSheetApp.Model
         {
             try
             {
+                
                 notesSession = new NotesSession();
                 notesSession.Initialize();
+                
                 notesDir = notesSession.GetDbDirectory("Local");
                 notesDB = notesDir.OpenMailDatabase();
                 if (!notesDB.IsOpen)
@@ -100,7 +102,7 @@ namespace TimeSheetApp.Model
                                 {
                                     Type = type,
                                     Subject = subj,
-                                    StartTime = new DateTime(date.Year, date.Month, date.Day, startResult.Hour, startResult.Minute, 0),
+                                    StartTime = date,//new DateTime(date.Year, date.Month, date.Day, startResult.Hour, startResult.Minute, 0),
                                     EndTime = new DateTime(date.Year, date.Month, date.Day, endResult.Hour, endResult.Minute, 0),
                                 };
                                 CalendarItems.Add(item);
